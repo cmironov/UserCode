@@ -1,0 +1,14 @@
+generic=========
+CorrelType              4 ;     type of correlations to run 0=h-h 1=pi0-h 2=pi0-mu 3=ee-h 4=mumu-h
+CentBinBorders 		0 100 ;
+TriggPtBorders		0 300 ;
+AssocPtBorders		0 200 ;
+maxZVert 		30 ;	maximum allowed event vertex range
+maxMixDZ		5 ;	maximum allowed vertex distance between events for mixing; neg = no test
+maxDCent		10 ; 	maximum allowed centrality between events for mixing; neg = no test
+
+hadrons===========
+MinHadronPt	0.1 ;  	CMS minimum pT for unidentified hadrons
+
+dimuons=========
+MinMuonPt	0.1 ;	CMS minimum pT for muons
