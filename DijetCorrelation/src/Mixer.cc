@@ -23,6 +23,21 @@ Mixer::Mixer(Selector* selectorP, OutputWriter *hin, int evtPoolDepth){
   AssocPool.eventNumber = *(new std::deque<std::deque<int> >(ncbins));
   AssocPool.eventCentrality = *(new std::deque<std::deque<float> >(ncbins));
   AssocPool.eventVertex = *(new std::deque<std::deque<float> >(ncbins));
+
+
+
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if ( ! rng.isAvailable()) {
+    throw cms::Exception("Configuration")
+      << " OutputWriter requires the RandomNumberGeneratorService\n"
+      "which is not present in the configuration file.  You must add the service\n"
+      "in the configuration file or remove the modules that require it.";
+  }
+
+  CLHEP::HepRandomEngine& engine = rng->getEngine();
+  fRandomGenerator = new CLHEP::RandFlat(engine) ;
+
+
 }
 
 void Mixer::CopyAssocPool(){  
@@ -112,7 +127,7 @@ void Mixer::PopPool(TString poolType, int cBin){
 // method for two-photon and two-electrons mixed spectra:
 void Mixer::MixChildren(){
   std::cout<<"Start mixing children..."<<std::endl;
-  TRandom rang(2347846); // PLEASE REPLACE WITH CMS RANDOM GENERATOR 
+
   std::deque<GenericParticle*> parentlist;
   for(int cBin=0; cBin<ncbins; cBin++){
     int nChildEvnt = (int)ChildPool.List[cBin].size();
@@ -132,10 +147,10 @@ void Mixer::MixChildren(){
 	  
 	  for(unsigned int ii=0; ii<ChildPool.List[cBin][iFirstEvnt].size(); ii++){
 	    GenericParticle *child1 = (GenericParticle*)ChildPool.List[cBin][iFirstEvnt][ii];
-	    int jj = int(rang.Uniform()*ChildPool.List[cBin][iSecondEvnt].size());
+       	    int jj = int(fRandomGenerator->fire()*ChildPool.List[cBin][iSecondEvnt].size());
+
 	    GenericParticle *child2 = (GenericParticle*)ChildPool.List[cBin][iSecondEvnt][jj];
-	    
-	    
+	    	    
 	    RecoParent *parent = new RecoParent;
 	    parent->SetLorentzVector(child1, child2);
 	    if(selector->InParentMassAndPtBin(parent)) parentlist.push_back(parent);
@@ -160,7 +175,6 @@ void Mixer::MixChildren(){
 // (7) clean the copy of the associated pool and go to next trigger event
 void Mixer::Mix(){   
   std::cout<<"Start the mixing..."<<std::endl;
-  TRandom rang(543465);
   for(int cBin=0; cBin<ncbins; cBin++){
     for(unsigned int iTriggEvnt=0; iTriggEvnt<TriggPool.List[cBin].size(); iTriggEvnt++){
       int nTriggers = (int)TriggPool.List[cBin][iTriggEvnt].size();
@@ -171,7 +185,9 @@ void Mixer::Mix(){
       CopyAssocPool(); // make a copy of the associated pool
       int NumUsedEvents = 0;
       while(!AssocPool.List[cBin].empty() && NumUsedEvents<MAXNOEVENT){
-	int iAssocEvnt = int(rang.Uniform()*(AssocPool.List[cBin].size())); // pick a random associated event
+
+	int iAssocEvnt = int(fRandomGenerator->fire()*(AssocPool.List[cBin].size())); // pick a random associated event
+
 	int nAssociates = (int)AssocPool.List[cBin][iAssocEvnt].size();
 	int AssocEvnt = AssocPool.eventNumber[cBin][iAssocEvnt];
 	float AssocCent = AssocPool.eventCentrality[cBin][iAssocEvnt];
@@ -182,7 +198,7 @@ void Mixer::Mix(){
 	  
 	  for(int ii=0; ii<nTriggers; ii++){
 	    GenericParticle *trigger = (GenericParticle*)TriggPool.List[cBin][iTriggEvnt][ii];
-	    int jj = int(rang.Uniform()*nAssociates); // pick ONE random associated particle
+	    int jj = int(fRandomGenerator->fire()*nAssociates); // pick ONE random associated particle
 	    GenericParticle *associated = (GenericParticle*)AssocPool.List[cBin][iAssocEvnt][jj];
 	    outputer->FillAzimuth(mixed, cBin, trigger, associated); // MIX'EM, trigger first!
 	  } // loop over trigger particles
@@ -240,7 +256,7 @@ void Mixer::ThrowAssocEvnt(int cBin, int iAssocEvnt){
 // (3) for each trigger particle pick randomly one associated particle and mix them
 void Mixer::MixAll(){   
   std::cout<<"Start mixing all..."<<std::endl;
-  TRandom rang(84571346);
+
   for(int cBin=0; cBin<ncbins; cBin++){
     int nTriggEvnt = (int)TriggPool.List[cBin].size();
     int nAssocEvnt = (int)AssocPool.List[cBin].size();
@@ -262,7 +278,7 @@ void Mixer::MixAll(){
 	  
 	  for(int ii=0; ii<nTriggers; ii++){
 	    GenericParticle *trigger = (GenericParticle*)TriggPool.List[cBin][iTriggEvnt][ii];
-	    int jj = int(rang.Uniform()*nAssociates); // pick ONE random associated particle
+	    int jj = int(fRandomGenerator->fire()*nAssociates); // pick ONE random associated particle
 	    GenericParticle *associated = (GenericParticle*)AssocPool.List[cBin][iAssocEvnt][jj];
 	    outputer->FillAzimuth(mixed, cBin, trigger, associated); // MIX'EM, trigger first!
 	  } // loop over trigger particles
@@ -276,7 +292,6 @@ void Mixer::MixAll(){
 // (Push One Event to the Bottom- Mix Top Event With Pool - Pop Top Event Out)
 void Mixer::RollingMix(){   
   
-  TRandom rang(64123896);
   for(int cBin=0;cBin<ncbins; cBin++){
     if((int)AssocPool.List[cBin].size()>=MAXNOEVENT){
       while((int)TriggPool.List[cBin].size()>0){
@@ -296,7 +311,7 @@ void Mixer::RollingMix(){
 	    
 	    for(int ii=0;ii<nTriggers;ii++){
 	      GenericParticle *trigger = (GenericParticle*)TriggPool.List[cBin][0][ii];
-	      int jj = int(rang.Uniform()*nAssociates);
+	      int jj = int(fRandomGenerator->fire()*nAssociates);
 	      GenericParticle *associated = (GenericParticle*)AssocPool.List[cBin][iAssocEvnt][jj];
 	      outputer->FillAzimuth(mixed, cBin, trigger, associated);
 	    } // particle loop

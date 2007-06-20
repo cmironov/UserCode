@@ -13,7 +13,7 @@
 //
 // Original Author:  Camelia Mironov
 //         Created:  Tue May 22 17:49:41 EDT 2007
-// $Id: DijetCorrelation.hh,v 1.1 2007/06/06 20:02:35 mironov Exp $
+// $Id$
 //
 
 #include "Correlation/DijetCorrelation/interface/Selector.hh"

@@ -2,6 +2,12 @@
 #define GENERICPARTICLE_HH
 
 #include "Correlation/DijetCorrelation/interface/Constants.hh"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
 #include <TLorentzVector.h>
 #include <TVector3.h>
 #include <TMath.h>

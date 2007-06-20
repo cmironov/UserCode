@@ -8,6 +8,10 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
+#include "CLHEP/Random/JamesRandom.h"
+#include "CLHEP/Random/RandFlat.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 // input CMS containers
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -19,6 +23,8 @@
 #include "Correlation/DijetCorrelation/interface/RecoParent.hh"
 #include "Correlation/DijetCorrelation/interface/Hadron.hh"
 #include "Correlation/DijetCorrelation/interface/Muon.hh"
+
+
 
 namespace LanlJetCorrelation{
   

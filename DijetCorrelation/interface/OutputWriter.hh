@@ -3,6 +3,11 @@
 
 #include "Correlation/DijetCorrelation/interface/Selector.hh"
 
+namespace CLHEP {
+  class RandFlat;
+}
+
+
 namespace LanlJetCorrelation{
 
   class OutputWriter {
@@ -26,6 +31,9 @@ namespace LanlJetCorrelation{
   protected:
     Selector *selector;
     TString  hname, htit;
+    //   RandomEngine* randEngine;
+    CLHEP::RandFlat*        fRandomGenerator; 
+
     int nReal[MAXCENTRBIN], nMix[MAXCENTRBIN];
     int nTrigg[MAXCENTRBIN], nAssoc[MAXCENTRBIN];
 

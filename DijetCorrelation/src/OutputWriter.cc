@@ -25,7 +25,22 @@ OutputWriter::OutputWriter(Selector* selectorp){
     }    
 
     for(int i=0; i<selector->GetNoOfBins(centr); i++) {nReal[i]=0; nMix[i]=0; nTrigg[i]=0; nAssoc[i]=0;}
+
+    // set random number generation
+    edm::Service<edm::RandomNumberGenerator> rng;
+    if ( ! rng.isAvailable()) {
+      throw cms::Exception("Configuration")
+	<< " OutputWriter requires the RandomNumberGeneratorService\n"
+	"which is not present in the configuration file.  You must add the service\n"
+	"in the configuration file or remove the modules that require it.";
+    }
+    //    randEngine = new RandomEngine(&(*rng));
+    CLHEP::HepRandomEngine& engine = rng->getEngine();
+    fRandomGenerator = new CLHEP::RandFlat(engine) ;
+
+
 }
+
 
 void OutputWriter::CreateGeneric(){
   std::cout<<std::endl<<"Creating Generic Histograms"<<std::endl;
@@ -218,12 +233,13 @@ void OutputWriter::PrintStats(){
 
 float OutputWriter::DeltaPhi(float  phi1, float phi2){
 
-  int seed = 2347846; // PLEASE REPLACE WITH CMS RANDOM GENERATOR 
+//random number seed
 
-  TRandom rang(seed);
+//  double num=randGun.flatShoot();
 
+  double num=fRandomGenerator->fire();
   float res = phi2-phi1;
-  if(rang.Uniform()<0.5) res = phi1 - phi2;
+  if(num<0.5) res = phi1 - phi2;
   if(1.5*pi<res && res<=2*pi) res-=2*pi;
   else if(-2*pi<=res && res<-0.5*pi) res+=2*pi;
   return res;  

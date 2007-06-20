@@ -39,6 +39,7 @@ namespace LanlJetCorrelation{
   protected:
     Selector* selector;
     OutputWriter* outputer;
+    CLHEP::RandFlat*        fRandomGenerator; 
     int MAXNOEVENT, ncbins;
   };
 } // namespace
