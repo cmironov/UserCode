@@ -225,6 +225,9 @@ void DimuonAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
 	      
 	      phPtY_recoDimuonAll->Fill(dimuon.Pt(),dimuon.Rapidity());
 	      if ( !(acceptDimuon(dimuon.Pt(),dimuon.M())) ) continue;
+
+	      LogInfo("DimuonAnalyzer:RecoMuonLoop:") << "RecoKid0: pt="<<kid1.Pt()<<"\t eta = "<< kid1.Eta();
+	      LogInfo("DimuonAnalyzer:RecoMuonLoop")  << "RecoKid1: pt="<<kid2.Pt()<<"\t eta = "<< kid2.Eta();	   
 	      
 	      phPt_recoDimuon->Fill(dimuon.Pt());
 	      phY_recoDimuon->Fill(dimuon.Rapidity());
@@ -246,16 +249,22 @@ void DimuonAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
 	  const GenParticleRef genPart(genCollection,i);
 	  if( genPart.isNull() ) continue;
 	  
-	  if (genPart->pdgId() == pdg_dimuon ) cout <<"\t status = "<< genPart->status()<<"\t pt="<<genPart->pt()<<endl;
-	  if( genPart->pdgId() != pdg_dimuon || genPart->status() != 3) continue;
+	  if (genPart->pdgId() == pdg_dimuon ) 
+	    LogInfo("DimuonAnalyzer")<<"Parent: status = "<< genPart->status()<<"\t pt ="<<genPart->pt()<<"\t y = "<< genPart->y()<<endl;
+
+	  if( genPart->pdgId() != pdg_dimuon || genPart->status() != 2) continue;
 	  phPtY_genDimuonAll->Fill(genPart->pt(),genPart->y());
 	  
 	  //dimuon gen cuts
 	  if( !acceptDimuon(genPart->pt(),genPart->mass()) ) continue;
 	  const Candidate *kid0  = genPart->daughter(0);
 	  const Candidate *kid1  = genPart->daughter(1);
-	  
+
 	  if( !(acceptMuon(kid0->pt(),kid0->eta())) || !(acceptMuon(kid1->pt(),kid1->eta())) ) continue;
+
+	  LogInfo("DimuonAnalyzer:GenParticleLoop:")<<"GenKid0: status = "<< kid0->status()<<"\t pt="<<kid0->pt()<<"\t eta = "<< kid0->eta();
+	  LogInfo("DimuonAnalyzer:GenParticleLoop")<<"GenKid1: status = "<< kid1->status()<<"\t pt="<<kid1->pt()<<"\t eta = "<< kid1->eta();
+	 
 	  phPt_genDimuon->Fill(genPart->pt());
 	  phY_genDimuon->Fill(genPart->y());
 	  phM_genDimuon->Fill(genPart->mass());
@@ -277,7 +286,7 @@ void DimuonAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
   pnEventInfo->Fill(trackCollection.product()->size(),muonCollection.product()->size(),b);
   
 
-  edm::LogInfo("MCMatchAnalyzer")<<"Finished analyzing event ...";  
+  edm::LogInfo("DimuonAnalyzer")<<"Finished analyzing event ...";  
 }
 
 
@@ -285,7 +294,7 @@ void DimuonAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
 void DimuonAnalyzer::beginJob()
 {
   //method called once each job just before starting event loop
-  edm::LogInfo("HiEtAnalyzer::beginJob()")<<"Begin initialization in beginJob()";
+  edm::LogInfo("DimuonAnalyzer::beginJob()")<<"Begin initialization in beginJob()";
   edm::Service<TFileService> fs;
 
   // all dimuons, without any cuts
@@ -305,7 +314,7 @@ void DimuonAnalyzer::beginJob()
 
   pnEventInfo         = fs->make<TNtuple>("pnEventInfo","pnEventInfo","ntrk:nmu:b");
  
-  edm::LogInfo("HiEtAnalyzer::beginJob()")<<"Done beginJob()";
+  edm::LogInfo("DimuonAnalyzer::beginJob()")<<"Done beginJob()";
   return ;
 
 }
