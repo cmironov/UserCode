@@ -2,22 +2,27 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Demo")
 
-process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger = cms.Service("MessageLogger",
+                                    cout = cms.untracked.PSet(
+       default = cms.untracked.PSet(
+            limit = cms.untracked.int32(0) ## kill all messages in the log
+            )
+        ),
+                                    destinations = cms.untracked.vstring('cout')
+                                    )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring(
-        'file:mixHI_sgn1.root'
-        )
+                            fileNames = cms.untracked.vstring('file:mixHI_sgn1.root')
                             )
 
 process.demo = cms.EDAnalyzer('DimuonAnalyzer',
                               genParticle  = cms.InputTag("hiGenParticles"),#no mixing:genParticles
                               muonTracks   = cms.untracked.InputTag("globalMuons"),
                               trackTracks  = cms.untracked.InputTag("hiGlobalPrimTracks"), # pp reco: "generalTracks"),   
-                              massMaxDimuon= cms.double(120),
-                              massMinDimuon= cms.double(70),
+                              massMaxDimuon= cms.double(200),
+                              massMinDimuon= cms.double(0),
                               pdgDimuon    = cms.double(23),
                               ptMinDimuon  = cms.double(0.),
                               etaMaxMuon   = cms.double(2.5),
@@ -29,7 +34,7 @@ process.demo = cms.EDAnalyzer('DimuonAnalyzer',
                               )
 
 process.TFileService = cms.Service("TFileService", 
-                                   fileName = cms.string("dimuonGenEff.root")
+                                   fileName = cms.string("testJorgeMix.root")
                                    )
 
 process.p = cms.Path(process.demo)
