@@ -1,3 +1,7 @@
+# this file was made with the help of the following commande
+# nsls /castor/cern.ch/user/s/silvest/rootfiles/HI/Upsilon/root/RECO/ | awk '{print "\"rfio:/castor/cern.ch/user/s/silvest/rootfiles/HI/Upsilon/root/RECO/" $1"\","}'
+#
+
 import FWCore.ParameterSet.Config as cms
 
 readFiles = cms.untracked.vstring()
