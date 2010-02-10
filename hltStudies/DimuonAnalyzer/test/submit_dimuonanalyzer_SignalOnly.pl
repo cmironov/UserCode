@@ -71,6 +71,9 @@ $eta_max_muon = $acceptance;
 $eta_min_track = -$acceptance;
 $eta_max_track = $acceptance;
 
+## TO BE ADAPTED
+# rename the dabe_name here 
+# rename the output castor dir
 if($what_particlue=~ m/upsilon/)
   { 
     print "upsilon\n";
