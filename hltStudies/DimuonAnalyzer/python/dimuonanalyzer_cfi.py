@@ -13,6 +13,7 @@ demo = cms.EDAnalyzer('DimuonAnalyzer',
                               ptMinMuon    = cms.double(3.5),
                               etaMaxTrack  = cms.double(2.5),
                               etaMinTrack  = cms.double(-2.5),
-                              ptMinTrack   = cms.double(1.)
+                              ptMinTrack   = cms.double(1.),
+                              doSingleMuon = cms.bool(True),
+                              doMC         = cms.bool(False)
                       )
-

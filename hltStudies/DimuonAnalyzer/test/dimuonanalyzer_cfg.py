@@ -5,7 +5,7 @@ process = cms.Process("Demo")
 process.MessageLogger = cms.Service("MessageLogger",
                                     cout = cms.untracked.PSet(
        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0) ## kill all messages in the log
+            limit = cms.untracked.int32(1) ## kill all messages in the log
             )
         ),
                                     destinations = cms.untracked.vstring('cout')
@@ -14,8 +14,10 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring('file:mixHI_sgn1.root')
+                            fileNames = cms.untracked.vstring(
+                              'rfio:/castor/cern.ch/user/d/dmoon/cms370/Hydjet_MinBias_2.76TeV_Z0_Emb_Reco/Hydjet_MinBias_2.76TeV_Z0Emb_Reco_e10_01_1.root'
                             )
+                           )
 
 process.demo = cms.EDAnalyzer('DimuonAnalyzer',
                               genParticle  = cms.InputTag("hiGenParticles"),#no mixing:genParticles

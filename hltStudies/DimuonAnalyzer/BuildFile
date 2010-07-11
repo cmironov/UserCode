@@ -28,6 +28,12 @@
 <use name=PhysicsTools/UtilAlgos>
 <use name=FWCore/ServiceRegistry> # GF: Not sure whether really needed...
 
+<use name=DataFormats/HeavyIonEvent>
+<use name=CondFormats/HIObjects>
+<use name=CondFormats/DataRecord>
+<use name=CondCore/DBCommon>
+<use name=CondCore/DBOutputService>
+
 
 <flags EDM_PLUGIN=1>
 <export>
@@ -63,4 +69,11 @@
 <use name=SimTracker/TrackAssociation>
 <use name=SimTracker/TrackerHitAssociation>
 <use name=TrackingTools/PatternTools>
+
+<use name=DataFormats/HeavyIonEvent>
+<use name=CondFormats/HIObjects>
+<use name=CondFormats/DataRecord>
+<use name=CondCore/DBCommon>
+<use name=CondCore/DBOutputService>
+
 </export>
