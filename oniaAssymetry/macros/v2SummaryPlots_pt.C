@@ -27,18 +27,18 @@
 
 void v2SummaryPlots_pt()
 {
-  //gROOT->Macro("/Users/eusmartass/Software/utilities/setStyle.C+");
+  gROOT->Macro("/Users/eusmartass/Software/utilities/setStyle.C+");
   gStyle->SetOptFit(0);
 
-  const char* signal[5]   = {"","NSig","NPr","NNp","NBkg"};
-  const char* legend[5]   = {"","J/#psi","Prompt J/#psi","Non-prompt J/#psi","Background"};
-  int choseSignal         = 1; // 1:inclusive 2:prompt 3:non-prompt
+  const char* signal[5]   = {"","NSig","NNp","NPr","NBkg"};
+  const char* legend[5]   = {"","Inclusive J/#psi","Non-Prompt J/#psi","Prompt J/#psi","Background"};
+  int choseSignal         = 3; // 1:inclusive 2:prompt 3:non-prompt
   const char* chosenSignal= signal[choseSignal];
-  const char* outputName[1]  = {"nominalFit_bkg"};
+  const char* outputName[1]  = {"nominalFit"};
  
   // options
   bool bSavePlots      = true; 
-  bool bAddBkg         = true;
+  bool bAddBkg         = false;
   bool bAddVtx         = false;
   bool bAddNoFlat      = false;
   bool bAddTrigger     = false;
@@ -58,7 +58,20 @@ void v2SummaryPlots_pt()
   double jpsi_ptbins_err[nptbins]        = {0.022, 0.022, 0.020};
   double jpsi_ptbins_errGhost[nptbins]   = {0.,     0.,     0., };
 
-  // bkg
+
+  // prompt
+  double pr_jpsi_ptbins[nptbins]        = {0.0804, 0.1183, 0.0394};
+  double pr_jpsi_ptbins_err[nptbins]    = {0.0171, 0.0130, 0.0112};
+  
+  // non-prompt jpsi
+  double npr_jpsi_ptbins[nptbins]        = {-0.0444, 0.0439, 0.0441};
+  double npr_jpsi_ptbins_err[nptbins]    = {0.1123, 0.0838,  0.0195};
+
+
+
+
+
+   // bkg
   double bkg_ptbins[nptbins]             = {0.1481, 0.1696, -0.0063};
   double bkg_ptbins_err[nptbins]         = {0.0204, 0.0313, 0.0451};
 
@@ -94,8 +107,12 @@ void v2SummaryPlots_pt()
   double jpsiAutoCorr_ptbins[nptbins]        = {0.0638, 0.1051, 0.1462};
   double jpsiAutoCorr_ptbins_err[nptbins]    = {0.0242, 0.0232, 0.0320};
 
-
   TGraphErrors *pg_jpsi_ptbins      = new TGraphErrors(nptbins,ptbins_center,jpsi_ptbins,ptbins_center_errGhost,jpsi_ptbins_err);
+  TGraphErrors *pg_pr_jpsi_ptbins      = new TGraphErrors(nptbins,ptbins_center,pr_jpsi_ptbins,ptbins_center_errGhost,pr_jpsi_ptbins_err);
+  TGraphErrors *pg_npr_jpsi_ptbins      = new TGraphErrors(nptbins,ptbins_center,npr_jpsi_ptbins,ptbins_center_errGhost,npr_jpsi_ptbins_err);
+
+
+  // systematic studies
   TGraphErrors *pg_jpsi_ptbinsGhost = new TGraphErrors(nptbins,ptbins_center,jpsi_ptbins,ptbins_center_err,jpsi_ptbins_errGhost);
  
   TGraphErrors *pg_jpsiAutoCorr_ptbins     = new TGraphErrors(nptbins,ptbins_center,jpsiAutoCorr_ptbins,ptbins_center_err,jpsiAutoCorr_ptbins_err);
@@ -104,11 +121,7 @@ void v2SummaryPlots_pt()
  
   TGraphErrors *pg_jpsiVtx10_ptbins        = new TGraphErrors(nptbins,ptbins_center,jpsiVtx10_ptbins,ptbins_center_errGhost,jpsiVtx10_ptbins_err);
   TGraphErrors *pg_jpsiNoFlat_ptbins       = new TGraphErrors(nptbins,ptbins_center,jpsiNoFlat_ptbins,ptbins_center_errGhost,jpsiNoFlat_ptbins_err);
-
-  TGraphErrors *pg_jpsiL1NHitTrig_ptbins            = new TGraphErrors(nptbins,ptbins_center,jpsiL1NHitTrig_ptbins,ptbins_center_errGhost,jpsiL1NHitTrig_ptbins_err);
-  TGraphErrors *pg_jpsiL1NHitTrig_onlyCow_ptbins    = new TGraphErrors(nptbins,ptbins_center,jpsiL1NHitTrig_onlyCow_ptbins,ptbins_center_errGhost,jpsiL1NHitTrig_onlyCow_ptbins_err);
-  TGraphErrors *pg_jpsiL1NHitTrig_noCow_ptbins      = new TGraphErrors(nptbins,ptbins_center,jpsiL1NHitTrig_noCow_ptbins,ptbins_center_errGhost,jpsiL1NHitTrig_noCow_ptbins_err);
-
+  TGraphErrors *pg_jpsiL1NHitTrig_ptbins   = new TGraphErrors(nptbins,ptbins_center,jpsiL1NHitTrig_ptbins,ptbins_center_errGhost,jpsiL1NHitTrig_ptbins_err);
   TGraphErrors *pg_jpsiL2pt3Trig_ptbins    = new TGraphErrors(nptbins,ptbins_center,jpsiL2pt3Trig_ptbins,ptbins_center_errGhost,jpsiL2pt3Trig_ptbins_err);
   TGraphErrors *pg_jpsiL3ptOpenTrig_ptbins = new TGraphErrors(nptbins,ptbins_center,jpsiL3ptOpenTrig_ptbins,ptbins_center_errGhost,jpsiL3ptOpenTrig_ptbins_err);
   //_____________________________________________________________________________
@@ -130,10 +143,8 @@ void v2SummaryPlots_pt()
   pcPadPT->GetYaxis()->SetTitleOffset(1.1);
   pcPadPT->GetYaxis()->CenterTitle();
 
-  pcPadPT->SetMaximum(0.25);
-  pcPadPT->SetMinimum(-0.1);
-  //pcPadPT->SetMaximum(0.18);
-  //pcPadPT->SetMinimum(-0.05);
+  pcPadPT->SetMaximum(0.18);
+  pcPadPT->SetMinimum(-0.05);
   if(bAddBkg)
     {
       pcPadPT->SetMaximum(0.4);
@@ -168,22 +179,41 @@ void v2SummaryPlots_pt()
   pg_jpsi_ptbins->SetMarkerStyle(20);
   pg_jpsi_ptbins->SetMarkerSize(1.8);
   pg_jpsi_ptbins->SetMarkerColor(602);
-  pg_jpsi_ptbins->SetLineColor(602);
-  pg_jpsi_ptbins->Draw("[P]");
+ 
+
+  pg_pr_jpsi_ptbins->SetMarkerStyle(20);
+  pg_pr_jpsi_ptbins->SetMarkerSize(1.8);
+  pg_pr_jpsi_ptbins->SetMarkerColor(602);
+
+  pg_npr_jpsi_ptbins->SetMarkerStyle(20);
+  pg_npr_jpsi_ptbins->SetMarkerSize(1.8);
+  pg_npr_jpsi_ptbins->SetMarkerColor(602);
 
   pg_jpsi_ptbinsGhost->SetMarkerStyle(20);
   pg_jpsi_ptbinsGhost->SetMarkerSize(1.8);
   pg_jpsi_ptbinsGhost->SetMarkerColor(602);
-  pg_jpsi_ptbinsGhost->SetLineColor(602);
-  pg_jpsi_ptbinsGhost->Draw("P");
+  // pg_jpsi_ptbinsGhost->Draw("P");
 
+  switch(choseSignal){
+  case 1:
+    pg_jpsi_ptbins->Draw("[P]");
+    break;
+  case 2:
+    pg_npr_jpsi_ptbins->Draw("[P]");
+    break;
+  case 3:
+    pg_pr_jpsi_ptbins->Draw("[P]");
+    break;
+  default:
+    cout<<"Pick a valid signal!!"<<endl;
+  }
+  
   if(bAddBkg)
     {
       pg_bkg_ptbins->SetMarkerStyle(24);
       pg_bkg_ptbins->SetMarkerSize(1.8);
       pg_bkg_ptbins->SetMarkerColor(kBlue);
-      pg_bkg_ptbins->SetLineColor(kBlue);
-      pg_bkg_ptbins->Draw("[P]");
+      pg_bkg_ptbins->Draw("p");
       TLegend *legPt = new TLegend(0.7,0.5,0.9,0.6);
       legPt->SetFillColor(0);
       legPt->SetBorderSize(0);
@@ -198,8 +228,7 @@ void v2SummaryPlots_pt()
       pg_jpsiVtx10_ptbins->SetMarkerStyle(24);
       pg_jpsiVtx10_ptbins->SetMarkerSize(1.8);
       pg_jpsiVtx10_ptbins->SetMarkerColor(kBlue);
-      pg_jpsiVtx10_ptbins->SetLineColor(kBlue);
-      pg_jpsiVtx10_ptbins->Draw("[p]");
+      pg_jpsiVtx10_ptbins->Draw("p");
       
       TLegend *legVtx = new TLegend(0.55,0.15,0.875,0.297);
       legVtx->SetFillColor(0);
@@ -244,7 +273,6 @@ void v2SummaryPlots_pt()
       pg_jpsiL3ptOpenTrig_ptbins->SetMarkerStyle(28);
       
       pg_jpsiL1NHitTrig_ptbins->SetMarkerColor(kBlue);
-      pg_jpsiL1NHitTrig_ptbins->SetLineColor(kBlue);
       pg_jpsiL2pt3Trig_ptbins->SetMarkerColor(kBlue);
       pg_jpsiL3ptOpenTrig_ptbins->SetMarkerColor(kBlue);
       
@@ -252,42 +280,25 @@ void v2SummaryPlots_pt()
       pg_jpsiL2pt3Trig_ptbins->SetMarkerSize(1.8);
       pg_jpsiL3ptOpenTrig_ptbins->SetMarkerSize(1.8);
 
-      pg_jpsiL1NHitTrig_onlyCow_ptbins->SetMarkerStyle(24);
-      pg_jpsiL1NHitTrig_noCow_ptbins->SetMarkerStyle(24);
-	
-      pg_jpsiL1NHitTrig_onlyCow_ptbins->SetMarkerColor(kGreen+2);
-      pg_jpsiL1NHitTrig_noCow_ptbins->SetMarkerColor(kMagenta);
-      pg_jpsiL1NHitTrig_onlyCow_ptbins->SetLineColor(kGreen+2);
-      pg_jpsiL1NHitTrig_noCow_ptbins->SetLineColor(kMagenta);
-
-      pg_jpsiL1NHitTrig_onlyCow_ptbins->SetMarkerSize(1.8);
-      pg_jpsiL1NHitTrig_noCow_ptbins->SetMarkerSize(1.8);
-
-      pg_jpsiL1NHitTrig_ptbins->Draw("[P]");
-      //pg_jpsiL2pt3Trig_ptbins->Draw("p");
-      //pg_jpsiL3ptOpenTrig_ptbins->Draw("p");
+      pg_jpsiL1NHitTrig_ptbins->Draw("P");
+      pg_jpsiL2pt3Trig_ptbins->Draw("p");
+      pg_jpsiL3ptOpenTrig_ptbins->Draw("p");
       
-      pg_jpsiL1NHitTrig_onlyCow_ptbins->Draw("[P]");
-      pg_jpsiL1NHitTrig_noCow_ptbins->Draw("[P]");
-
-      TLegend *legTrig = new TLegend(0.35,0.17,0.522,0.327);
-      //TLegend *legTrig = new TLegend(0.4,0.15,0.57,0.29);
+      TLegend *legTrig = new TLegend(0.4,0.15,0.57,0.29);
       legTrig->SetFillColor(0);
       legTrig->SetBorderSize(0);
       legTrig->SetTextSize(0.03);
       legTrig->AddEntry(pg_jpsi_ptbins,"Default: all triggers","P");
       legTrig->AddEntry(pg_jpsiL1NHitTrig_ptbins,"HLT_HIL1DoubleMu0_HighQ","P");
-      //legTrig->AddEntry(pg_jpsiL2pt3Trig_ptbins,"HLT_HIL2DoubleMu3","P");
-      //legTrig->AddEntry(pg_jpsiL3ptOpenTrig_ptbins,"HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy","P");
-      legTrig->AddEntry(pg_jpsiL1NHitTrig_noCow_ptbins,"HLT_HIL1DoubleMu0_HighQ+Sailor","P");
-      legTrig->AddEntry(pg_jpsiL1NHitTrig_onlyCow_ptbins,"HLT_HIL1DoubleMu0_HighQ+Cowboy","P");
+      legTrig->AddEntry(pg_jpsiL2pt3Trig_ptbins,"HLT_HIL2DoubleMu3","P");
+      legTrig->AddEntry(pg_jpsiL3ptOpenTrig_ptbins,"HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy","P");
       legTrig->Draw("same");
     }
 
   TLatex *lt1 = new TLatex();
   lt1->SetNDC();
   lt1->SetTextSize(0.04);
-  lt1->DrawLatex(0.18,0.89,Form("Inclusive %s",legend[choseSignal]));  // what signal is
+  lt1->DrawLatex(0.18,0.89,Form("%s",legend[choseSignal]));  // what signal is
   lt1->SetTextSize(0.038);
   lt1->DrawLatex(0.18,0.83,Form("|y| < %.1f",rapIntegrated[1]));       // rapidity
   lt1->DrawLatex(0.18,0.77,Form("Cent. 10 - 60 %%")); 

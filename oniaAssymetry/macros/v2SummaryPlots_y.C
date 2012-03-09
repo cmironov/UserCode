@@ -27,19 +27,19 @@
 
 void v2SummaryPlots_y()
 {
-  //gROOT->Macro("/Users/eusmartass/Software/utilities/setStyle.C+");
+  gROOT->Macro("/Users/eusmartass/Software/utilities/setStyle.C+");
   gStyle->SetOptFit(0);
 
-  const char* signal[5]      = {"","NSig","NPr","NNp","NBkg"};
-  const char* legend[5]      = {"","J/#psi","Prompt J/#psi","Non-prompt J/#psi","Background"};
-  int choseSignal            = 1; // 1:inclusive 2:prompt 3:non-prompt
+  const char* signal[5]      = {"","NSig","NPr","Pr","NBkg"};
+  const char* legend[5]      = {"","Inclusive J/#psi","Non-prompt J/#psi","Prompt J/#psi","Background"};
+  int choseSignal            = 2; // 1:inclusive 2:non-prompt 3:prompt
   const char* chosenSignal   = signal[choseSignal];
-  const char* outputName[1]  = {"nominalFit_etaGap"};
+  const char* outputName[1]  = {"nominalFit"};
   // options
   bool bSavePlots      = true; 
   bool bAddBkg         = false;
   bool bAddVtx         = false;
-  bool bAddNoFlat      = true;
+  bool bAddNoFlat      = false;
   bool bAddTrigger     = false;
 
   const char* eventPlane[2] = {"","EP: etHFp & etHFm"};
@@ -56,6 +56,16 @@ void v2SummaryPlots_y()
   double jpsi_highPt_ptybins_err[nybins_highPt]      = {0.017, 0.026, 0.024};
   double jpsi_highPt_ptybins_errGhost[nybins_highPt] = {0.,0.,0 };
 
+ // prompt
+  double pr_jpsi_highPt_ptybins[nybins_highPt]          = {0.1133, 0.0913, 0.0869};
+  double pr_jpsi_highPt_ptybins_err[nybins_highPt]      = {0.0557, 0.0652, 0.0584};
+
+ // non-prompt
+  double npr_jpsi_highPt_ptybins[nybins_highPt]          = {0.0475, 0.0159, -0.0165};
+  double npr_jpsi_highPt_ptybins_err[nybins_highPt]      = {0.0296, 0.181, 0.1274};
+
+
+
   // bkg
   double bkg_highPt_ptybins[nybins_highPt]         = {0.0418, 0.1694, 0.1378};
   double bkg_highPt_ptybins_err[nybins_highPt]     = {0.0303, 0.0304, 0.0257};
@@ -70,21 +80,17 @@ void v2SummaryPlots_y()
   double yfinebins_highPt_center_err[nyfinebins_highPt]      = {0.3, 0.3, 0.2, 0.2, 0.2};
   double yfinebins_highPt_center_errGhost[nyfinebins_highPt] = {0.,  0.,  0.,  0.,  0.};
 
-  double jpsiCorr_highPt_ptyfinebins[nyfinebins_highPt]      = {
-    0.0703,
-    0.0738,
-    0.0800,
-    0.0685,
-    0.0590
-  };
-
-  double jpsiCorr_highPt_ptyfinebins_err[nyfinebins_highPt]  = {
-    0.0255,
-    0.0231,
-    0.0256,
-    0.0280,
-    0.0486
-  };
+  double jpsiCorr_highPt_ptyfinebins[nyfinebins_highPt]      = {0.0703,
+								0.0738,
+								0.0800,
+								0.0685,
+								0.0590};
+  
+  double jpsiCorr_highPt_ptyfinebins_err[nyfinebins_highPt]  = {0.0255,
+								0.0231,
+								0.0256,
+								0.0280,
+								0.0486};
 
   // triggers
   double jpsiL1NHitTrig_highPt_ptybins[nybins_highPt]      = {0.0585, 0.0522, 0.0426};
@@ -108,6 +114,14 @@ void v2SummaryPlots_y()
   //sgn
   double jpsi_lowPt_ptybins[nybins_lowPt]          = {0.028};
   double jpsi_lowPt_ptybins_err[nybins_lowPt]      = {0.022};
+  //prompt
+  double pr_jpsi_lowPt_ptybins[nybins_lowPt]          = {0.0832};
+  double pr_jpsi_lowPt_ptybins_err[nybins_lowPt]      = {0.0191};
+
+ //non=prompt
+  double npr_jpsi_lowPt_ptybins[nybins_lowPt]          = {0.0128};
+  double npr_jpsi_lowPt_ptybins_err[nybins_lowPt]      = {0.1144};
+
 
   // bkg
   double bkg_lowPt_ptybins[nybins_lowPt]           = {0.0972};
@@ -141,10 +155,18 @@ void v2SummaryPlots_y()
   double jpsiAutoCorr_lowPt_ptybins[nybins_lowPt]        = {0.1418};
   double jpsiAutoCorr_lowPt_ptybins_err[nybins_lowPt]    = {0.0246};
 
-
+  // inclusive
   TGraphErrors *pg_jpsi_highPt_ptybins      = new TGraphErrors(nybins_highPt,ybins_highPt_center,jpsi_highPt_ptybins,ybins_highPt_center_errGhost,jpsi_highPt_ptybins_err); 
-  TGraphErrors *pg_bkg_highPt_ptybins       = new TGraphErrors(nybins_highPt,ybins_highPt_center,bkg_highPt_ptybins,ybins_highPt_center_errGhost,bkg_highPt_ptybins_err); 
   TGraphErrors *pg_jpsi_highPt_ptybinsGhost = new TGraphErrors(nybins_highPt,ybins_highPt_center,jpsi_highPt_ptybins,ybins_highPt_center_err,jpsi_highPt_ptybins_errGhost);   
+
+  //prompt
+  TGraphErrors *pg_pr_jpsi_highPt_ptybins      = new TGraphErrors(nybins_highPt,ybins_highPt_center,pr_jpsi_highPt_ptybins,ybins_highPt_center_errGhost,pr_jpsi_highPt_ptybins_err);
+
+  //non-prompt
+  TGraphErrors *pg_npr_jpsi_highPt_ptybins      = new TGraphErrors(nybins_highPt,ybins_highPt_center,npr_jpsi_highPt_ptybins,ybins_highPt_center_errGhost,npr_jpsi_highPt_ptybins_err);
+
+
+  TGraphErrors *pg_bkg_highPt_ptybins       = new TGraphErrors(nybins_highPt,ybins_highPt_center,bkg_highPt_ptybins,ybins_highPt_center_errGhost,bkg_highPt_ptybins_err); 
 
   TGraphErrors *pg_jpsiAutoCorr_highPt_ptybins    = new TGraphErrors(nybins_highPt,ybins_highPt_center,jpsiAutoCorr_highPt_ptybins,ybins_highPt_center_err,jpsiAutoCorr_highPt_ptybins_err);
   TGraphErrors *pg_jpsiAutoCorr_lowPt_ptybins     = new TGraphErrors(nybins_lowPt,ybins_lowPt_center,jpsiAutoCorr_lowPt_ptybins,ybins_lowPt_center_err,jpsiAutoCorr_lowPt_ptybins_err);
@@ -152,7 +174,16 @@ void v2SummaryPlots_y()
   // correlations in y:
   TGraphErrors *pg_jpsiCorr_highPt_ptyfinebins    = new TGraphErrors(nyfinebins_highPt,yfinebins_highPt_center,jpsiCorr_highPt_ptyfinebins,yfinebins_highPt_center_err,jpsiCorr_highPt_ptyfinebins_err);
 
+  //inclusive
   TGraphErrors *pg_jpsi_lowPt_ptybins             = new TGraphErrors(nybins_lowPt,ybins_lowPt_center,jpsi_lowPt_ptybins,ybins_lowPt_center_err,jpsi_lowPt_ptybins_err);
+  // prompt
+  TGraphErrors *pg_pr_jpsi_lowPt_ptybins             = new TGraphErrors(nybins_lowPt,ybins_lowPt_center,pr_jpsi_lowPt_ptybins,ybins_lowPt_center_err,pr_jpsi_lowPt_ptybins_err);
+  //non-prompt
+  TGraphErrors *pg_npr_jpsi_lowPt_ptybins             = new TGraphErrors(nybins_lowPt,ybins_lowPt_center,npr_jpsi_lowPt_ptybins,ybins_lowPt_center_err,npr_jpsi_lowPt_ptybins_err);
+
+
+
+
   TGraphErrors *pg_bkg_lowPt_ptybins              = new TGraphErrors(nybins_lowPt,ybins_lowPt_center,bkg_lowPt_ptybins,ybins_lowPt_center_err,bkg_lowPt_ptybins_err);
   TGraphErrors *pg_jpsiVtx10_lowPt_ptybins        = new TGraphErrors(nybins_lowPt,ybins_lowPt_center,jpsiVtx10_lowPt_ptybins,ybins_lowPt_center_err,jpsiVtx10_lowPt_ptybins_err);
   TGraphErrors *pg_jpsiVtx10_highPt_ptybins        = new TGraphErrors(nybins_highPt,ybins_highPt_center,jpsiVtx10_highPt_ptybins,ybins_highPt_center_err,jpsiVtx10_highPt_ptybins_err);
@@ -226,7 +257,18 @@ void v2SummaryPlots_y()
   pg_jpsi_highPt_ptybins->SetMarkerSize(2.0);
   pg_jpsi_highPt_ptybins->SetMarkerColor(kRed+2);
   pg_jpsi_highPt_ptybins->SetLineColor(kRed+2);
-  pg_jpsi_highPt_ptybins->Draw("[P]");
+  //pg_jpsi_highPt_ptybins->Draw("[P]");
+
+  pg_npr_jpsi_highPt_ptybins->SetMarkerStyle(20);
+  pg_npr_jpsi_highPt_ptybins->SetMarkerSize(2.0);
+  pg_npr_jpsi_highPt_ptybins->SetMarkerColor(kRed+2);
+  pg_npr_jpsi_highPt_ptybins->SetLineColor(kRed+2);
+
+  pg_pr_jpsi_highPt_ptybins->SetMarkerStyle(20);
+  pg_pr_jpsi_highPt_ptybins->SetMarkerSize(2.0);
+  pg_pr_jpsi_highPt_ptybins->SetMarkerColor(kRed+2);
+  pg_pr_jpsi_highPt_ptybins->SetLineColor(kRed+2);
+
 
   pg_jpsi_highPt_ptybinsGhost->SetMarkerStyle(21);
   pg_jpsi_highPt_ptybinsGhost->SetMarkerSize(1.8);
@@ -237,8 +279,32 @@ void v2SummaryPlots_y()
   pg_jpsi_lowPt_ptybins->SetMarkerStyle(21);
   pg_jpsi_lowPt_ptybins->SetMarkerSize(1.8);
   pg_jpsi_lowPt_ptybins->SetMarkerColor(kBlue+2);
-  pg_jpsi_lowPt_ptybins->SetLineColor(kBlue+2);
-  pg_jpsi_lowPt_ptybins->Draw("[P]");
+  //  pg_jpsi_lowPt_ptybins->SetLineColor(kBlue+2);
+  pg_npr_jpsi_lowPt_ptybins->SetMarkerStyle(21);
+  pg_npr_jpsi_lowPt_ptybins->SetMarkerSize(1.8);
+  pg_npr_jpsi_lowPt_ptybins->SetMarkerColor(kBlue+2);
+
+  pg_pr_jpsi_lowPt_ptybins->SetMarkerStyle(21);
+  pg_pr_jpsi_lowPt_ptybins->SetMarkerSize(1.8);
+  pg_pr_jpsi_lowPt_ptybins->SetMarkerColor(kBlue+2);
+
+
+ switch(choseSignal){
+  case 1:
+    pg_jpsi_highPt_ptybins->Draw("[P]");
+    pg_jpsi_lowPt_ptybins->Draw("[P]");
+    break;
+  case 2:
+    pg_npr_jpsi_highPt_ptybins->Draw("[P]");
+    pg_npr_jpsi_lowPt_ptybins->Draw("[P]");
+    break;
+  case 3:
+    pg_pr_jpsi_highPt_ptybins->Draw("[P]");
+    pg_pr_jpsi_lowPt_ptybins->Draw("[P]");
+    break;
+  default:
+    cout<<"Pick a valid signal!!"<<endl;
+  }
 
   if(bAddBkg)
   {
@@ -398,7 +464,7 @@ void v2SummaryPlots_y()
   TLatex *lt1 = new TLatex();
   lt1->SetNDC();
   lt1->SetTextSize(0.04);
-  lt1->DrawLatex(0.18,0.89,Form("Inclusive %s",legend[choseSignal]));  // what signal is
+  lt1->DrawLatex(0.18,0.89,Form("%s",legend[choseSignal]));  // what signal is
   lt1->SetTextSize(0.038);
   lt1->DrawLatex(0.18,0.83,Form("Cent. 10 - 60 %%")); 
   // lt1->DrawLatex(0.18,0.77,Form("%s",eventPlane[1]));
@@ -432,6 +498,3 @@ void v2SummaryPlots_y()
   //________________________________________________________________________________________
 
 }
-
-
-

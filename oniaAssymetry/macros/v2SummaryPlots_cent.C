@@ -27,14 +27,14 @@
 
 void v2SummaryPlots_cent()
 {
-  //gROOT->Macro("/Users/eusmartass/Software/utilities/setStyle.C+");
+  gROOT->Macro("/Users/eusmartass/Software/utilities/setStyle.C+");
   gStyle->SetOptFit(0);
 
-  const char* signal[5]   = {"","NSig","NPr","NNp","NBkg"};
-  const char* legend[5]   = {"","J/#psi","Prompt J/#psi","Non-prompt J/#psi","Background"};
-  int choseSignal         = 1; // 1:inclusive 2:prompt 3:non-prompt
+  const char* signal[5]   = {"","NSig","NPr","Pr","NBkg"};
+  const char* legend[5]   = {"","Inclusive J/#psi","Non-prompt J/#psi", "Prompt J/#psi","Background"};
+  int choseSignal         = 3; // 1:inclusive 2:non-prompt 3:prompt
   const char* chosenSignal= signal[choseSignal];
-  const char* outputName[1]  = {"nominalFit_Auto"};
+  const char* outputName[1]  = {"nominalFit"};
 
   // options
   bool bSavePlots      = true; 
@@ -57,8 +57,17 @@ void v2SummaryPlots_cent()
   double ncoll_err[ncentbins]            = { 0.,     0.,       0.,      0.};
 
   // sgn
+  // inclusive
   double jpsi_centbins[ncentbins]        = {0.039, 0.074, 0.067, 0.067};
   double jpsi_centbins_err[ncentbins]    = {0.025, 0.022, 0.020,0.021};
+
+  // prompt
+  double pr_jpsi_centbins[ncentbins]        = {0.0146, 0.0536, 0.1187, 0.0814};
+  double pr_jpsi_centbins_err[ncentbins]    = {0.0158, 0.0155, 0.0133, 0.0129};
+
+  // non-prompt jpsi
+  double npr_jpsi_centbins[ncentbins]        = {0.1004, 0.0791, -0.0102, 0.0226};
+  double npr_jpsi_centbins_err[ncentbins]    = {0.0378, 0.0592,  0.0994, 0.0749};
 
   // bkg
   double bkg_centbins[ncentbins]        = {0.0767, 0.1186, 0.0967, 0.1734};
@@ -96,11 +105,19 @@ void v2SummaryPlots_cent()
   double jpsiL3ptOpenTrig_centbins[ncentbins]    = {0.0005, 0.0237, 0.0629};
   double jpsiL3ptOpenTrig_centbins_err[ncentbins]= { 0.0574, 0.0358, 0.0570};
 
-
+  //inclusive
   TGraphErrors *pg_jpsi_centbins = new TGraphErrors(ncentbins,ncoll,jpsi_centbins,ncoll_err,jpsi_centbins_err);
+  // prompt
+  TGraphErrors *pg_pr_jpsi_centbins = new TGraphErrors(ncentbins,ncoll,pr_jpsi_centbins,ncoll_err,pr_jpsi_centbins_err);
+  // non-prompt
+  TGraphErrors *pg_npr_jpsi_centbins = new TGraphErrors(ncentbins,ncoll,npr_jpsi_centbins,ncoll_err,npr_jpsi_centbins_err);
+
+ 
+
+  // systematic studies
+
   TGraphErrors *pg_bkg_centbins  = new TGraphErrors(ncentbins,ncoll,bkg_centbins,ncoll_err,bkg_centbins_err);
- 
- 
+
   TGraphErrors *pg_jpsiVtx10_centbins        = new TGraphErrors(ncentbins,ncoll,jpsiVtx10_centbins,ncoll_err,jpsiVtx10_centbins_err);
   TGraphErrors *pg_jpsiNoFlat_centbins       = new TGraphErrors(ncentbins,ncoll,jpsiNoFlat_centbins,ncoll_err,jpsiNoFlat_centbins_err);
   TGraphErrors *pg_jpsiAutoCorr_centbins     = new TGraphErrors(ncentbins,ncoll,jpsiAutoCorr_centbins,ncoll_err,jpsiAutoCorr_centbins_err);
@@ -145,7 +162,31 @@ void v2SummaryPlots_cent()
   pg_jpsi_centbins->SetMarkerSize(1.8);
   pg_jpsi_centbins->SetMarkerColor(602);
   pg_jpsi_centbins->SetLineColor(602);
-  pg_jpsi_centbins->Draw("[P]");
+
+  pg_pr_jpsi_centbins->SetMarkerStyle(20);
+  pg_pr_jpsi_centbins->SetMarkerSize(1.8);
+  pg_pr_jpsi_centbins->SetMarkerColor(602);
+  pg_pr_jpsi_centbins->SetLineColor(602);
+
+  pg_npr_jpsi_centbins->SetMarkerStyle(20);
+  pg_npr_jpsi_centbins->SetMarkerSize(1.8);
+  pg_npr_jpsi_centbins->SetMarkerColor(602);
+  pg_npr_jpsi_centbins->SetLineColor(602);
+
+  switch(choseSignal){
+  case 1:
+    pg_jpsi_centbins->Draw("[P]");
+    break;
+  case 2:
+    pg_npr_jpsi_centbins->Draw("[P]");
+    break;
+  case 3:
+    pg_pr_jpsi_centbins->Draw("[P]");
+    break;
+  default:
+    cout<<"Pick a valid signal!!"<<endl;
+  }
+  
 
   if(bAddBkg)
     {
@@ -284,7 +325,7 @@ void v2SummaryPlots_cent()
   TLatex *lt1 = new TLatex();
   lt1->SetNDC();
   lt1->SetTextSize(0.04);
-  lt1->DrawLatex(0.18,0.89,Form("Inclusive %s",legend[choseSignal]));  // what signal is
+  lt1->DrawLatex(0.18,0.89,Form("%s",legend[choseSignal]));  // what signal is
   lt1->SetTextSize(0.038);
   lt1->DrawLatex(0.18,0.83,Form("|y| < %.1f",rapIntegrated[1]));       // rapidity
   lt1->DrawLatex(0.18,0.77,Form("%.1f < p_{T} < %.0f GeV/c", ptIntegrated[1], ptIntegrated[2])); 
@@ -312,6 +353,3 @@ void v2SummaryPlots_cent()
     }
  
 }
-
-
-
