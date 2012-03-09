@@ -27,21 +27,22 @@
 
 void v2SummaryPlots_cent()
 {
-  gROOT->Macro("/Users/eusmartass/Software/utilities/setStyle.C+");
+  //gROOT->Macro("/Users/eusmartass/Software/utilities/setStyle.C+");
   gStyle->SetOptFit(0);
 
   const char* signal[5]   = {"","NSig","NPr","NNp","NBkg"};
   const char* legend[5]   = {"","J/#psi","Prompt J/#psi","Non-prompt J/#psi","Background"};
   int choseSignal         = 1; // 1:inclusive 2:prompt 3:non-prompt
   const char* chosenSignal= signal[choseSignal];
-  const char* outputName[1]  = {"nominalFit_trig"};
+  const char* outputName[1]  = {"nominalFit_Auto"};
 
   // options
   bool bSavePlots      = true; 
   bool bAddBkg         = false;
   bool bAddVtx         = false;
   bool bAddNoFlat      = false;
-  bool bAddTrigger     = true;
+  bool bAddTrigger     = false;
+  bool bAddAutoCor     = true;
 
   const char* eventPlane[2] = {"","EP: etHFp & etHFm"};
   double rapIntegrated[2]   = {0.0, 2.4}; 
@@ -50,7 +51,7 @@ void v2SummaryPlots_cent()
   // centrlaity bins: 0-5, 5-10, 10-30, 30-60
   const int ncentbins1                    = 4;
   double ncoll1[ncentbins1]                = {381.3,   329.4,  224.3,   89.9};
-  // centrlaity bins: 0-10, 10-30, 30-60
+  // centrlaity bins: 0-10, 10-20, 20-30, 30-60
   const int ncentbins                    = 4;
   double ncoll[ncentbins]                = {355.4, 261.4178, 187.1470, 89.9};
   double ncoll_err[ncentbins]            = { 0.,     0.,       0.,      0.};
@@ -60,12 +61,14 @@ void v2SummaryPlots_cent()
   double jpsi_centbins_err[ncentbins]    = {0.025, 0.022, 0.020,0.021};
 
   // bkg
-  double bkg_centbins[ncentbins]        = {0.0999, 0.1116, 0.2048};
-  double bkg_centbins_err[ncentbins]    = {0.0253, 0.0198, 0.0400};
+  double bkg_centbins[ncentbins]        = {0.0767, 0.1186, 0.0967, 0.1734};
+  double bkg_centbins_err[ncentbins]    = {0.0211, 0.0216, 0.0273, 0.0342};
   
    // vtx10cm signal
-  double jpsiVtx10_centbins[ncentbins]        = {0.0546, 0.0815, 0.0353};
-  double jpsiVtx10_centbins_err[ncentbins]    = {0.0290, 0.0176, 0.0249};
+  double jpsiVtx10_centbins[ncentbins]        = {0.0590, 0.0705, 0.0816, 0.0671};
+  double jpsiVtx10_centbins_err[ncentbins]    = {0.0267, 0.0218, 0.0241, 0.0220};
+  //double jpsiVtx10_centbins[ncentbins]        = {0.0546, 0.0815, 0.0353};
+  //double jpsiVtx10_centbins_err[ncentbins]    = {0.0290, 0.0176, 0.0249};
 
   // noFlattening
   double jpsiNoFlat_centbins[ncentbins]       = {0.0364, 0.0807, 0.0290};
@@ -74,6 +77,8 @@ void v2SummaryPlots_cent()
   // autocorrelations
   double jpsiAutoCorr_centbins[ncentbins]     = {0.0563, 0.0677, 0.0718};
   double jpsiAutoCorr_centbins_err[ncentbins] = {0.0272, 0.0165, 0.0231};
+  //double jpsiAutoCorr_centbins[ncentbins]     = {0.0563, 0.0677, 0.0718};
+  //double jpsiAutoCorr_centbins_err[ncentbins] = {0.0272, 0.0165, 0.0231};
 
   // triggers
   double jpsiL1NHitTrig_centbins[ncentbins]       = {0.0361, 0.0528, 0.0560, 0.0408};
@@ -126,8 +131,10 @@ void v2SummaryPlots_cent()
   phPadCentrality->GetYaxis()->SetTitleOffset(1.1);
   phPadCentrality->GetYaxis()->CenterTitle();
 
-  phPadCentrality->SetMaximum(0.18);
-  phPadCentrality->SetMinimum(-0.05);
+  phPadCentrality->SetMaximum(0.25);
+  phPadCentrality->SetMinimum(-0.1);
+  //phPadCentrality->SetMaximum(0.18);
+  //phPadCentrality->SetMinimum(-0.05);
   if(bAddBkg)
     {
       phPadCentrality->SetMaximum(0.4);
@@ -137,14 +144,16 @@ void v2SummaryPlots_cent()
   pg_jpsi_centbins->SetMarkerStyle(20);
   pg_jpsi_centbins->SetMarkerSize(1.8);
   pg_jpsi_centbins->SetMarkerColor(602);
-  pg_jpsi_centbins->Draw("pz");
+  pg_jpsi_centbins->SetLineColor(602);
+  pg_jpsi_centbins->Draw("[P]");
 
   if(bAddBkg)
     {
       pg_bkg_centbins->SetMarkerStyle(24);
       pg_bkg_centbins->SetMarkerSize(1.8);
       pg_bkg_centbins->SetMarkerColor(kBlue);
-      pg_bkg_centbins->Draw("pz");
+      pg_bkg_centbins->SetLineColor(kBlue);
+      pg_bkg_centbins->Draw("[P]");
       TLegend *legCent = new TLegend(0.7,0.5,0.9,0.6);
       legCent->SetFillColor(0);
       legCent->SetBorderSize(0);
@@ -159,9 +168,11 @@ void v2SummaryPlots_cent()
       pg_jpsiVtx10_centbins->SetMarkerStyle(24);
       pg_jpsiVtx10_centbins->SetMarkerSize(1.8);
       pg_jpsiVtx10_centbins->SetMarkerColor(kBlue);
-      pg_jpsiVtx10_centbins->Draw("p");
+      pg_jpsiVtx10_centbins->SetLineColor(kBlue);
+      pg_jpsiVtx10_centbins->Draw("[P]");
       
-      TLegend *legVtx = new TLegend(0.19,0.54,0.52,0.69);
+      TLegend *legVtx = new TLegend(0.19,0.625,0.50,0.736);
+      //TLegend *legVtx = new TLegend(0.19,0.61,0.52,0.72);
       legVtx->SetFillColor(0);
       legVtx->SetBorderSize(0);
       legVtx->SetTextSize(0.03);
@@ -204,6 +215,7 @@ void v2SummaryPlots_cent()
       pg_jpsiL3ptOpenTrig_centbins->SetMarkerStyle(28);
       
       pg_jpsiL1NHitTrig_centbins->SetMarkerColor(kBlue);
+      pg_jpsiL1NHitTrig_centbins->SetLineColor(kBlue);
       pg_jpsiL2pt3Trig_centbins->SetMarkerColor(kBlue);
       pg_jpsiL3ptOpenTrig_centbins->SetMarkerColor(kBlue);
       
@@ -216,19 +228,22 @@ void v2SummaryPlots_cent()
 	
       pg_jpsiL1NHitTrig_onlyCow_centbins->SetMarkerColor(kGreen+2);
       pg_jpsiL1NHitTrig_noCow_centbins->SetMarkerColor(kMagenta);
+      pg_jpsiL1NHitTrig_onlyCow_centbins->SetLineColor(kGreen+2);
+      pg_jpsiL1NHitTrig_noCow_centbins->SetLineColor(kMagenta);
 
       pg_jpsiL1NHitTrig_onlyCow_centbins->SetMarkerSize(1.8);
       pg_jpsiL1NHitTrig_noCow_centbins->SetMarkerSize(1.8);
 
-      pg_jpsiL1NHitTrig_centbins->Draw("P");
+      pg_jpsiL1NHitTrig_centbins->Draw("[P]");
+      //pg_jpsiL1NHitTrig_centbins->Draw("P");
       //   pg_jpsiL2pt3Trig_centbins->Draw("p");
       // pg_jpsiL3ptOpenTrig_centbins->Draw("p");
 
      
-      pg_jpsiL1NHitTrig_onlyCow_centbins->Draw("P");
-      pg_jpsiL1NHitTrig_noCow_centbins->Draw("P");
+      pg_jpsiL1NHitTrig_onlyCow_centbins->Draw("[P]");
+      pg_jpsiL1NHitTrig_noCow_centbins->Draw("[P]");
       
-      TLegend *legTrig = new TLegend(0.2,0.15,0.57,0.29);
+      TLegend *legTrig = new TLegend(0.2,0.15,0.57,0.31);
       legTrig->SetFillColor(0);
       legTrig->SetBorderSize(0);
       legTrig->SetTextSize(0.03);
@@ -236,8 +251,8 @@ void v2SummaryPlots_cent()
       legTrig->AddEntry(pg_jpsiL1NHitTrig_centbins,"HLT_HIL1DoubleMu0_HighQ","P");
       //   legTrig->AddEntry(pg_jpsiL2pt3Trig_centbins,"HLT_HIL2DoubleMu3","P");
       //  legTrig->AddEntry(pg_jpsiL3ptOpenTrig_centbins,"HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy","P");
-      legTrig->AddEntry(pg_jpsiL1NHitTrig_noCow_centbins,"HLT_HIL1DoubleMu0_HighQ+NoCowboy","P");
-      legTrig->AddEntry(pg_jpsiL1NHitTrig_onlyCow_centbins,"HLT_HIL1DoubleMu0_HighQ+OnlyCowboy","P");
+      legTrig->AddEntry(pg_jpsiL1NHitTrig_noCow_centbins,"HLT_HIL1DoubleMu0_HighQ+Sailor","P");
+      legTrig->AddEntry(pg_jpsiL1NHitTrig_onlyCow_centbins,"HLT_HIL1DoubleMu0_HighQ+Cowboy","P");
       legTrig->Draw("same");
     }
 
@@ -284,10 +299,10 @@ void v2SummaryPlots_cent()
     }
   else
     {
-      lt1->DrawLatex(0.25, 0.36, Form("30-60%%"));
-      lt1->DrawLatex(0.45, 0.36, Form("20-30%%"));
-      lt1->DrawLatex(0.6, 0.36, Form("10-20%%"));
-      lt1->DrawLatex(0.8, 0.36, Form("0-10%%"));
+      lt1->DrawLatex(0.25, 0.34, Form("30-60%%"));
+      lt1->DrawLatex(0.45, 0.34, Form("20-30%%"));
+      lt1->DrawLatex(0.6, 0.34, Form("10-20%%"));
+      lt1->DrawLatex(0.8, 0.34, Form("0-10%%"));
     }
 
   if(bSavePlots)
