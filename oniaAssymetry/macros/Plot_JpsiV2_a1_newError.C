@@ -62,10 +62,10 @@ void Plot_JpsiV2_a1_newError()
   int nPads = centrality_end - centrality_start; 
  
   const int nsignals           = 3;
-  const char* signals[nsignals]      = {"NSig","NPr","NNp"};
-  const char* legend[nsignals] = {"Inclusive J/#psi","Prompt J/#psi","Non-prompt J/#psi"};
+  const char* signals[nsignals]      = {"NSig","NPr","Pr"};
+  const char* legend[nsignals]       = {"Inclusive J/#psi","Non-prompt J/#psi","Prompt J/#psi",};
   int signal_start = 0;
-  int signal_end   = 1; 
+  int signal_end   = 3; 
   
   const int nrapbins     = 2;
   double raps[nrapbins]  = {0.0, 2.4};
@@ -160,47 +160,147 @@ void Plot_JpsiV2_a1_newError()
 					    0.0369,
 					    0.0371}; // error of etHFm for 30 - 60 %
 
-   // non-prompt
-  double gYieldP_0010_nnp[nphibins] = {0.05, 0.05, 0.05, 0.05}; // yield of etHFp for 0 - 10 %
-  double gYieldP_1020_nnp[nphibins] = {0.05, 0.05, 0.05, 0.05}; // yield of etHFp for 10 - 20 %
-  double gYieldP_2030_nnp[nphibins] = {0.05, 0.05, 0.05, 0.05}; // yield of etHFp for 20 - 30 %
-  double gYieldP_3060_nnp[nphibins] = {0.05, 0.05, 0.05, 0.05}; // yield of etHFp for 30 - 60 %
+   // prompt
+  double gYieldP_0010_pr[nphibins] = {0.6533,
+				       0.6450,
+				       0.6174,
+				       0.6307}; // yield of etHFp for 0 - 10 %
+  double gYieldP_1020_pr[nphibins] = {0.6567,
+				       0.6927,
+				       0.6500,
+				       0.5471}; // yield of etHFp for 10 - 20 %
+  double gYieldP_2030_pr[nphibins] = {0.8234,
+				       0.5767,
+				       0.5598,
+				       0.5866}; // yield of etHFp for 20 - 30 %
+  double gYieldP_3060_pr[nphibins] = {0.6453,
+				       0.7071,
+				       0.6158,
+				       0.5782}; // yield of etHFp for 30 - 60 %
   
-  double gYieldM_0010_nnp[nphibins] = {0.05, 0.05, 0.05, 0.05}; // yield of etHFm for 0 - 10 %
-  double gYieldM_1020_nnp[nphibins] = {0.05, 0.05, 0.05, 0.05}; // yield of etHFm for 10 - 20 %
-  double gYieldM_2030_nnp[nphibins] = {0.05, 0.05, 0.05, 0.05}; // yield of etHFm for 20 - 30 %
-  double gYieldM_3060_nnp[nphibins] = {0.05, 0.05, 0.05, 0.05}; // yield of etHFm for 30 - 60 %
+  double gYieldM_0010_pr[nphibins] = {0.6538,
+				       0.6226,
+				       0.6458,
+				       0.6244}; // yield of etHFm for 0 - 10 %
+  double gYieldM_1020_pr[nphibins] = {0.7319,
+				       0.6275,
+				       0.5867,
+				       0.6004}; // yield of etHFm for 10 - 20 %
+  double gYieldM_2030_pr[nphibins] = {0.7665,
+				       0.6673,
+				       0.5342,
+				       0.5785}; // yield of etHFm for 20 - 30 %
+  double gYieldM_3060_pr[nphibins] = {0.7607,
+				       0.6453,
+				       0.5912,
+				       0.5492}; // yield of etHFm for 30 - 60 %
 
-  double gYieldP_0010_nnp_err[nphibins] = {0.05, 0.05, 0.05, 0.05}; // error of etHFp for 0 - 10 %
-  double gYieldP_1020_nnp_err[nphibins] = {0.05, 0.05, 0.05, 0.05}; // error of etHFp for 10 - 20 %
-  double gYieldP_2030_nnp_err[nphibins] = {0.05, 0.05, 0.05, 0.05}; // error of etHFp for 20 - 30 %
-  double gYieldP_3060_nnp_err[nphibins] = {0.05, 0.05, 0.05, 0.05}; // error of etHFp for 30 - 60 %
-  
-  double gYieldM_0010_nnp_err[nphibins] = {0.05, 0.05, 0.05, 0.05}; // error of etHFm for 0 - 10 %
-  double gYieldM_1020_nnp_err[nphibins] = {0.05, 0.05, 0.05, 0.05}; // error of etHFm for 10 - 20 %
-  double gYieldM_2030_nnp_err[nphibins] = {0.05, 0.05, 0.05, 0.05}; // error of etHFm for 20 - 30 %
-  double gYieldM_3060_nnp_err[nphibins] = {0.05, 0.05, 0.05, 0.05}; // error of etHFm for 30 - 60 %
+  double gYieldP_0010_pr_err[nphibins] = {0.0555,
+					  0.0472,
+					  0.0510,
+					  0.0450}; // error of etHFp for 0 - 10 %
+  double gYieldP_1020_pr_err[nphibins] = {0.0525,
+					  0.0511,
+					  0.0516,
+					  0.0513}; // error of etHFp for 10 - 20 %
 
-  // prompt
-  double gYieldP_0010_npr[nphibins] = {0.05, 0.05, 0.05, 0.05}; // yield of etHFp for 0 - 10 %
-  double gYieldP_1020_npr[nphibins] = {0.05, 0.05, 0.05, 0.05}; // yield of etHFp for 10 - 20 %
-  double gYieldP_2030_npr[nphibins] = {0.05, 0.05, 0.05, 0.05}; // yield of etHFp for 20 - 30 %
-  double gYieldP_3060_npr[nphibins] = {0.05, 0.05, 0.05, 0.05}; // yield of etHFp for 30 - 60 %
-  
-  double gYieldM_0010_npr[nphibins] = {0.05, 0.05, 0.05, 0.05}; // yield of etHFm for 0 - 10 %
-  double gYieldM_1020_npr[nphibins] = {0.05, 0.05, 0.05, 0.05}; // yield of etHFm for 10 - 20 %
-  double gYieldM_2030_npr[nphibins] = {0.05, 0.05, 0.05, 0.05}; // yield of etHFm for 20 - 30 %
-  double gYieldM_3060_npr[nphibins] = {0.05, 0.05, 0.05, 0.05}; // yield of etHFm for 30 - 60 %
+  double gYieldP_2030_pr_err[nphibins] = {0.0613,
+					  0.0568,
+					  0.0490,
+					  0.0615}; // error of etHFp for 20 - 30 %
 
-  double gYieldP_0010_npr_err[nphibins] = {0.05, 0.05, 0.05, 0.05}; // error of etHFp for 0 - 10 %
-  double gYieldP_1020_npr_err[nphibins] = {0.05, 0.05, 0.05, 0.05}; // error of etHFp for 10 - 20 %
-  double gYieldP_2030_npr_err[nphibins] = {0.05, 0.05, 0.05, 0.05}; // error of etHFp for 20 - 30 %
-  double gYieldP_3060_npr_err[nphibins] = {0.05, 0.05, 0.05, 0.05}; // error of etHFp for 30 - 60 %
+  double gYieldP_3060_pr_err[nphibins] = {0.0476,
+					  0.0476,
+					  0.0431,
+					  0.0439}; // error of etHFp for 30 - 60 %
   
-  double gYieldM_0010_npr_err[nphibins] = {0.05, 0.05, 0.05, 0.05}; // error of etHFm for 0 - 10 %
-  double gYieldM_1020_npr_err[nphibins] = {0.05, 0.05, 0.05, 0.05}; // error of etHFm for 10 - 20 %
-  double gYieldM_2030_npr_err[nphibins] = {0.05, 0.05, 0.05, 0.05}; // error of etHFm for 20 - 30 %
-  double gYieldM_3060_npr_err[nphibins] = {0.05, 0.05, 0.05, 0.05}; // error of etHFm for 30 - 60 %
+  double gYieldM_0010_pr_err[nphibins] = {0.0465,
+					  0.0492,
+					  0.0482,
+					  0.0463}; // error of etHFm for 0 - 10 %
+
+  double gYieldM_1020_pr_err[nphibins] = {0.0625,
+					  0.0491,
+					  0.0517,
+					  0.0515}; // error of etHFm for 10 - 20 %
+  double gYieldM_2030_pr_err[nphibins] = {0.0617,
+					  0.0561,
+					  0.0488,
+					  0.0516}; // error of etHFm for 20 - 30 %
+
+  double gYieldM_3060_pr_err[nphibins] = {0.0504,
+					  0.0443,
+					  0.0465,
+					  0.0419}; // error of etHFm for 30 - 60 %
+
+  // non-prompt
+  double gYieldP_0010_npr[nphibins] = {0.7498,
+				       0.6333,
+				       0.5816,
+				       0.5818}; // yield of etHFp for 0 - 10 %
+  double gYieldP_1020_npr[nphibins] = {0.7468,
+				       0.6187,
+				       0.6188,
+				       0.5621}; // yield of etHFp for 10 - 20 %
+  double gYieldP_2030_npr[nphibins] = {0.5920,
+				       0.5960,
+				       0.8109,
+				       0.5476}; // yield of etHFp for 20 - 30 %
+  double gYieldP_3060_npr[nphibins] = {0.6239,
+				       0.6727,
+				       0.5437,
+				       0.7062}; // yield of etHFp for 30 - 60 %
+  
+  double gYieldM_0010_npr[nphibins] = {0.7504,
+				       0.6114,
+				       0.6085,
+				       0.5761}; // yield of etHFm for 0 - 10 %
+  double gYieldM_1020_npr[nphibins] = {0.8253,
+				       0.5557,
+				       0.5538,
+				       0.6116}; // yield of etHFm for 10 - 20 %
+  double gYieldM_2030_npr[nphibins] = {0.5493,
+				       0.6875,
+				       0.7714,
+				       0.5383}; // yield of etHFm for 20 - 30 %
+  double gYieldM_3060_npr[nphibins] = {0.7367,
+				       0.6150,
+				       0.5228,
+				       0.6719}; // yield of etHFm for 30 - 60 %
+  //------
+  double gYieldP_0010_npr_err[nphibins] = {0.0839,
+					   0.0726,
+					   0.0722,
+					   0.0676}; // error of etHFp for 0 - 10 %
+  double gYieldP_1020_npr_err[nphibins] = {0.0873,
+					   0.0797,
+					   0.0819,
+					   0.0832}; // error of etHFp for 10 - 20 %
+  double gYieldP_2030_npr_err[nphibins] = {0.0908,
+					   0.0926,
+					   0.1024,
+					   0.0964}; // error of etHFp for 20 - 30 %
+  double gYieldP_3060_npr_err[nphibins] = {0.0776,
+					   0.0845,
+					   0.0717,
+					   0.0832}; // error of etHFp for 30 - 60 %
+  //-----
+  double gYieldM_0010_npr_err[nphibins] = {0.0771,
+					   0.0724,
+					   0.0719,
+					   0.0678}; // error of etHFm for 0 - 10 %
+  double gYieldM_1020_npr_err[nphibins] = {0.0993,
+					   0.0730,
+					   0.0768,
+					   0.0875}; // error of etHFm for 10 - 20 %
+  double gYieldM_2030_npr_err[nphibins] = {0.0862,
+					   0.1007,
+					   0.0991,
+					   0.0899}; // error of etHFm for 20 - 30 %
+  double gYieldM_3060_npr_err[nphibins] = {0.0880,
+					   0.0779,
+					   0.0717,
+					   0.0793}; // error of etHFm for 30 - 60 %
 
   const int nhf = 2;
   TGraphErrors *g[nsignals][ncentbins][nhf];
@@ -244,11 +344,11 @@ void Plot_JpsiV2_a1_newError()
 		  }
 		else 
 		  {
-		    assignArray(gYieldP_0010_nnp,gYieldPlus);
-		    assignArray(gYieldM_0010_nnp,gYieldMinus);
+		    assignArray(gYieldP_0010_pr,gYieldPlus);
+		    assignArray(gYieldM_0010_pr,gYieldMinus);
 		  
-		    assignArray(gYieldP_0010_nnp_err,gYieldPlus_err);
-		    assignArray(gYieldM_0010_nnp_err,gYieldMinus_err);
+		    assignArray(gYieldP_0010_pr_err,gYieldPlus_err);
+		    assignArray(gYieldM_0010_pr_err,gYieldMinus_err);
 		  }
 	      break;
 	   
@@ -272,11 +372,11 @@ void Plot_JpsiV2_a1_newError()
 		  }
 		else 
 		  {
-		    assignArray(gYieldP_1020_nnp,gYieldPlus);
-		    assignArray(gYieldM_1020_nnp,gYieldMinus);
+		    assignArray(gYieldP_1020_pr,gYieldPlus);
+		    assignArray(gYieldM_1020_pr,gYieldMinus);
 		  
-		    assignArray(gYieldP_1020_nnp_err,gYieldPlus_err);
-		    assignArray(gYieldM_1020_nnp_err,gYieldMinus_err);
+		    assignArray(gYieldP_1020_pr_err,gYieldPlus_err);
+		    assignArray(gYieldM_1020_pr_err,gYieldMinus_err);
 		  }
 	      break;
 	    case 2:
@@ -299,11 +399,11 @@ void Plot_JpsiV2_a1_newError()
 		  }
 		else 
 		  {
-		    assignArray(gYieldP_2030_nnp,gYieldPlus);
-		    assignArray(gYieldM_2030_nnp,gYieldMinus);
+		    assignArray(gYieldP_2030_pr,gYieldPlus);
+		    assignArray(gYieldM_2030_pr,gYieldMinus);
 		 
-		    assignArray(gYieldP_2030_nnp_err,gYieldPlus_err);
-		    assignArray(gYieldM_2030_nnp_err,gYieldMinus_err);
+		    assignArray(gYieldP_2030_pr_err,gYieldPlus_err);
+		    assignArray(gYieldM_2030_pr_err,gYieldMinus_err);
 		  }
 	      break;
 	      
@@ -327,11 +427,11 @@ void Plot_JpsiV2_a1_newError()
 		  }
 		else 
 		  {
-		    assignArray(gYieldP_3060_nnp,gYieldPlus);
-		    assignArray(gYieldM_3060_nnp,gYieldMinus);
+		    assignArray(gYieldP_3060_pr,gYieldPlus);
+		    assignArray(gYieldM_3060_pr,gYieldMinus);
 		  
-		    assignArray(gYieldP_3060_nnp_err,gYieldPlus_err);
-		    assignArray(gYieldM_3060_nnp_err,gYieldMinus_err);
+		    assignArray(gYieldP_3060_pr_err,gYieldPlus_err);
+		    assignArray(gYieldM_3060_pr_err,gYieldMinus_err);
 		  }
 	      break;
 	    default:
@@ -479,8 +579,8 @@ void Plot_JpsiV2_a1_newError()
 	//_______
 	if(bSavePlots)
 	  {
-	    pc1->SaveAs(Form("%s_Jpsi_%d_%d_a1_newErr_Nominal.png",chosenSignal,pt_start,pt_end));
- 	    pc1->SaveAs(Form("%s_Jpsi_%d_%d_a1_newErr_Nominal.pdf",chosenSignal,pt_start,pt_end));
+	    pc1->SaveAs(Form("%s_Jpsi_a1_newErr_Nominal.png",chosenSignal));
+ 	    pc1->SaveAs(Form("%s_Jpsi_a1_newErr_Nominal.pdf",chosenSignal));
 	  }
 	  
 	//	pc1->Clear();
