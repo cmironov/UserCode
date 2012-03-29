@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("REGRECO")
+process = cms.Process("RERECO")
 
 process.load('Configuration.StandardSequences.GeometryExtended_cff')
 process.load("Configuration.StandardSequences.ReconstructionHeavyIons_cff")
@@ -25,29 +25,22 @@ process.source = cms.Source("PoolSource",
                             noEventSort = cms.untracked.bool(True),
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
                             skipEvents=cms.untracked.uint32(0),
-                            
-
                             )
 # Output file
 process.output = cms.OutputModule("PoolOutputModule",
                                   splitLevel = cms.untracked.int32(0),
-                                  outputCommands = process.RECOSIMEventContent.outputCommands,
+                                  outputCommands = process.RECOEventContent.outputCommands,
                                  # outputCommands = process.FEVTDEBUGHLTEventContent.outputCommands,
-                                  fileName = cms.untracked.string('/tmp/camelia/regitTest_mc_outputTest.root')
+                                  fileName = cms.untracked.string('/tmp/camelia/regitTest_mc_outputTest_light1.root')
                                   )
-process.output.outputCommands.extend(cms.untracked.vstring(#'keep *',
-                                                           'keep *_hiRegitMuGeneralTracks*_*_*',
+process.output.outputCommands.extend(cms.untracked.vstring('drop *_hiSelectedTracks_*_RERECO',# default, 1 iteration, global tracking
+                                                           'keep *_hiGeneralTracks_*_*', # new collection with improved global tracking
+                                                           'keep *_hiGeneralAndRegitMuTracks*_*_*', # tracks from the muon regit on top
                                                            'keep *_remuons*_*_*',
                                                            'keep *_reglobalMuons*_*_*',
                                                            'keep *_retev*_*_*',
                                                            'keep *_recalomuons*_*_*',
-                                                           #'keep *_hiRegitMu*_*_*',
-                                                          # 'keep *_hi*Step*_*_*',
-                                                          # 'keep *_hiSecondPixelTripletGlobalPrimTracks_*_*',
-                                                          # 'keep *_hiPixelPairGlobalPrimTracks_*_*',
-                                                          # 'keep *_hiGeneralTracks_*_*',
-                                                           'keep *_*Tracks_*_*',
-                                                          # 'keep *_hiGenParticles_*_*'
+                                                           'keep *_hiGenParticles_*_*'
                                                            ))
 ##################################################################################
 # Some Services
@@ -76,6 +69,7 @@ process.trackerRecHits = cms.Path(process.siPixelRecHits*process.siStripMatchedR
 # global iterative tracking
 process.load("RecoHI.HiTracking.hiIterTracking_cff")
 process.hiTrackReco    = cms.Path(process.heavyIonTracking*process.hiIterTracking)
+process.heavyIonTracking.remove(process.hiPixelVertices);
 
 #muon regit
 process.load("RecoHI.HiMuonAlgos.HiReRecoMuon_cff")

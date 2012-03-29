@@ -72,7 +72,8 @@ onia2MuMuPAT(process, GlobalTag=process.GlobalTag.globaltag, MC=True, HLT="HLT",
 process.onia2MuMuPatGlbGlb.addMuonlessPrimaryVertex = False
 process.onia2MuMuPatGlbGlb.resolvePileUpAmbiguity = False
 
-process.source.fileNames = cms.untracked.vstring("file:/tmp/camelia/regitTest_mc_outputTest.root"
+process.source.fileNames = cms.untracked.vstring("file:/tmp/camelia/regitTest_mc_outputTest_light1.root"
+ #   "file:/tmp/camelia/iterRD_5644_1_NhP.root"
                                                  )
 
 # filter on lumisections
@@ -80,7 +81,7 @@ process.source.fileNames = cms.untracked.vstring("file:/tmp/camelia/regitTest_mc
 #process.source.lumisToProcess = goodLumisToProcess
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
-process.outOnia2MuMu.fileName = cms.untracked.string( '/tmp/camelia/onia2MuMuPAT_MC_regit.root' )
+process.outOnia2MuMu.fileName = cms.untracked.string( '/tmp/camelia/onia2MuMuPAT_Mc_regit_test.root' )
 process.outTnP.fileName = cms.untracked.string( 'tnp_MC_Regit.root' )
 
 # add event plane information
@@ -91,7 +92,8 @@ process.outOnia2MuMu.outputCommands.extend(cms.untracked.vstring('keep *_hiEvtPl
 process.outOnia2MuMu.outputCommands.extend(cms.untracked.vstring('keep *_generator_*_*'))
 
 #### !!!!! need this to keep the track collection associated with the new muons
-process.outOnia2MuMu.outputCommands.extend(cms.untracked.vstring('keep *_hiRegitMuGeneralTracks_*_*'))
+process.outOnia2MuMu.outputCommands.extend(cms.untracked.vstring('keep *_hiGeneralAndRegitMuTracks_*_*'))
+process.outOnia2MuMu.outputCommands.extend(cms.untracked.vstring('keep *_hiGeneralTracks_*_*'))
 
 process.outTnP.outputCommands.extend(cms.untracked.vstring('keep *_hiEvtPlaneFlat_*_*'))
 process.outTnP.outputCommands.extend(cms.untracked.vstring('keep *_generator_*_*'))
@@ -99,7 +101,7 @@ process.outTnP.outputCommands.extend(cms.untracked.vstring('keep *_generator_*_*
 process.e = cms.EndPath(process.outOnia2MuMu)# + process.outTnP)
 
 
-
+#
 process.schedule = cms.Schedule(process.L1Reco_step,process.ProdEvtPlane,process.Onia2MuMuPAT,
                                 #process.TagAndProbeSta, process.TagAndProbeMuID, process.TagAndProbeTrig,
                                 process.e)
