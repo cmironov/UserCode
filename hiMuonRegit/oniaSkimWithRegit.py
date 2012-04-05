@@ -22,8 +22,8 @@ process.load('RecoHI.HiCentralityAlgos.CentralityBin_cfi')
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 #process.GlobalTag.globaltag = 'GR_R_44_V10::All'
-#process.GlobalTag.globaltag = 'GR_P_V27A::All'
-process.GlobalTag.globaltag = 'STARTHI44_V7::All'
+process.GlobalTag.globaltag = 'GR_P_V27A::All'
+#process.GlobalTag.globaltag = 'STARTHI44_V7::All'
 
 # produce missing l1extraParticles
 process.load('Configuration.StandardSequences.L1Reco_cff')
@@ -60,29 +60,37 @@ process.hltOniaHI.HLTPaths = ["HLT_HIL1DoubleMu0_HighQ_v1",
                               "HLT_HIL2DoubleMu0_NHitQ_v1",
                               "HLT_HIL2DoubleMu3_v1",
                               "HLT_HIL3Mu3_v1",
-                              "HLT_HIL3DoubleMuOpen_v1","HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy_v1"
+                              "HLT_HIL3DoubleMuOpen_v1","HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy_v1",
+                              "HLT_HIL1DoubleMu0_HighQ_v2",
+                              "HLT_HIL2Mu3_NHitQ_v2",
+                              "HLT_HIL2Mu7_v1","HLT_HIL2Mu15_v2",
+                              "HLT_HIL2DoubleMu0_NHitQ_v2",
+                              "HLT_HIL2DoubleMu3_v2",
+                              "HLT_HIL3Mu3_v2",
+                              "HLT_HIL3DoubleMuOpen_v1","HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy_v2",
                               ]
 process.hltOniaHI.throw = False
 process.hltOniaHI.andOr = True
 
 from HiSkim.HiOnia2MuMu.onia2MuMuPAT_cff import *
 
-onia2MuMuPAT(process, GlobalTag=process.GlobalTag.globaltag, MC=True, HLT="HLT", Filter=False)
+onia2MuMuPAT(process, GlobalTag=process.GlobalTag.globaltag, MC=False, HLT="HLT", Filter=False)
 
 process.onia2MuMuPatGlbGlb.addMuonlessPrimaryVertex = False
 process.onia2MuMuPatGlbGlb.resolvePileUpAmbiguity = False
 
-process.source.fileNames = cms.untracked.vstring("file:/tmp/camelia/regitTest_mc_outputTest_light1.root"
- #   "file:/tmp/camelia/iterRD_5644_1_NhP.root"
-                                                 )
+process.source.fileNames = cms.untracked.vstring(#"file:/tmp/camelia/regitTest_mc_outputTest_light1.root"
+  "file:/tmp/camelia/iterRD_5644_1_NhP.root",
+  "file:/tmp/camelia/iterRD_5645_1_y3k.root"
+  )
 
 # filter on lumisections
 #from HiSkim.HiOnia2MuMu.goodLumiSectionListHI_cfi import *
 #process.source.lumisToProcess = goodLumisToProcess
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
-process.outOnia2MuMu.fileName = cms.untracked.string( '/tmp/camelia/onia2MuMuPAT_Mc_regit_test.root' )
-process.outTnP.fileName = cms.untracked.string( 'tnp_MC_Regit.root' )
+process.outOnia2MuMu.fileName = cms.untracked.string( '/tmp/camelia/onia2MuMuPAT_RD_regit_Mgt2_onlyGeneralTracks.root' )
+process.outTnP.fileName = cms.untracked.string( 'tnp_RD_Regit.root' )
 
 # add event plane information
 process.load("RecoHI.HiEvtPlaneAlgos.HiEvtPlane_cfi")
@@ -92,10 +100,12 @@ process.outOnia2MuMu.outputCommands.extend(cms.untracked.vstring('keep *_hiEvtPl
 process.outOnia2MuMu.outputCommands.extend(cms.untracked.vstring('keep *_generator_*_*'))
 
 #### !!!!! need this to keep the track collection associated with the new muons
-process.outOnia2MuMu.outputCommands.extend(cms.untracked.vstring('keep *_hiGeneralAndRegitMuTracks_*_*'))
 process.outOnia2MuMu.outputCommands.extend(cms.untracked.vstring('keep *_hiGeneralTracks_*_*'))
+process.outOnia2MuMu.outputCommands.extend(cms.untracked.vstring('drop *_hiSelectedTracks_*_*'))
+
 
 process.outTnP.outputCommands.extend(cms.untracked.vstring('keep *_hiEvtPlaneFlat_*_*'))
+process.outTnP.outputCommands.extend(cms.untracked.vstring('keep *_hiGeneralAndRegitMuTracks_*_*'))
 process.outTnP.outputCommands.extend(cms.untracked.vstring('keep *_generator_*_*'))
 
 process.e = cms.EndPath(process.outOnia2MuMu)# + process.outTnP)
