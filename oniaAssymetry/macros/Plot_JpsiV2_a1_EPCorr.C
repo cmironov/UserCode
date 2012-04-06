@@ -51,7 +51,7 @@ void TGetPoints(TGraphErrors *a, double *b, double *c);
 void getEPCorrection(int epType, int centLow, int centHigh, double *corrVal, double *corrErr) ;
 
 //__________________________________________________________________________
-void Plot_JpsiV2_a1_EPCorr(){
+void Plot_JpsiV2_a1_Final(){
   gROOT->Macro("./rootlogon.C");
 
   gStyle->SetOptFit(0);
@@ -63,9 +63,9 @@ void Plot_JpsiV2_a1_EPCorr(){
   if(!output.is_open()) { cout << "cannot open a1_v2_Result.txt. Exit\n"; return ;}
  
   // pt integrated
-  const int ncentbins = 4; int cts[ncentbins+1] = {0, 10, 20, 30, 60};
-  const int nrapbins  = 1; double raps[nrapbins+1] = {0.0, 2.4};
-  const int nptbins   = 1; double pts[nptbins+1] = {6.5, 40.0};
+  const int ncentbins = 4; const int cts[ncentbins+1] = {0, 10, 20, 30, 60};
+  const int nrapbins  = 1; const double raps[nrapbins+1] = {0.0, 2.4};
+  const int nptbins   = 1; const double pts[nptbins+1] = {6.5, 40.0};
 
   // 1st column: Different fit method or datasets (prefixarr contains all set)
   // 2nd column: [0] etHFm, [1] etHFp, [2] etHF
@@ -450,6 +450,9 @@ void Plot_JpsiV2_a1_EPCorr(){
   double RMSV2[4][ncentbins][nrapbins][nptbins] = {{{{0.0}}}};
 
 
+  TFile *rootoutput = new TFile("a1_corrV2.root","recreate");
+  if (!rootoutput->IsOpen()) { cout << "cannot open result root file. exit.\n"; return;}
+
   for(int prefix=0; prefix<nPrefix; prefix++) {
     for (int choseSignal= 0; choseSignal < 2; choseSignal++) {
       for (int cent = 0; cent < ncentbins; cent++) {
@@ -484,8 +487,24 @@ void Plot_JpsiV2_a1_EPCorr(){
         output<<"|  cent: " << cts[cent] << "-" << cts[cent+1] << "  |  Corrected etHFm: " << corrEPV2_etHFm <<"  |  Corrected etHFp:"<< corrEPV2_etHFp <<"  |  "<<endl;
         output<<"|  cent: " << cts[cent] << "-" << cts[cent+1] << "  |  " << finalV2[prefix][choseSignal][cent][0][0]<<"  |  "<<finalV2Err[prefix][choseSignal][cent][0][0]<<"  |  "<<endl;
         output<<endl;
+
       } // end of centrality bins
 
+      rootoutput->cd();
+
+      char histname[200];
+      sprintf(histname,"%s_%s_rap%.1f-%.1f_pT%.1f-%.1f",prefixarr[prefix],signal[choseSignal],raps[0],raps[1],pts[0],pts[1]);
+      double cts_bound[ncentbins] = {0.0};
+      double finalV2Cent[ncentbins] ={0.0} , finalV2ErrCent[ncentbins] = {0.0};
+      for (int cent=0; cent < ncentbins; cent++) {
+        cts_bound[cent] = (cts[cent] + cts[cent+1])/2;
+        finalV2Cent[cent] = finalV2[prefix][choseSignal][cent][0][0];
+        finalV2ErrCent[cent] = finalV2Err[prefix][choseSignal][cent][0][0];
+        cout << finalV2Cent << " " << finalV2ErrCent << endl;
+      }
+      TGraphErrors hFinal(ncentbins,cts_bound,finalV2Cent,0,finalV2ErrCent);
+      hFinal.SetName(histname);
+      hFinal.Write();
 
       // ####### SUMMARY PLOT!!! (Corrected)
       TCanvas *c22 = new TCanvas("c22","c22");
@@ -599,6 +618,7 @@ void Plot_JpsiV2_a1_EPCorr(){
     cout << "|  30-60%  |  "<<RMSV2[choseSignal][3][0][0]<<"  |  "<<RMSV2[choseSignal][3][0][0]<<"  |\n";
   } */
 
+  rootoutput->Close();
   output.close();
   gApplication->Terminate();
  
