@@ -51,7 +51,7 @@ void TGetPoints(TGraphErrors *a, double *b, double *c);
 void getEPCorrection(int epType, int centLow, int centHigh, double *corrVal, double *corrErr) ;
 
 //__________________________________________________________________________
-void Plot_JpsiV2_a1_EPCorr()
+void Plot_JpsiV2_a1_EPCorr(const char* inDirName = "/Users/eusmartass/Software/v2onia11/ana12")
 {
   //  gROOT->Macro("./rootlogon.C");
   gROOT->Macro("/Users/eusmartass/Software/utilities/setStyle.C");
@@ -108,21 +108,16 @@ void Plot_JpsiV2_a1_EPCorr()
 	  TFile *f1;
 	  char nameoutfile[512];
 	  char eventPlane[512];
-	  char dirname[512]={0};
-	  if(iCat == 0) 
-	    {
-	      sprintf(dirname,"/Users/eusmartass/Software/v2onia11/ana12/ep23_%s/summary/saved_histo.root",prefixarr[prefix]);
-	      f1 = new TFile(dirname);
-	      sprintf(nameoutfile, "etHFm");
-	      sprintf(eventPlane, "#eta_{J/#psi} > 0");
-	    }
-	  if(iCat == 1) 
-	    {
-	      sprintf(dirname,"/Users/eusmartass/Software/v2onia11/ana12/ep22_%s/summary/saved_histo.root",prefixarr[prefix]);
-	      f1 = new TFile(dirname);
-	      sprintf(nameoutfile, "etHFp");
-	      sprintf(eventPlane, "#eta_{J/#psi} < 0");
-	    }
+	  if(iCat == 0) {
+	    f1 = new TFile(Form("%s/ep23_%s/summary/saved_histo.root",inDirName,prefixarr[prefix]));
+	    sprintf(nameoutfile, "etHFm");
+	    sprintf(eventPlane, "#eta_{J/#psi} > 0");
+	  }
+	  if(iCat == 1) {
+	    f1 = new TFile(Form("%s/ep22_%s/summary/saved_histo.root",inDirName,prefixarr[prefix]));
+	    sprintf(nameoutfile, "etHFp");
+	    sprintf(eventPlane, "#eta_{J/#psi} < 0");
+	  }
 	  if(iCat == 2) 
 	    {
 	      f1 = new TFile("etHF/summary/saved_histo.root");
