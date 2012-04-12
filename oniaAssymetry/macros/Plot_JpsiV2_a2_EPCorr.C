@@ -50,13 +50,13 @@ void TGetPoints(TGraphErrors *a, double *b, double *c);
 void getEPCorrection(int epType, int centLow, int centHigh, double *corrVal, double *corrErr) ;
 
 //__________________________________________________________________________
-void Plot_JpsiV2_a2_EPCorr()
+void Plot_JpsiV2_a2_Final()
 {
   gROOT->Macro("./rootlogon.C");
   gStyle->SetOptFit(0);
 
-  const int nPrefix = 4;
-  const char *prefixarr[nPrefix] = {"nMuValHits_nominal","nMuValHits_cowboy","nMuValHits_sailor","nMuValHits_bit1"};
+  const int nPrefix = 10;
+  const char *prefixarr[nPrefix] = {"nominal", "polFunct", "constrained", "signalCB3WN", "cowboy", "sailor", "bit1", "noFlat", "zVtxLT10", "autoCorr"};
 //  const char *prefixarr[nPrefix] = {"nominal", "polFunct", "constrained", "signalCB3WN", "cowboy", "sailor", "bit1", "noFlat", "zVtxLT10", "autoCorr"};
   ofstream output("./a2_v2_Result.txt");
   if(!output.is_open()) { cout << "cannot open a2_v2_Result.txt. Exit\n"; return ;}
@@ -88,13 +88,13 @@ void Plot_JpsiV2_a2_EPCorr()
         sprintf(dirname,"./ep23_%s/summary/saved_histo.root",prefixarr[prefix]);
         f1 = new TFile(dirname);
         sprintf(nameoutfile, "etHFm");
-        sprintf(eventPlane, "EP: etHFm");
+        sprintf(eventPlane, "#eta_{J/#psi} > 0");
       }
       if(iCat == 1) {
         sprintf(dirname,"./ep22_%s/summary/saved_histo.root",prefixarr[prefix]);
         f1 = new TFile(dirname);
         sprintf(nameoutfile, "etHFp");
-        sprintf(eventPlane, "EP: etHFp");
+        sprintf(eventPlane, "#eta_{J/#psi} < 0");
       }
       if(iCat == 2) {
         f1 = new TFile("etHF/xopt4/summary/saved_histo.root");
@@ -219,7 +219,15 @@ void Plot_JpsiV2_a2_EPCorr()
               if(ind == 2) 
               {
                 lt1->DrawLatex(0.62,0.90,Form("Cent. %d - %d %%",vcts1, vcts2)); // centrality
-                lt1->DrawLatex(0.07,0.74,Form("|y| < %.1f",vraps2));       // rapidity
+                if (!strcmp(nameoutfile,"etHFm"))
+                  lt1->DrawLatex(0.07,0.74,Form("%.1f < y < %.1f",vraps1,vraps2));       // rapidity
+                else if (!strcmp(nameoutfile,"etHFp")) {
+                  if (vraps1 == 0)
+                    lt1->DrawLatex(0.07,0.74,Form("-%.1f < y < %.1f",vraps2,vraps1));       // rapidity
+                  else
+                    lt1->DrawLatex(0.07,0.74,Form("-%.1f < y < -%.1f",vraps2,vraps1));       // rapidity
+                } else
+                  lt1->DrawLatex(0.07,0.74,Form("|y| < %.1f",vraps2));       // rapidity
                 //lt1->DrawLatex(0.6,0.7,Form("%s",eventPlane));        // event plane method
               }
 
@@ -284,7 +292,7 @@ void Plot_JpsiV2_a2_EPCorr()
         pc1->cd(3);
         lt1->SetTextSize(0.055);
         lt1->DrawLatex(0.07,0.90,Form("%s",legend[choseSignal]));  // what signal is
-        lt1->DrawLatex(0.07,0.82,Form("%s",eventPlane));        // event plane method
+//        lt1->DrawLatex(0.07,0.82,Form("%s",eventPlane));        // event plane method
         //_______
 
 
@@ -411,9 +419,16 @@ void Plot_JpsiV2_a2_EPCorr()
 
         //leg1->Draw("same");
         lt1->SetTextSize(0.038);
-        lt1->DrawLatex(0.18,0.83,Form("|y| < %.1f",vraps2));       // rapidity
+        if (!strcmp(nameoutfile,"etHFm"))
+          lt1->DrawLatex(0.18,0.83,Form("%.1f < y < %.1f",vraps1,vraps2));       // rapidity
+        else if (!strcmp(nameoutfile,"etHFp")) {
+          if (vraps1 == 0)
+            lt1->DrawLatex(0.18,0.83,Form("-%.1f < y < %.1f",vraps2,vraps1));       // rapidity
+          else
+            lt1->DrawLatex(0.18,0.83,Form("-%.1f < y < -%.1f",vraps2,vraps1));       // rapidity
+        } else
+          lt1->DrawLatex(0.18,0.83,Form("|y| < %.1f",vraps2));       // rapidity
         lt1->DrawLatex(0.18,0.77,Form("Cent. 10 - 60 %%")); 
-        lt1->DrawLatex(0.18,0.71,Form("%s",eventPlane));
 
         if(iCat == 0){
           c2->SaveAs(Form("./plots/etHFm_%s/%s_%s_a2_Uncorr.png",prefixarr[prefix],chosenSignal,nameoutfile));
@@ -440,6 +455,8 @@ void Plot_JpsiV2_a2_EPCorr()
   // Get RMS of all v2
   double RMSV2[4][ncentbins][nrapbins][nptbins] = {{{{0.0}}}};
 
+  TFile *rootoutput = new TFile("a2_corrV2.root","recreate");
+  if (!rootoutput->IsOpen()) { cout << "cannot open result root file. exit.\n"; return;}
 
   for(int prefix=0; prefix<nPrefix; prefix++) {
     for (int choseSignal= 0; choseSignal < 2; choseSignal++) {
@@ -476,8 +493,22 @@ void Plot_JpsiV2_a2_EPCorr()
         output<<"|  pt: " << pts[pt] << "-" << pts[pt+1] << "  |  Corrected etHFm: " << corrEPV2_etHFm <<"  |  Corrected etHFp:"<< corrEPV2_etHFp <<"  |  "<<endl;
         output<<"|  pt: " << pts[pt] << "-" << pts[pt+1] << "  |  " << finalV2[prefix][choseSignal][cent][0][pt]<<"  |  "<<finalV2Err[prefix][choseSignal][cent][0][pt]<<"  |  "<<endl;
         output<<endl;
-      } // end of centrality bins
+      } // end of pt bins
 
+      rootoutput->cd();
+      char histname[200];
+      sprintf(histname,"%s_%s_rap%.1f-%.1f_cent%d-%d",prefixarr[prefix],signal[choseSignal],raps[0],raps[1],cts[0],cts[1]);
+      double finalV2Pt[nptbins] = {0.0} , finalV2ErrPt[nptbins] = {0.0};
+      double pts_bound[nptbins] = {7.3, 9.0, 13.4}; // <pt> values in the AN
+      for (int pt = 0; pt < nptbins; pt++) {
+        int cent =0;  //10-60% centrality
+        finalV2Pt[pt] = finalV2[prefix][choseSignal][cent][0][pt];
+        finalV2ErrPt[pt] = finalV2Err[prefix][choseSignal][cent][0][pt];
+        cout << finalV2Pt[pt] << " " << finalV2ErrPt[pt] << endl;
+      }
+      TGraphErrors hFinal(nptbins,pts_bound,finalV2Pt,0,finalV2ErrPt);
+      hFinal.SetName(histname);
+      hFinal.Write();
 
       // ####### SUMMARY PLOT!!! (Corrected)
         TCanvas *c22 = new TCanvas("c2","c2");
@@ -538,7 +569,6 @@ void Plot_JpsiV2_a2_EPCorr()
         lt1->SetTextSize(0.038);
         lt1->DrawLatex(0.18,0.83,Form("|y| < %.1f",2.4));       // rapidity
         lt1->DrawLatex(0.18,0.77,Form("Cent. %d - %d %%",cts[0],cts[1]));
-        lt1->DrawLatex(0.18,0.71,"etHFp + etHFm");
 
         TGraphErrors *gPtBarrCorr[4];
         double ptBins[4]      = {7.25, 9.0, 11.5, 26.5};
@@ -549,7 +579,7 @@ void Plot_JpsiV2_a2_EPCorr()
         {
           // [centrality][rapidity][pt]
           double v2PtBarr[1]    = {finalV2[prefix][choseSignal][0][0][ic]};
-          double v2PtBarrErr[1] = {finalV2[prefix][choseSignal][0][0][ic]};
+          double v2PtBarrErr[1] = {finalV2Err[prefix][choseSignal][0][0][ic]};
           double ptbinlocal[1]  = {ptBins[ic]};
           double ptbinlocalerr[1]  = {ptErrs[ic]};
           //cout<<"ptbinlocal[nptbins-5] : "<<ptbinlocal[nptbins-5]<<endl;
@@ -577,9 +607,7 @@ void Plot_JpsiV2_a2_EPCorr()
     } // end of choseSignal (NSig, NBkg, NPr, NNp)
   } // end of prefix (Different fit methods, datasets and etc)
 
-
-
-
+  rootoutput->Close();
   output.close();
   gApplication->Terminate();
 }

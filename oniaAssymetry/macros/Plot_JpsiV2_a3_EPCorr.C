@@ -50,14 +50,14 @@ void TGetPoints(TGraphErrors *a, double *b, double *c);
 void getEPCorrection(int epType, int centLow, int centHigh, double *corrVal, double *corrErr) ;
 
 //__________________________________________________________________________
-void Plot_JpsiV2_a3_EPCorr()
+void Plot_JpsiV2_a3_Final()
 {
   //gROOT->Macro("/Users/eusmartass/Software/utilities/setStyle.C+");
   gROOT->Macro("./rootlogon.C");
   gStyle->SetOptFit(0);
 
-  const int nPrefix = 4;
-  const char *prefixarr[nPrefix] = {"nMuValHits_nominal","nMuValHits_cowboy","nMuValHits_sailor","nMuValHits_bit1"};
+  const int nPrefix = 10;
+  const char *prefixarr[nPrefix] = {"nominal", "polFunct", "constrained", "signalCB3WN", "cowboy", "sailor", "bit1", "noFlat", "zVtxLT10", "autoCorr"};
 //  const char *prefixarr[arrSize] = {"nominal", "polFunct", "constrained", "signalCB3WN", "cowboy", "sailor", "bit1", "noFlat", "zVtxLT10", "autoCorr"};
   ofstream output("./a3_v2_Result.txt");
   if(!output.is_open()) { cout << "cannot open a3_v2_Result.txt. Exit\n"; return ;}
@@ -79,23 +79,23 @@ void Plot_JpsiV2_a3_EPCorr()
   const char* signal[4]      = {"NSig","NBkg","NPr","NNp"};
   const char* legend[4]      = {"Inclusive J/#psi","Background","Prompt J/#psi","Non-prompt J/#psi"};
   
+  char nameoutfile[512];
   for(int prefix=0; prefix<nPrefix; prefix++) {
     for(int iCat = 0; iCat < 2; iCat++){
       TFile *f1;
-      char nameoutfile[512];
       char eventPlane[512];
       char dirname[512]={0};
       if(iCat == 0) {
         sprintf(dirname,"./ep23_%s/summary/saved_histo.root",prefixarr[prefix]);
         f1 = new TFile(dirname);
         sprintf(nameoutfile, "etHFm");
-        sprintf(eventPlane, "EP: etHFm");
+        sprintf(eventPlane, "#eta_{J/#psi} > 0");
       }
       if(iCat == 1) {
         sprintf(dirname,"./ep22_%s/summary/saved_histo.root",prefixarr[prefix]);
         f1 = new TFile(dirname);
         sprintf(nameoutfile, "etHFp");
-        sprintf(eventPlane, "EP: etHFp");
+        sprintf(eventPlane, "#eta_{J/#psi} < 0");
       }
       if(iCat == 2) {
         f1 = new TFile("etHF/xopt4/summary/saved_histo.root");
@@ -219,29 +219,72 @@ void Plot_JpsiV2_a3_EPCorr()
                 lt1->SetTextSize(0.06);
                 //lt1->DrawLatex(0.72,0.88,Form("|y| < %.1f",vraps2));       // rapidity
                 lt1->DrawLatex(0.67,0.88,Form("Cent. %d - %d %%",vcts1, vcts2));
-                lt1->DrawLatex(0.25,0.2,Form("%s",eventPlane));
+//                lt1->DrawLatex(0.25,0.2,Form("%s",eventPlane));
               }
               if(ind == 2) 
               {
                 lt1->SetTextSize(0.06);
-                lt1->DrawLatex(0.62,0.88,Form("|y| < %.1f",vraps2));       // rapidity	
+                if (!strcmp(nameoutfile,"etHFm"))
+                  lt1->DrawLatex(0.62,0.88,Form("%.1f < y < %.1f",vraps1,vraps2));       // rapidity
+                else if (!strcmp(nameoutfile,"etHFp")) {
+                  if (vraps1 == 0)
+                    lt1->DrawLatex(0.62,0.88,Form("-%.1f < y < %.1f",vraps2,vraps1));       // rapidity
+                  else
+                    lt1->DrawLatex(0.62,0.88,Form("-%.1f < y < -%.1f",vraps2,vraps1));       // rapidity
+                } else
+                  lt1->DrawLatex(0.62,0.88,Form("|y| < %.1f",vraps2));       // rapidity	
               }
               if(ind == 8) 
               {
-                lt1->DrawLatex(0.72,0.9,Form("%.1f < |y| < %.1f",vraps1,vraps2));       // rapidity	
+                lt1->SetTextSize(0.06);
+                if (!strcmp(nameoutfile,"etHFm"))
+                  lt1->DrawLatex(0.72,0.9,Form("%.1f < y < %.1f",vraps1,vraps2));       // rapidity
+                else if (!strcmp(nameoutfile,"etHFp")) {
+                  if (vraps1 == 0)
+                    lt1->DrawLatex(0.72,0.9,Form("-%.1f < y < %.1f",vraps2,vraps1));       // rapidity
+                  else
+                    lt1->DrawLatex(0.72,0.9,Form("-%.1f < y < -%.1f",vraps2,vraps1));       // rapidity
+                } else
+                  lt1->DrawLatex(0.72,0.9,Form("%.1f < |y| < %.1f",vraps1,vraps2));       // rapidity	
               }
               if(ind == 4) 
               {
-                lt1->DrawLatex(0.65,0.9,Form("%.1f < |y| < %.1f",vraps1,vraps2));       // rapidity	
+                lt1->SetTextSize(0.06);
+                if (!strcmp(nameoutfile,"etHFm"))
+                  lt1->DrawLatex(0.65,0.9,Form("%.1f < y < %.1f",vraps1,vraps2));       // rapidity
+                else if (!strcmp(nameoutfile,"etHFp")) {
+                  if (vraps1 == 0)
+                    lt1->DrawLatex(0.65,0.9,Form("-%.1f < y < %.1f",vraps2,vraps1));       // rapidity
+                  else
+                    lt1->DrawLatex(0.65,0.9,Form("-%.1f < y < -%.1f",vraps2,vraps1));       // rapidity
+                } else
+                  lt1->DrawLatex(0.65,0.9,Form("%.1f < |y| < %.1f",vraps1,vraps2));       // rapidity	
               }
               if(ind == 5) 
               {
                 lt1->SetTextSize(0.049);
-                lt1->DrawLatex(0.72,0.9,Form("%.1f < |y| < %.1f",vraps1,vraps2));       // rapidity	
+                if (!strcmp(nameoutfile,"etHFm"))
+                  lt1->DrawLatex(0.72,0.9,Form("%.1f < y < %.1f",vraps1,vraps2));       // rapidity
+                else if (!strcmp(nameoutfile,"etHFp")) {
+                  if (vraps1 == 0)
+                    lt1->DrawLatex(0.72,0.9,Form("-%.1f < y < %.1f",vraps2,vraps1));       // rapidity
+                  else
+                    lt1->DrawLatex(0.72,0.9,Form("-%.1f < y < -%.1f",vraps2,vraps1));       // rapidity
+                } else
+                  lt1->DrawLatex(0.72,0.9,Form("%.1f < |y| < %.1f",vraps1,vraps2));       // rapidity	
               }
               if(ind == 6) 
               {
-                lt1->DrawLatex(0.65,0.9,Form("%.1f < |y| < %.1f",vraps1,vraps2));       // rapidity	
+                lt1->SetTextSize(0.06);
+                if (!strcmp(nameoutfile,"etHFm"))
+                  lt1->DrawLatex(0.65,0.9,Form("%.1f < y < %.1f",vraps1,vraps2));       // rapidity
+                else if (!strcmp(nameoutfile,"etHFp")) {
+                  if (vraps1 == 0)
+                    lt1->DrawLatex(0.65,0.9,Form("-%.1f < y < %.1f",vraps2,vraps1));       // rapidity
+                  else
+                    lt1->DrawLatex(0.65,0.9,Form("-%.1f < y < -%.1f",vraps2,vraps1));       // rapidity
+                } else
+                  lt1->DrawLatex(0.65,0.9,Form("%.1f < |y| < %.1f",vraps1,vraps2));       // rapidity	
               }
 
               if(!g[mcent][ky][lpt]) 
@@ -443,14 +486,20 @@ void Plot_JpsiV2_a3_EPCorr()
         output<<"|  6.5-40.0  |"<<"  "<<v2[prefix][iCat][choseSignal][0][2][1]<<"  |  "<<v2Err[prefix][iCat][choseSignal][0][2][1]<<"  |"<<endl;
         output<<endl;
 
-        leg1->AddEntry(gPtBarr,"|y| < 1.2","P");
-        leg1->AddEntry(gPtMid,"1.2 < |y| < 1.6","P");
-        leg1->AddEntry(gPtForw,"1.6 < |y| < 2.4","P");
+        if (!strcmp(nameoutfile,"etHFm")) {
+          leg1->AddEntry(gPtBarr,"0.0 < y < 1.2","P");
+          leg1->AddEntry(gPtMid,"1.2 < y < 1.6","P");
+          leg1->AddEntry(gPtForw,"1.6 < y < 2.4","P");
+        } else if (!strcmp(nameoutfile,"etHFp")) {
+          leg1->AddEntry(gPtBarr,"-1.2 < y < 0.0","P");
+          leg1->AddEntry(gPtMid,"-1.6 < y < -1.2","P");
+          leg1->AddEntry(gPtForw,"-2.4 < y < -1.6","P");
+        }
         lt1->SetTextSize(0.04);
         lt1->DrawLatex(0.18,0.89,Form("%s",legend[choseSignal]));  // what signal is
         lt1->SetTextSize(0.038);
         lt1->DrawLatex(0.18,0.83,Form("Cent. %d - %d %%",cts[0],cts[1]));
-        lt1->DrawLatex(0.18,0.77,Form("%s",eventPlane));
+//        lt1->DrawLatex(0.18,0.77,Form("%s",eventPlane));
 
 
         //_______ stuff to write
@@ -507,6 +556,8 @@ void Plot_JpsiV2_a3_EPCorr()
   // Get RMS of all v2
   double RMSV2[4][ncentbins][nrapbins][nptbins] = {{{{0.0}}}};
 
+  TFile *rootoutput = new TFile("a3_corrV2.root","recreate");
+  if (!rootoutput->IsOpen()) { cout << "cannot open result root file. exit.\n"; return;}
 
   for(int prefix=0; prefix<nPrefix; prefix++) {
     for (int choseSignal= 0; choseSignal < 2; choseSignal++) {
@@ -549,6 +600,44 @@ void Plot_JpsiV2_a3_EPCorr()
           output<<endl;
         } // end of pt bins
       } // end of rapidity bins
+
+      rootoutput->cd();
+      char histname[200];
+      const int nLowPtbins = 1;  // nbins for forward & (3.0-6.5 GeV/c) pT bin
+      double ybins_highPt_center[nrapbins] = {0.6, 1.4, 2.0};
+      double ybins_highPt_center_err[nrapbins] = {0.6, 0.2, 0.4};
+      double ybins_lowPt_center[nLowPtbins] = {2.0};
+      double ybins_lowPt_center_err[nLowPtbins] = {0.4};
+      double finalV2Rap[nrapbins] = {finalV2[prefix][choseSignal][0][0][1], finalV2[prefix][choseSignal][0][1][1],finalV2[prefix][choseSignal][0][2][1]};
+      double finalV2ErrRap[nrapbins] = {finalV2Err[prefix][choseSignal][0][0][1], finalV2Err[prefix][choseSignal][0][1][1],finalV2Err[prefix][choseSignal][0][2][1]};
+      double finalV2RapLowPt[nLowPtbins] = {finalV2[prefix][choseSignal][0][2][0]};
+      double finalV2ErrRapLowPt[nLowPtbins] = {finalV2Err[prefix][choseSignal][0][2][0]};
+
+      int cent = 0;
+      for (int pt = 0; pt < nptbins; pt++) {
+        sprintf(histname,"%s_%s_cent%d-%d_pt%.1f-%.1f",prefixarr[prefix],signal[choseSignal],cts[cent],cts[cent+1],pts[pt],pts[pt+1]);
+        if (pt == 0) {
+          if (!strcmp(prefixarr[prefix],"nominal") && !strcmp(signal[choseSignal],"NSig")) {
+            TGraphErrors hFinal(nLowPtbins,ybins_lowPt_center,finalV2RapLowPt,ybins_lowPt_center_err,finalV2ErrRapLowPt);
+            hFinal.SetName(histname);
+            hFinal.Write();
+          } else {
+            TGraphErrors hFinal(nLowPtbins,ybins_lowPt_center,finalV2RapLowPt,0,finalV2ErrRapLowPt);
+            hFinal.SetName(histname);
+            hFinal.Write();
+          }
+        } else {
+          if (!strcmp(prefixarr[prefix],"nominal") && !strcmp(signal[choseSignal],"NSig")) {
+            TGraphErrors hFinal(nrapbins,ybins_highPt_center,finalV2Rap,ybins_highPt_center_err,finalV2ErrRap);
+            hFinal.SetName(histname);
+            hFinal.Write();
+          } else {
+            TGraphErrors hFinal(nrapbins,ybins_highPt_center,finalV2Rap,0,finalV2ErrRap);
+            hFinal.SetName(histname);
+            hFinal.Write();
+          }
+        }
+      }
 
 
       // ####### SUMMARY PLOT!!! (Corrected)
@@ -645,13 +734,12 @@ void Plot_JpsiV2_a3_EPCorr()
       lt1->SetTextSize(0.038);
       lt1->DrawLatex(0.18,0.83,Form("|y| < %.1f",2.4));       // rapidity
       lt1->DrawLatex(0.18,0.77,Form("Cent. %d - %d %%",cts[0],cts[1]));      
-      lt1->DrawLatex(0.18,0.71,"etHFp + etHFm");
 
       TLegend *leg1 = new TLegend(0.1812081,0.1958042,0.4395973,0.3304196);
       leg1->SetFillColor(0);
       leg1->SetBorderSize(0);
       leg1->SetTextSize(0.03);
-      leg1->AddEntry(gPtBarrCorr,"|y| < 1.2","P");
+      leg1->AddEntry(gPtBarrCorr,"0.0 < |y| < 1.2","P");
       leg1->AddEntry(gPtMidCorr,"1.2 < |y| < 1.6","P");
       leg1->AddEntry(gPtForwCorr,"1.6 < |y| < 2.4","P");
       leg1->Draw("same");          
@@ -669,6 +757,7 @@ void Plot_JpsiV2_a3_EPCorr()
   } // end of prefix (Different fit methods, datasets and etc)
 
 
+  rootoutput->Close();
   output.close();
   gApplication->Terminate();
 }

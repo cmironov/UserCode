@@ -56,8 +56,8 @@ void Plot_JpsiV2_a1_Final(){
 
   gStyle->SetOptFit(0);
   
-  const int nPrefix = 4;
-  const char *prefixarr[nPrefix] = {"nMuValHits_nominal","nMuValHits_cowboy","nMuValHits_sailor","nMuValHits_bit1"};
+  const int nPrefix = 10;
+  const char *prefixarr[nPrefix] = {"nominal", "polFunct", "constrained", "signalCB3WN", "cowboy", "sailor", "bit1", "noFlat", "zVtxLT10", "autoCorr"};
 //  const char *prefixarr[arrSize] = {"nominal", "polFunct", "constrained", "signalCB3WN", "cowboy", "sailor", "bit1", "noFlat", "zVtxLT10", "autoCorr"};
   ofstream output("./a1_v2_Result.txt");
   if(!output.is_open()) { cout << "cannot open a1_v2_Result.txt. Exit\n"; return ;}
@@ -66,6 +66,8 @@ void Plot_JpsiV2_a1_Final(){
   const int ncentbins = 4; const int cts[ncentbins+1] = {0, 10, 20, 30, 60};
   const int nrapbins  = 1; const double raps[nrapbins+1] = {0.0, 2.4};
   const int nptbins   = 1; const double pts[nptbins+1] = {6.5, 40.0};
+
+  double ncoll[4]       = {355.4, 261.4178, 187.1470, 89.9};
 
   // 1st column: Different fit method or datasets (prefixarr contains all set)
   // 2nd column: [0] etHFm, [1] etHFp, [2] etHF
@@ -89,13 +91,13 @@ void Plot_JpsiV2_a1_Final(){
         sprintf(dirname,"./ep23_%s/summary/saved_histo.root",prefixarr[prefix]);
         f1 = new TFile(dirname);
         sprintf(nameoutfile, "etHFm");
-        sprintf(eventPlane, "EP: etHFm");
+        sprintf(eventPlane, "#eta_{J/#psi} > 0");
       }
       if(iCat == 1) {
         sprintf(dirname,"./ep22_%s/summary/saved_histo.root",prefixarr[prefix]);
         f1 = new TFile(dirname);
         sprintf(nameoutfile, "etHFp");
-        sprintf(eventPlane, "EP: etHFp");
+        sprintf(eventPlane, "#eta_{J/#psi} < 0");
       }
       if(iCat == 2) {
         f1 = new TFile("etHF/summary/saved_histo.root");
@@ -251,7 +253,15 @@ void Plot_JpsiV2_a1_Final(){
                 //if(ind > 1) lt1->DrawLatex(0.71,0.89,Form("%d - %d %%",vcts1, vcts2));
                 if(ind == 3){
                   lt1->SetTextSize(0.06);
-                  lt1->DrawLatex(0.05,0.75,Form("|y| < %.1f",vraps2));       // rapidity
+                  if (!strcmp(nameoutfile,"etHFm")) 
+                    lt1->DrawLatex(0.05,0.75,Form("%.1f < y < %.1f",vraps1,vraps2));       // rapidity
+                  else if (!strcmp(nameoutfile,"etHFp")) {
+                    if (vraps1 == 0)
+                      lt1->DrawLatex(0.05,0.75,Form("-%.1f < y < %.1f",vraps2,vraps1));       // rapidity
+                    else
+                      lt1->DrawLatex(0.05,0.75,Form("-%.1f < y < -%.1f",vraps2,vraps1));       // rapidity
+                  } else
+                    lt1->DrawLatex(0.05,0.75,Form("|y| < %.1f",vraps2));       // rapidity
                 }
                 if(ind == 3) lt1->DrawLatex(0.05,0.68,Form("%.1f < p_{T} < %.1f GeV/c", vpts1, vpts2)); 
               }
@@ -291,7 +301,7 @@ void Plot_JpsiV2_a1_Final(){
         lt1->DrawLatex(0.05,0.89,Form("%s",legend[choseSignal]));  // what signal is
 
         lt1->SetTextSize(0.06);
-        lt1->DrawLatex(0.05,0.82,Form("%s",eventPlane));
+//        lt1->DrawLatex(0.05,0.82,Form("%s",eventPlane));
         //_______
         if(bSavePlots)
         {
@@ -422,9 +432,17 @@ void Plot_JpsiV2_a1_Final(){
         lt1->SetTextSize(0.04);
         lt1->DrawLatex(0.18,0.89,Form("%s",legend[choseSignal]));  // what signal is
         lt1->SetTextSize(0.038);
-        lt1->DrawLatex(0.18,0.83,Form("|y| < %.1f",vraps2));       // rapidity
+        if (!strcmp(nameoutfile,"etHFm")) {
+          lt1->DrawLatex(0.18,0.83,Form("%.1f < y < %.1f",vraps1,vraps2));       // rapidity
+        } else if (!strcmp(nameoutfile,"etHFp")) {
+          if (vraps1 == 0)
+            lt1->DrawLatex(0.18,0.83,Form("-%.1f < y < %.1f",vraps2,vraps1));       // rapidity
+          else
+            lt1->DrawLatex(0.18,0.83,Form("-%.1f < y < -%.1f",vraps2,vraps1));       // rapidity
+        } else
+            lt1->DrawLatex(0.18,0.83,Form("|y| < %.1f",vraps2));       // rapidity
         lt1->DrawLatex(0.18,0.77,Form("%.1f < p_{T} < %.1f GeV/c", vpts1, vpts2)); 
-        lt1->DrawLatex(0.18,0.71,Form("%s",eventPlane));
+//        lt1->DrawLatex(0.18,0.71,Form("%s",eventPlane));
         if(iCat == 0){
           c2->SaveAs(Form("./plots/etHFm_%s/%s_%s_a1_Uncorr.png",prefixarr[prefix],chosenSignal,nameoutfile));
           c2->SaveAs(Form("./plots/etHFm_%s/%s_%s_a1_Uncorr.pdf",prefixarr[prefix],chosenSignal,nameoutfile));
@@ -496,11 +514,11 @@ void Plot_JpsiV2_a1_Final(){
       sprintf(histname,"%s_%s_rap%.1f-%.1f_pT%.1f-%.1f",prefixarr[prefix],signal[choseSignal],raps[0],raps[1],pts[0],pts[1]);
       double cts_bound[ncentbins] = {0.0};
       double finalV2Cent[ncentbins] ={0.0} , finalV2ErrCent[ncentbins] = {0.0};
-      for (int cent=0; cent < ncentbins; cent++) {
-        cts_bound[cent] = (cts[cent] + cts[cent+1])/2;
+      for (int cent = ncentbins-1; cent >= 0; cent--) {
+        cts_bound[cent] = ncoll[cent];
         finalV2Cent[cent] = finalV2[prefix][choseSignal][cent][0][0];
         finalV2ErrCent[cent] = finalV2Err[prefix][choseSignal][cent][0][0];
-        cout << finalV2Cent << " " << finalV2ErrCent << endl;
+        cout << finalV2Cent[cent] << " " << finalV2ErrCent[cent] << endl;
       }
       TGraphErrors hFinal(ncentbins,cts_bound,finalV2Cent,0,finalV2ErrCent);
       hFinal.SetName(histname);
@@ -563,7 +581,6 @@ void Plot_JpsiV2_a1_Final(){
       //double ncoll[4]       = {1600.00, 1300.00,744.34, 196.15};
       //double ncoll[4]       = {381.3, 329.4, 224.3, 89.9};
       //double ncoll[3]       = {355.4, 224.3, 89.9};
-      double ncoll[4]       = {355.4, 261.4178, 187.1470, 89.9};
       for(int ic = ncentbins-1; ic >= 0; ic--)
       {
         double v2PtBarr[1]    = {finalV2[prefix][choseSignal][ic][0][0]};
@@ -589,7 +606,6 @@ void Plot_JpsiV2_a1_Final(){
       lt1->SetTextSize(0.038);
       lt1->DrawLatex(0.18,0.83,Form("|y| < %.1f",2.4));       // rapidity
       lt1->DrawLatex(0.18,0.77,Form("%.1f < p_{T} < %.1f GeV/c", pts[0], pts[1])); 
-      lt1->DrawLatex(0.18,0.71,"etHFp + etHFm");
 
       gSystem->mkdir("./plots/etHFp_etHFm_combined",kTRUE);
       c22->SaveAs(Form("./plots/etHFp_etHFm_combined/%s_%s_a1_Corr.png",prefixarr[prefix],signal[choseSignal]));
