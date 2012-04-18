@@ -25,7 +25,7 @@
 #endif
 
 
-void v2SummaryPlots_y()
+void v2SummaryPlots_y_EPCorr()
 {
 //  gROOT->Macro("/Users/eusmartass/Software/utilities/setStyle.C+");
   gROOT->Macro("./rootlogon.C");
@@ -35,15 +35,15 @@ void v2SummaryPlots_y()
   const char* legend[5]      = {"","Inclusive J/#psi","Non-prompt J/#psi","Prompt J/#psi","Background"};
   int choseSignal            = 1; // 1:inclusive 2:prompt 3:non-prompt
   const char* chosenSignal   = signal[choseSignal];
-//  const char* outputName[1]  = {"nominal_bit1_cowboy_sailor"};
-  const char* outputName[1]  = {"nominal_bkg"};
+  const char* outputName[1]  = {"nominal_bit1_cowboy_sailor"};
+  //const char* outputName[1]  = {"nominal_bkg"};
 
   // options
   bool bSavePlots      = true; 
-  bool bAddBkg         = true;
+  bool bAddBkg         = false;
   bool bAddVtx         = false;
   bool bAddNoFlat      = false;
-  bool bAddTrigger     = false;
+  bool bAddTrigger     = true;
 
   int centIntegrated[2]   = {10, 60}; 
   double ptIntegrated[3]    = {3, 6.5, 40}; 
@@ -88,7 +88,7 @@ void v2SummaryPlots_y()
 
   //// High pT
   //inclusive
-  sprintf(histname,"nominal_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
+  sprintf(histname,"3DEff_nominal_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
   TGraphErrors *pg_jpsi_highPt_ptybins = (TGraphErrors*)f1->Get(histname);
   if (!pg_jpsi_highPt_ptybins) { cout << "cannot load nominal_NSig case." << endl; return;}
   TGraphErrors *pg_jpsi_highPt_ptybinsGhost = new TGraphErrors(nybins_highPt,ybins_highPt_center,jpsi_highPt_ptybins,ybins_highPt_center_err,jpsi_highPt_ptybins_errGhost);   
@@ -99,21 +99,21 @@ void v2SummaryPlots_y()
   sprintf(histname,"nominal_NNp_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
   TGraphErrors *pg_npr_jpsi_highPt_ptybins = (TGraphErrors*)f1->Get(histname);
 
-  sprintf(histname,"nominal_NBkg_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
+  sprintf(histname,"3DEff_nominal_NBkg_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
   TGraphErrors *pg_bkg_highPt_ptybins = (TGraphErrors*)f1->Get(histname);
   sprintf(histname,"zVtxLT10_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
   TGraphErrors *pg_jpsiVtx10_highPt_ptybins  = (TGraphErrors*)f1->Get(histname);
-  sprintf(histname,"bit1_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
+  sprintf(histname,"3DEff_bit1_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
   TGraphErrors *pg_jpsiL1NHitTrig_highPt_ptybins  = (TGraphErrors*)f1->Get(histname);
-  sprintf(histname,"sailor_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
+  sprintf(histname,"3DEff_sailor_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
   TGraphErrors *pg_jpsiL1NHitTrig_highPt_noCow_ptybins  = (TGraphErrors*)f1->Get(histname);
-  sprintf(histname,"cowboy_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
+  sprintf(histname,"3DEff_cowboy_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
   TGraphErrors *pg_jpsiL1NHitTrig_highPt_onlyCow_ptybins  = (TGraphErrors*)f1->Get(histname);
   sprintf(histname,"autoCorr_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
   TGraphErrors *pg_jpsiAutoCorr_highPt_ptybins  = (TGraphErrors*)f1->Get(histname);
 
   //// Low pT
-  sprintf(histname,"nominal_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
+  sprintf(histname,"3DEff_nominal_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
   TGraphErrors *pg_jpsi_lowPt_ptybins  = (TGraphErrors*)f1->Get(histname);
   sprintf(histname,"nominal_NPr_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
   TGraphErrors *pg_pr_jpsi_lowPt_ptybins = (TGraphErrors*)f1->Get(histname);
@@ -130,9 +130,9 @@ void v2SummaryPlots_y()
   TGraphErrors *pg_jpsiNoFlat_lowPt_ptybins  = (TGraphErrors*)f1->Get(histname);
   sprintf(histname,"bit1_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
   TGraphErrors *pg_jpsiL1NHitTrig_lowPt_ptybins  = (TGraphErrors*)f1->Get(histname);
-  sprintf(histname,"sailor_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
+  sprintf(histname,"3DEff_sailor_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
   TGraphErrors *pg_jpsiL1NHitTrig_lowPt_noCow_ptybins  = (TGraphErrors*)f1->Get(histname);
-  sprintf(histname,"cowboy_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
+  sprintf(histname,"3DEff_cowboy_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
   TGraphErrors *pg_jpsiL1NHitTrig_lowPt_onlyCow_ptybins  = (TGraphErrors*)f1->Get(histname);
 
 //  TGraphErrors *pg_jpsiL2pt3Trig_lowPt_ptybins  = (TGraphErrors*)f1->Get(histname);
@@ -206,7 +206,7 @@ void v2SummaryPlots_y()
     pg_jpsi_highPt_ptybins->SetMarkerSize(2.0);
     pg_jpsi_highPt_ptybins->SetMarkerColor(kRed+2);
     pg_jpsi_highPt_ptybins->SetLineColor(kRed+2);
-    pg_jpsi_highPt_ptybins->Draw("[P]");
+    //pg_jpsi_highPt_ptybins->Draw("[P]");
 
     pg_jpsi_lowPt_ptybins->SetMarkerStyle(21);
     pg_jpsi_lowPt_ptybins->SetMarkerSize(1.8);
@@ -328,26 +328,26 @@ void v2SummaryPlots_y()
 
   if(bAddTrigger)
   {
-    pg_jpsiL1NHitTrig_lowPt_ptybins->SetMarkerStyle(25);
-    pg_jpsiL1NHitTrig_lowPt_onlyCow_ptybins->SetMarkerStyle(25);
-    pg_jpsiL1NHitTrig_lowPt_noCow_ptybins->SetMarkerStyle(25);
+    //pg_jpsiL1NHitTrig_lowPt_ptybins->SetMarkerStyle(25);
+    //pg_jpsiL1NHitTrig_lowPt_onlyCow_ptybins->SetMarkerStyle(25);
+    //pg_jpsiL1NHitTrig_lowPt_noCow_ptybins->SetMarkerStyle(25);
 
 //    pg_jpsiL2pt3Trig_lowPt_ptybins->SetMarkerStyle(27);
 //    pg_jpsiL3ptOpenTrig_lowPt_ptybins->SetMarkerStyle(28);
 
-    pg_jpsiL1NHitTrig_lowPt_ptybins->SetMarkerColor(kBlue+2);
-    pg_jpsiL1NHitTrig_lowPt_ptybins->SetLineColor(kBlue+2);
-    pg_jpsiL1NHitTrig_highPt_ptybins->SetMarkerColor(kBlue+2);
-    pg_jpsiL1NHitTrig_highPt_ptybins->SetLineColor(kBlue+2);
+    //pg_jpsiL1NHitTrig_lowPt_ptybins->SetMarkerColor(kBlue+2);
+    //pg_jpsiL1NHitTrig_lowPt_ptybins->SetLineColor(kBlue+2);
+    //pg_jpsiL1NHitTrig_highPt_ptybins->SetMarkerColor(kBlue+2);
+    //pg_jpsiL1NHitTrig_highPt_ptybins->SetLineColor(kBlue+2);
 
 //    pg_jpsiL2pt3Trig_lowPt_ptybins->SetMarkerColor(kBlue+2);
 //    pg_jpsiL3ptOpenTrig_lowPt_ptybins->SetMarkerColor(kBlue+2);
 
-    pg_jpsiL1NHitTrig_lowPt_ptybins->SetMarkerSize(1.8);
+      //pg_jpsiL1NHitTrig_lowPt_ptybins->SetMarkerSize(1.8);
 //    pg_jpsiL2pt3Trig_lowPt_ptybins->SetMarkerSize(1.8);
 //    pg_jpsiL3ptOpenTrig_lowPt_ptybins->SetMarkerSize(1.8);
 
-    pg_jpsiL1NHitTrig_highPt_ptybins->SetMarkerStyle(24);
+    //pg_jpsiL1NHitTrig_highPt_ptybins->SetMarkerStyle(24);
     pg_jpsiL1NHitTrig_highPt_onlyCow_ptybins->SetMarkerStyle(24);
     pg_jpsiL1NHitTrig_highPt_noCow_ptybins->SetMarkerStyle(24);
 
@@ -361,18 +361,18 @@ void v2SummaryPlots_y()
     pg_jpsiL1NHitTrig_lowPt_noCow_ptybins->SetMarkerColor(kMagenta);
     pg_jpsiL1NHitTrig_lowPt_noCow_ptybins->SetLineColor(kMagenta);
 
-    pg_jpsiL1NHitTrig_highPt_ptybins->SetMarkerSize(1.8);
+    //pg_jpsiL1NHitTrig_highPt_ptybins->SetMarkerSize(1.8);
     pg_jpsiL1NHitTrig_highPt_onlyCow_ptybins->SetMarkerSize(1.8);
     pg_jpsiL1NHitTrig_highPt_noCow_ptybins->SetMarkerSize(1.8);
 
-    pg_jpsiL1NHitTrig_lowPt_ptybins->SetMarkerSize(1.8);
+    //pg_jpsiL1NHitTrig_lowPt_ptybins->SetMarkerSize(1.8);
     pg_jpsiL1NHitTrig_lowPt_onlyCow_ptybins->SetMarkerSize(1.8);
     pg_jpsiL1NHitTrig_lowPt_noCow_ptybins->SetMarkerSize(1.8);
 
-    pg_jpsi_lowPt_ptybins->Draw("[P]");
-    pg_jpsi_highPt_ptybins->Draw("[P]");
-    pg_jpsiL1NHitTrig_lowPt_ptybins->Draw("[P]");
-    pg_jpsiL1NHitTrig_highPt_ptybins->Draw("[P]");
+    //pg_jpsi_lowPt_ptybins->Draw("[P]");
+    //pg_jpsi_highPt_ptybins->Draw("[P]");
+    //pg_jpsiL1NHitTrig_lowPt_ptybins->Draw("[P]");
+    //pg_jpsiL1NHitTrig_highPt_ptybins->Draw("[P]");
     pg_jpsiL1NHitTrig_lowPt_noCow_ptybins->Draw("[P]");
     pg_jpsiL1NHitTrig_highPt_noCow_ptybins->Draw("[P]");
     pg_jpsiL1NHitTrig_lowPt_onlyCow_ptybins->Draw("[P]");
@@ -386,8 +386,8 @@ void v2SummaryPlots_y()
     legTrig->SetFillColor(0);
     legTrig->SetBorderSize(0);
     legTrig->SetTextSize(0.03);
-    legTrig->AddEntry(pg_jpsi_highPt_ptybins,"Default: all triggers","P");
-    legTrig->AddEntry(pg_jpsiL1NHitTrig_highPt_ptybins,"HLT_HIL1DoubleMu0_HighQ","P");
+    //legTrig->AddEntry(pg_jpsi_highPt_ptybins,"Default: all triggers","P");
+    //legTrig->AddEntry(pg_jpsiL1NHitTrig_highPt_ptybins,"HLT_HIL1DoubleMu0_HighQ","P");
     //legTrig->AddEntry(pg_jpsiL2pt3Trig_lowPt_ptybins,"HLT_HIL2DoubleMu3","P");
     //legTrig->AddEntry(pg_jpsiL3ptOpenTrig_lowPt_ptybins,"HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy","P");
     legTrig->AddEntry(pg_jpsiL1NHitTrig_highPt_noCow_ptybins,"HLT_HIL1DoubleMu0_HighQ+Sailor","P");
@@ -419,9 +419,9 @@ void v2SummaryPlots_y()
     leg1->SetFillColor(0);
     leg1->SetBorderSize(0);
     leg1->SetTextSize(0.03);
-    //   leg1->AddEntry(pg_jpsi_highPt_ptybins,Form("%.1f < p_{T} < %.0f GeV/c", ptIntegrated[1], ptIntegrated[2]),"P");
+    leg1->AddEntry(pg_jpsi_highPt_ptybins,Form("%.1f < p_{T} < %.0f GeV/c", ptIntegrated[1], ptIntegrated[2]),"P");
     leg1->AddEntry(pg_jpsi_lowPt_ptybins,Form("%.0f < p_{T} < %.1f GeV/c", ptIntegrated[0], ptIntegrated[1]),"P");
-    leg1->Draw("same");
+    //leg1->Draw("same");
   }
   if(bSavePlots)
   {

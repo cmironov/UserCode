@@ -24,8 +24,7 @@
 
 #endif
 
-
-void v2SummaryPlots_cent()
+void v2SummaryPlots_cent_EPCorr()
 {
 //  gROOT->Macro("/Users/eusmartass/Software/utilities/setStyle.C+");
   gROOT->Macro("./rootlogon.C");
@@ -35,15 +34,15 @@ void v2SummaryPlots_cent()
   const char* legend[5]   = {"","Inclusive J/#psi","Non-prompt J/#psi", "Prompt J/#psi","Background"};
   int choseSignal         = 1; // 1:inclusive 2:prompt 3:non-prompt
   const char* chosenSignal= signal[choseSignal];
-//  const char* outputName[1]  = {"nominal_bit1_cowboy_sailor"};
-  const char* outputName[1]  = {"nominal_bkg"};
+  const char* outputName[1]  = {"3DEff_nominal_bit1_cowboy_sailor"};
+//  const char* outputName[1]  = {"nominal_bkg"};
 
   // options
   bool bSavePlots      = true; 
-  bool bAddBkg         = true;
+  bool bAddBkg         = false;
   bool bAddVtx         = false;
   bool bAddNoFlat      = false;
-  bool bAddTrigger     = false; 
+  bool bAddTrigger     = true; 
   bool bAddAutoCor     = false;
 
   const char* eventPlane[2] = {"","EP: etHFp & etHFm"};
@@ -66,18 +65,18 @@ void v2SummaryPlots_cent()
   
   char histname[200];
   //inclusive
-  sprintf(histname,"nominal_NSig_rap%.1f-%.1f_pT%.1f-%.1f",rapIntegrated[0],rapIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
+  sprintf(histname,"3DEff_nominal_NSig_rap%.1f-%.1f_pT%.1f-%.1f",rapIntegrated[0],rapIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
   TGraphErrors *pg_jpsi_centbins = (TGraphErrors*)f1->Get(histname);
   if (!pg_jpsi_centbins) { cout << "cannot load nominal_NSig case." << endl; return;}
   // prompt
-  sprintf(histname,"nominal_NPr_rap%.1f-%.1f_pT%.1f-%.1f",rapIntegrated[0],rapIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
+  sprintf(histname,"3DEff_nominal_NPr_rap%.1f-%.1f_pT%.1f-%.1f",rapIntegrated[0],rapIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
   TGraphErrors *pg_pr_jpsi_centbins = (TGraphErrors*)f1->Get(histname);
   // non-prompt
-  sprintf(histname,"nominal_NNp_rap%.1f-%.1f_pT%.1f-%.1f",rapIntegrated[0],rapIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
+  sprintf(histname,"3DEff_nominal_NNp_rap%.1f-%.1f_pT%.1f-%.1f",rapIntegrated[0],rapIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
   TGraphErrors *pg_npr_jpsi_centbins = (TGraphErrors*)f1->Get(histname);
 
   // systematic studies
-  sprintf(histname,"nominal_NBkg_rap%.1f-%.1f_pT%.1f-%.1f",rapIntegrated[0],rapIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
+  sprintf(histname,"3DEff_nominal_NBkg_rap%.1f-%.1f_pT%.1f-%.1f",rapIntegrated[0],rapIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
   TGraphErrors *pg_bkg_centbins = (TGraphErrors*)f1->Get(histname);
 
   sprintf(histname,"zVtxLT10_NSig_rap%.1f-%.1f_pT%.1f-%.1f",rapIntegrated[0],rapIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
@@ -87,11 +86,11 @@ void v2SummaryPlots_cent()
   sprintf(histname,"autoCorr_NSig_rap%.1f-%.1f_pT%.1f-%.1f",rapIntegrated[0],rapIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
   TGraphErrors *pg_jpsiAutoCorr_centbins = (TGraphErrors*)f1->Get(histname);
  
-  sprintf(histname,"bit1_NSig_rap%.1f-%.1f_pT%.1f-%.1f",rapIntegrated[0],rapIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
+  sprintf(histname,"3DEff_bit1_NSig_rap%.1f-%.1f_pT%.1f-%.1f",rapIntegrated[0],rapIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
   TGraphErrors *pg_jpsiL1NHitTrig_centbins = (TGraphErrors*)f1->Get(histname);
-  sprintf(histname,"cowboy_NSig_rap%.1f-%.1f_pT%.1f-%.1f",rapIntegrated[0],rapIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
+  sprintf(histname,"3DEff_cowboy_NSig_rap%.1f-%.1f_pT%.1f-%.1f",rapIntegrated[0],rapIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
   TGraphErrors *pg_jpsiL1NHitTrig_onlyCow_centbins = (TGraphErrors*)f1->Get(histname);
-  sprintf(histname,"sailor_NSig_rap%.1f-%.1f_pT%.1f-%.1f",rapIntegrated[0],rapIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
+  sprintf(histname,"3DEff_sailor_NSig_rap%.1f-%.1f_pT%.1f-%.1f",rapIntegrated[0],rapIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
   TGraphErrors *pg_jpsiL1NHitTrig_noCow_centbins = (TGraphErrors*)f1->Get(histname);
 
 /*  sprintf(histname,"_NSig_rap%.1f-%.1f_pT%.1f-%.1f",rapIntegrated[0],rapIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
@@ -135,7 +134,7 @@ void v2SummaryPlots_cent()
     pg_jpsi_centbins->SetMarkerSize(1.8);
     pg_jpsi_centbins->SetMarkerColor(602);
     pg_jpsi_centbins->SetLineColor(602);
-    pg_jpsi_centbins->Draw("[P]");
+//    pg_jpsi_centbins->Draw("[P]");
     break;
   case 2:
     pg_pr_jpsi_centbins->SetMarkerStyle(20);
@@ -219,16 +218,16 @@ void v2SummaryPlots_cent()
 
   if(bAddTrigger)
     {
-      pg_jpsiL1NHitTrig_centbins->SetMarkerStyle(24);
+      //pg_jpsiL1NHitTrig_centbins->SetMarkerStyle(24);
 //      pg_jpsiL2pt3Trig_centbins->SetMarkerStyle(27);
 //      pg_jpsiL3ptOpenTrig_centbins->SetMarkerStyle(28);
       
-      pg_jpsiL1NHitTrig_centbins->SetMarkerColor(kBlue);
-      pg_jpsiL1NHitTrig_centbins->SetLineColor(kBlue);
+      //pg_jpsiL1NHitTrig_centbins->SetMarkerColor(kBlue);
+      //pg_jpsiL1NHitTrig_centbins->SetLineColor(kBlue);
 //      pg_jpsiL2pt3Trig_centbins->SetMarkerColor(kBlue);
 //      pg_jpsiL3ptOpenTrig_centbins->SetMarkerColor(kBlue);
       
-      pg_jpsiL1NHitTrig_centbins->SetMarkerSize(1.8);
+      //pg_jpsiL1NHitTrig_centbins->SetMarkerSize(1.8);
 //      pg_jpsiL2pt3Trig_centbins->SetMarkerSize(1.8);
 //      pg_jpsiL3ptOpenTrig_centbins->SetMarkerSize(1.8);
 
@@ -243,7 +242,7 @@ void v2SummaryPlots_cent()
       pg_jpsiL1NHitTrig_onlyCow_centbins->SetMarkerSize(1.8);
       pg_jpsiL1NHitTrig_noCow_centbins->SetMarkerSize(1.8);
 
-      pg_jpsiL1NHitTrig_centbins->Draw("[P]");
+      //pg_jpsiL1NHitTrig_centbins->Draw("[P]");
       //pg_jpsiL1NHitTrig_centbins->Draw("P");
       //   pg_jpsiL2pt3Trig_centbins->Draw("p");
       // pg_jpsiL3ptOpenTrig_centbins->Draw("p");
@@ -256,8 +255,8 @@ void v2SummaryPlots_cent()
       legTrig->SetFillColor(0);
       legTrig->SetBorderSize(0);
       legTrig->SetTextSize(0.03);
-      legTrig->AddEntry(pg_jpsi_centbins,"Default: all triggers","P");
-      legTrig->AddEntry(pg_jpsiL1NHitTrig_centbins,"HLT_HIL1DoubleMu0_HighQ","P");
+//      legTrig->AddEntry(pg_jpsi_centbins,"Default: all triggers","P");
+      //legTrig->AddEntry(pg_jpsiL1NHitTrig_centbins,"HLT_HIL1DoubleMu0_HighQ","P");
       //   legTrig->AddEntry(pg_jpsiL2pt3Trig_centbins,"HLT_HIL2DoubleMu3","P");
       //  legTrig->AddEntry(pg_jpsiL3ptOpenTrig_centbins,"HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy","P");
       legTrig->AddEntry(pg_jpsiL1NHitTrig_noCow_centbins,"HLT_HIL1DoubleMu0_HighQ+Sailor","P");
@@ -296,7 +295,7 @@ void v2SummaryPlots_cent()
   lt1->DrawLatex(0.18,0.89,Form("%s",legend[choseSignal]));  // what signal is
   lt1->SetTextSize(0.038);
   lt1->DrawLatex(0.18,0.83,Form("|y| < %.1f",rapIntegrated[1]));       // rapidity
-  lt1->DrawLatex(0.18,0.77,Form("%.1f < p_{T} < %.0f GeV/c", ptIntegrated[1], ptIntegrated[2])); 
+  lt1->DrawLatex(0.18,0.77,Form("%.1f < p_{T} < %.0f GeV/c", ptIntegrated[0], ptIntegrated[1])); 
   //  lt1->DrawLatex(0.18,0.71,Form("%s",eventPlane[1]));
 
   if(!bAddTrigger)

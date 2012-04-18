@@ -25,7 +25,7 @@
 #endif
 
 
-void v2SummaryPlots_pt()
+void v2SummaryPlots_pt_EPCorr()
 {
 //  gROOT->Macro("/Users/eusmartass/Software/utilities/setStyle.C+");
   gROOT->Macro("./rootlogon.C");
@@ -35,15 +35,15 @@ void v2SummaryPlots_pt()
   const char* legend[5]   = {"","Inclusive J/#psi","Non-Prompt J/#psi","Prompt J/#psi","Background"};
   int choseSignal         = 1; // 1:inclusive 2:prompt 3:non-prompt
   const char* chosenSignal= signal[choseSignal];
-//  const char* outputName[1]  = {"nominal_bit1_cowboy_sailor"};
-  const char* outputName[1]  = {"nominal_bkg"};
+  const char* outputName[1]  = {"3DEff_nominal_bit1_cowboy_sailor"};
+  //const char* outputName[1]  = {"nominal_bkg"};
  
   // options
   bool bSavePlots      = true; 
-  bool bAddBkg         = true;
+  bool bAddBkg         = false;
   bool bAddVtx         = false;
   bool bAddNoFlat      = false;
-  bool bAddTrigger     = false;
+  bool bAddTrigger     = true;
 
   const char* eventPlane[2] = {"","EP: etHFp & etHFm"};
   double rapIntegrated[2]   = {0.0, 2.4}; 
@@ -56,7 +56,7 @@ void v2SummaryPlots_pt()
   
   char histname[200];
   //inclusive
-  sprintf(histname,"nominal_NSig_rap%.1f-%.1f_cent%d-%d",rapIntegrated[0],rapIntegrated[1],centIntegrated[0],centIntegrated[1]);
+  sprintf(histname,"3DEff_nominal_NSig_rap%.1f-%.1f_cent%d-%d",rapIntegrated[0],rapIntegrated[1],centIntegrated[0],centIntegrated[1]);
   TGraphErrors *pg_jpsi_ptbins = (TGraphErrors*)f1->Get(histname);
   if (!pg_jpsi_ptbins) { cout << "cannot load nominal_NSig case." << endl; return;}
   // prompt
@@ -76,7 +76,7 @@ void v2SummaryPlots_pt()
   double jpsi_ptbins_errGhost[nptbins]   = {0.,     0.,     0., };
   TGraphErrors *pg_jpsi_ptbinsGhost = new TGraphErrors(nptbins,ptbins_center,jpsi_ptbins,ptbins_center_err,jpsi_ptbins_errGhost);
 
-  sprintf(histname,"nominal_NBkg_rap%.1f-%.1f_cent%d-%d",rapIntegrated[0],rapIntegrated[1],centIntegrated[0],centIntegrated[1]);
+  sprintf(histname,"3DEff_nominal_NBkg_rap%.1f-%.1f_cent%d-%d",rapIntegrated[0],rapIntegrated[1],centIntegrated[0],centIntegrated[1]);
   TGraphErrors *pg_bkg_ptbins = (TGraphErrors*)f1->Get(histname);
 
   sprintf(histname,"zVtxLT10_NSig_rap%.1f-%.1f_cent%d-%d",rapIntegrated[0],rapIntegrated[1],centIntegrated[0],centIntegrated[1]);
@@ -86,11 +86,11 @@ void v2SummaryPlots_pt()
   sprintf(histname,"autoCorr_NSig_rap%.1f-%.1f_cent%d-%d",rapIntegrated[0],rapIntegrated[1],centIntegrated[0],centIntegrated[1]);
   TGraphErrors *pg_jpsiAutoCorr_ptbins = (TGraphErrors*)f1->Get(histname);
  
-  sprintf(histname,"bit1_NSig_rap%.1f-%.1f_cent%d-%d",rapIntegrated[0],rapIntegrated[1],centIntegrated[0],centIntegrated[1]);
+  sprintf(histname,"3DEff_bit1_NSig_rap%.1f-%.1f_cent%d-%d",rapIntegrated[0],rapIntegrated[1],centIntegrated[0],centIntegrated[1]);
   TGraphErrors *pg_jpsiL1NHitTrig_ptbins = (TGraphErrors*)f1->Get(histname);
-  sprintf(histname,"cowboy_NSig_rap%.1f-%.1f_cent%d-%d",rapIntegrated[0],rapIntegrated[1],centIntegrated[0],centIntegrated[1]);
+  sprintf(histname,"3DEff_cowboy_NSig_rap%.1f-%.1f_cent%d-%d",rapIntegrated[0],rapIntegrated[1],centIntegrated[0],centIntegrated[1]);
   TGraphErrors *pg_jpsiL1NHitTrig_onlyCow_ptbins = (TGraphErrors*)f1->Get(histname);
-  sprintf(histname,"sailor_NSig_rap%.1f-%.1f_cent%d-%d",rapIntegrated[0],rapIntegrated[1],centIntegrated[0],centIntegrated[1]);
+  sprintf(histname,"3DEff_sailor_NSig_rap%.1f-%.1f_cent%d-%d",rapIntegrated[0],rapIntegrated[1],centIntegrated[0],centIntegrated[1]);
   TGraphErrors *pg_jpsiL1NHitTrig_noCow_ptbins = (TGraphErrors*)f1->Get(histname);
 
 /*
@@ -122,8 +122,8 @@ void v2SummaryPlots_pt()
   pcPadPT->GetYaxis()->SetTitleOffset(1.1);
   pcPadPT->GetYaxis()->CenterTitle();
 
-  pcPadPT->SetMaximum(0.18);
-  pcPadPT->SetMinimum(-0.05);
+  pcPadPT->SetMaximum(0.25);
+  pcPadPT->SetMinimum(-0.1);
   if(bAddBkg)
     {
       pcPadPT->SetMaximum(0.4);
@@ -166,7 +166,7 @@ void v2SummaryPlots_pt()
     pg_jpsi_ptbins->SetMarkerStyle(20);
     pg_jpsi_ptbins->SetMarkerSize(1.8);
     pg_jpsi_ptbins->SetMarkerColor(602);
-    pg_jpsi_ptbins->Draw("[P]");
+//    pg_jpsi_ptbins->Draw("[P]");
     break;
   case 2:
     pg_pr_jpsi_ptbins->SetMarkerStyle(20);
@@ -244,10 +244,10 @@ void v2SummaryPlots_pt()
 
   if(bAddTrigger)
     {
-      pg_jpsiL1NHitTrig_ptbins->SetMarkerStyle(24);
-      pg_jpsiL1NHitTrig_ptbins->SetMarkerColor(kBlue);
-      pg_jpsiL1NHitTrig_ptbins->SetMarkerSize(1.8);
-      pg_jpsiL1NHitTrig_ptbins->Draw("P");
+      //pg_jpsiL1NHitTrig_ptbins->SetMarkerStyle(24);
+      //pg_jpsiL1NHitTrig_ptbins->SetMarkerColor(kBlue);
+      //pg_jpsiL1NHitTrig_ptbins->SetMarkerSize(1.8);
+      //pg_jpsiL1NHitTrig_ptbins->Draw("P");
 
 //      pg_jpsiL2pt3Trig_ptbins->SetMarkerStyle(27);
 //      pg_jpsiL3ptOpenTrig_ptbins->SetMarkerStyle(28);
@@ -276,8 +276,8 @@ void v2SummaryPlots_pt()
       legTrig->SetFillColor(0);
       legTrig->SetBorderSize(0);
       legTrig->SetTextSize(0.03);
-      legTrig->AddEntry(pg_jpsi_ptbins,"Default: all triggers","P");
-      legTrig->AddEntry(pg_jpsiL1NHitTrig_ptbins,"HLT_HIL1DoubleMu0_HighQ","P");
+//      legTrig->AddEntry(pg_jpsi_ptbins,"Default: all triggers","P");
+      //legTrig->AddEntry(pg_jpsiL1NHitTrig_ptbins,"HLT_HIL1DoubleMu0_HighQ","P");
       legTrig->AddEntry(pg_jpsiL1NHitTrig_noCow_ptbins,"HLT_HIL1DoubleMu0_HighQ+Sailor","P");
       legTrig->AddEntry(pg_jpsiL1NHitTrig_onlyCow_ptbins,"HLT_HIL1DoubleMu0_HighQ+Cowboy","P");
 //      legTrig->AddEntry(pg_jpsiL2pt3Trig_ptbins,"HLT_HIL2DoubleMu3","P");

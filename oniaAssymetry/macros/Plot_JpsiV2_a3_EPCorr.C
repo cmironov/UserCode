@@ -50,22 +50,24 @@ void TGetPoints(TGraphErrors *a, double *b, double *c);
 void getEPCorrection(int epType, int centLow, int centHigh, double *corrVal, double *corrErr) ;
 
 //__________________________________________________________________________
-void Plot_JpsiV2_a3_EPCorr(const char* inDirName = "/Users/eusmartass/Software/v2onia11/ana12")
+void Plot_JpsiV2_a3_EPCorr(const char* inDirName = "./")
 {
-  gROOT->Macro("/Users/eusmartass/Software/utilities/setStyle.C+");
-  // gROOT->Macro("./rootlogon.C");
+  //gROOT->Macro("/Users/eusmartass/Software/utilities/setStyle.C+");
+  gROOT->Macro("./rootlogon.C");
   gStyle->SetOptFit(0);
 
-  const int nPrefix = 10;
-  const char *prefixarr[nPrefix] = {"nominal", "polFunct", "constrained", "signalCB3WN", "cowboy", "sailor", "bit1", "noFlat", "zVtxLT10", "autoCorr"};
+//  const int nPrefix = 10;
+//  const char *prefixarr[nPrefix] = {"nominal", "polFunct", "constrained", "signalCB3WN", "cowboy", "sailor", "bit1", "noFlat", "zVtxLT10", "autoCorr"};
+  const int nPrefix = 3;
+  const char *prefixarr[nPrefix] = {"3DEff_nominal", "3DEff_cowboy", "3DEff_sailor"};
   const char* signal[4]      = {"NSig","NBkg","NPr","NNp"};
   const char* legend[4]      = {"Inclusive J/#psi","Background","Prompt J/#psi","Non-prompt J/#psi"};
 
   // options
   bool bSavePlots      = true; 
   
-  int prefix_start     = 4; // which setting for v2
-  int prefix_end       = 6;
+  int prefix_start     = 0; // which setting for v2
+  int prefix_end       = nPrefix;
   int signal_start     = 0;// sgn, bkg, pr, npr
   int signal_end       = 1;
   int centrality_start = 0;
@@ -383,18 +385,18 @@ void Plot_JpsiV2_a3_EPCorr(const char* inDirName = "/Users/eusmartass/Software/v
 		    {
 		      if(iCat == 0){
 			gSystem->mkdir(Form("./plots/etHFm_%s",prefixarr[prefix]),kTRUE);
-			pc1->SaveAs(Form("./plots/etHFm_%s/%s_%s_pT%.1f-%.1f_a3_elements.png",prefixarr[prefix],chosenSignal,nameoutfile,pts[pt_start],pts[pt_end]));
-			pc1->SaveAs(Form("./plots/etHFm_%s/%s_%s_pT%.1f-%.1f_a3_elements.pdf",prefixarr[prefix],chosenSignal,nameoutfile,pts[pt_start],pts[pt_end]));
+			pc1->SaveAs(Form("./plots/etHFm_%s/%s_%s_rap%.1f-%.1f_pT%.1f-%.1f_cent%d-%d_a3_elements.png",prefixarr[prefix],chosenSignal,nameoutfile,raps[y_start],raps[y_end],pts[pt_start],pts[pt_end],cts[centrality_start],cts[centrality_end]));
+			pc1->SaveAs(Form("./plots/etHFm_%s/%s_%s_rap%.1f-%.1f_pT%.1f-%.1f_cent%d-%d_a3_elements.pdf",prefixarr[prefix],chosenSignal,nameoutfile,raps[y_start],raps[y_end],pts[pt_start],pts[pt_end],cts[centrality_start],cts[centrality_end]));
 		      }
 		      if(iCat == 1){
 			gSystem->mkdir(Form("./plots/etHFp_%s",prefixarr[prefix]),kTRUE);
-			pc1->SaveAs(Form("./plots/etHFp_%s/%s_%s_pT%.1f-%.1f_a3_elements.png",prefixarr[prefix],chosenSignal,nameoutfile,pts[pt_start],pts[pt_end]));
-			pc1->SaveAs(Form("./plots/etHFp_%s/%s_%s_pT%.1f-%.1f_a3_elements.pdf",prefixarr[prefix],chosenSignal,nameoutfile,pts[pt_start],pts[pt_end]));
+			pc1->SaveAs(Form("./plots/etHFp_%s/%s_%s_rap%.1f-%.1f_pT%.1f-%.1f_cent%d-%d_a3_elements.png",prefixarr[prefix],chosenSignal,nameoutfile,raps[y_start],raps[y_end],pts[pt_start],pts[pt_end],cts[centrality_start],cts[centrality_end]));
+			pc1->SaveAs(Form("./plots/etHFp_%s/%s_%s_rap%.1f-%.1f_pT%.1f-%.1f_cent%d-%d_a3_elements.pdf",prefixarr[prefix],chosenSignal,nameoutfile,raps[y_start],raps[y_end],pts[pt_start],pts[pt_end],cts[centrality_start],cts[centrality_end]));
 		      }
 		      if(iCat == 2){
 			gSystem->mkdir("./plots/etHF",kTRUE);
-			pc1->SaveAs(Form("./plots/etHF/%s_%s_pT%.1f-%.1f_a3_elements.png",chosenSignal,nameoutfile,pts[pt_start],pts[pt_end]));
-			pc1->SaveAs(Form("./plots/etHF/%s_%s_pT%.1f-%.1f_a3_elements.pdf",chosenSignal,nameoutfile,pts[pt_start],pts[pt_end]));
+			pc1->SaveAs(Form("./plots/etHF_%s/%s_%s_rap%.1f-%.1f_pT%.1f-%.1f_cent%d-%d_a3_elements.png",prefixarr[prefix],chosenSignal,nameoutfile,raps[y_start],raps[y_end],pts[pt_start],pts[pt_end],cts[centrality_start],cts[centrality_end]));
+			pc1->SaveAs(Form("./plots/etHF_%s/%s_%s_rap%.1f-%.1f_pT%.1f-%.1f_cent%d-%d_a3_elements.pdf",prefixarr[prefix],chosenSignal,nameoutfile,raps[y_start],raps[y_end],pts[pt_start],pts[pt_end],cts[centrality_start],cts[centrality_end]));
 		      }
 		      
 		      pc1->Clear();
@@ -542,16 +544,16 @@ void Plot_JpsiV2_a3_EPCorr(const char* inDirName = "/Users/eusmartass/Software/v
 	      if(bSavePlots)
 		{
 		  if(iCat == 0){
-		    c2->SaveAs(Form("./plots/etHFm_%s/%s_%s_a3_Uncorr.png",prefixarr[prefix],chosenSignal,nameoutfile));
-		    c2->SaveAs(Form("./plots/etHFm_%s/%s_%s_a3_Uncorr.pdf",prefixarr[prefix],chosenSignal,nameoutfile));
+        c2->SaveAs(Form("./plots/etHFm_%s/%s_%s_rap%.1f-%.1f_pT%.1f-%.1f_cent%d-%d_a3_Uncorr.png",prefixarr[prefix],chosenSignal,nameoutfile,raps[y_start],raps[y_end],pts[pt_start],pts[pt_end],cts[centrality_start],cts[centrality_end]));
+        c2->SaveAs(Form("./plots/etHFm_%s/%s_%s_rap%.1f-%.1f_pT%.1f-%.1f_cent%d-%d_a3_Uncorr.pdf",prefixarr[prefix],chosenSignal,nameoutfile,raps[y_start],raps[y_end],pts[pt_start],pts[pt_end],cts[centrality_start],cts[centrality_end]));
 		  }
 		  if(iCat == 1){
-		    c2->SaveAs(Form("./plots/etHFp_%s/%s_%s_a3_Uncorr.png",prefixarr[prefix],chosenSignal,nameoutfile));
-		    c2->SaveAs(Form("./plots/etHFp_%s/%s_%s_a3_Uncorr.pdf",prefixarr[prefix],chosenSignal,nameoutfile));
+        c2->SaveAs(Form("./plots/etHFp_%s/%s_%s_rap%.1f-%.1f_pT%.1f-%.1f_cent%d-%d_a3_Uncorr.png",prefixarr[prefix],chosenSignal,nameoutfile,raps[y_start],raps[y_end],pts[pt_start],pts[pt_end],cts[centrality_start],cts[centrality_end]));
+        c2->SaveAs(Form("./plots/etHFp_%s/%s_%s_rap%.1f-%.1f_pT%.1f-%.1f_cent%d-%d_a3_Uncorr.pdf",prefixarr[prefix],chosenSignal,nameoutfile,raps[y_start],raps[y_end],pts[pt_start],pts[pt_end],cts[centrality_start],cts[centrality_end]));
 		  }
 		  if(iCat == 2){
-		    c2->SaveAs(Form("./plots/etHF/%s_%s_a3_Uncorr.png",chosenSignal,nameoutfile));
-		    c2->SaveAs(Form("./plots/etHF/%s_%s_a3_Uncorr.pdf",chosenSignal,nameoutfile));
+        c2->SaveAs(Form("./plots/etHF_%s/%s_%s_rap%.1f-%.1f_pT%.1f-%.1f_cent%d-%d_a3_Uncorr.png",prefixarr[prefix],chosenSignal,nameoutfile,raps[y_start],raps[y_end],pts[pt_start],pts[pt_end],cts[centrality_start],cts[centrality_end]));
+        c2->SaveAs(Form("./plots/etHF_%s/%s_%s_rap%.1f-%.1f_pT%.1f-%.1f_cent%d-%d_a3_Uncorr.pdf",prefixarr[prefix],chosenSignal,nameoutfile,raps[y_start],raps[y_end],pts[pt_start],pts[pt_end],cts[centrality_start],cts[centrality_end]));
 		  }
 		}
 	      
@@ -757,8 +759,8 @@ void Plot_JpsiV2_a3_EPCorr(const char* inDirName = "/Users/eusmartass/Software/v
 	  c22->Update();
 	  
 	  gSystem->mkdir("./plots/etHFp_etHFm_combined",kTRUE);
-	  c22->SaveAs(Form("./plots/etHFp_etHFm_combined/%s_%s_a3_Corr.png",prefixarr[prefix],signal[choseSignal]));
-	  c22->SaveAs(Form("./plots/etHFp_etHFm_combined/%s_%s_a3_Corr.pdf",prefixarr[prefix],signal[choseSignal]));
+    c22->SaveAs(Form("./plots/etHFp_etHFm_combined/%s_%s_rap%.1f-%.1f_pT%.1f-%.1f_cent%d-%d_a3_Corr.png",prefixarr[prefix],signal[choseSignal],raps[y_start],raps[y_end],pts[pt_start],pts[pt_end],cts[centrality_start],cts[centrality_end]));
+    c22->SaveAs(Form("./plots/etHFp_etHFm_combined/%s_%s_rap%.1f-%.1f_pT%.1f-%.1f_cent%d-%d_a3_Corr.pdf",prefixarr[prefix],signal[choseSignal],raps[y_start],raps[y_end],pts[pt_start],pts[pt_end],cts[centrality_start],cts[centrality_end]));
 	  
 	  delete hPad22;
 	  delete c22;
