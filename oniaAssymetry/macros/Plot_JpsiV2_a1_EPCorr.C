@@ -54,14 +54,14 @@ void getEPCorrection(int epType, int centLow, int centHigh, double *corrVal, dou
 void Plot_JpsiV2_a1_EPCorr(const char* inDirName = "./")
 {
   gROOT->Macro("./rootlogon.C");
-  //gROOT->Macro("/Users/eusmartass/Software/utilities/setStyle.C");
+//  gROOT->Macro("/Users/eusmartass/Software/utilities/setStyle.C");
   gStyle->SetOptFit(0);
   
  
 //  const int nPrefix = 10;
 //  const char *prefixarr[nPrefix] = {"nominal", "polFunct", "constrained", "signalCB3WN", "cowboy", "sailor", "bit1", "noFlat", "zVtxLT10", "autoCorr"};
   const int nPrefix = 3;
-  const char *prefixarr[nPrefix] = {"3DEff_nominal", "3DEff_cowboy", "3DEff_sailor"};
+  const char *prefixarr[nPrefix] = {"singleMuLTeta1.2_bit1", "singleMuLTeta1.2_cowboy", "singleMuLTeta1.2_sailor"};
 
   const char* signal[4]      = {"NSig","NBkg","NPr","NNp"};
   const char* legend[4]      = {"Inclusive J/#psi","Background","Prompt J/#psi","Non-prompt J/#psi"};
@@ -89,45 +89,22 @@ void Plot_JpsiV2_a1_EPCorr(const char* inDirName = "./")
   int pt_start = 0;
   int pt_end   = 1;
 
-  double ptBins[1]      = {16.75};
-  double ptErrs[2]      = {0.0};
   int nPads = centrality_end - centrality_start;
   
   // 1st column: Different fit method or datasets (prefixarr contains all set)
   // 2nd column: [0] etHFm, [1] etHFp, [2] etHF
   // 3rd column: [0] inclusive yields, [1] bkg, [2] Prompt, [3]Non-prompt
-  double v2[nPrefix][3][4][ncentbins][nrapbins][nptbins] = {{{{{{0.0}}}}}};
-  double v2Err[nPrefix][3][4][ncentbins][nrapbins][nptbins] = {{{{{{0.0}}}}}};
-  double chi[nPrefix][3][4][ncentbins][nrapbins][nptbins] = {{{{{{0.0}}}}}};
-  double ndf[nPrefix][3][4][ncentbins][nrapbins][nptbins] = {{{{{{0.0}}}}}};
+  double v2[nPrefix][4][ncentbins][nrapbins][nptbins] = {{{{{0.0}}}}};
+  double v2Err[nPrefix][4][ncentbins][nrapbins][nptbins] = {{{{{0.0}}}}};
+  double chi[nPrefix][4][ncentbins][nrapbins][nptbins] = {{{{{0.0}}}}};
+  double ndf[nPrefix][4][ncentbins][nrapbins][nptbins] = {{{{{0.0}}}}};
 
   for(int prefix=prefix_start; prefix<prefix_end; prefix++) 
     {
-      for(int iCat = 0; iCat < 2; iCat++)
-	{ // etHFp and etHFm
-
-	  TFile *f1;
-	  char nameoutfile[512];
-	  char eventPlane[512];
-	  if(iCat == 0) {
-	    f1 = new TFile(Form("%s/ep23_%s/summary/saved_histo.root",inDirName,prefixarr[prefix]));
-	    sprintf(nameoutfile, "etHFm");
-	    sprintf(eventPlane, "#eta_{J/#psi} > 0");
-	  }
-	  if(iCat == 1) {
-	    f1 = new TFile(Form("%s/ep22_%s/summary/saved_histo.root",inDirName,prefixarr[prefix]));
-	    sprintf(nameoutfile, "etHFp");
-	    sprintf(eventPlane, "#eta_{J/#psi} < 0");
-	  }
-	  if(iCat == 2) 
-	    {
-	      f1 = new TFile("etHF/summary/saved_histo.root");
-	      sprintf(nameoutfile, "etHF");
-	      sprintf(eventPlane, "EP: etHF");
-	    }
-	  if(!f1) continue;
-
-	  // Draw and get v2 plots signal/bkg/Prompt/Non-prompt
+      char nameoutfile[512];
+      char eventPlane[512];
+      TFile *f1 = new TFile(Form("%s/%s/summary/saved_histo.root",inDirName,prefixarr[prefix]));
+     
       for(int choseSignal = signal_start; choseSignal<signal_end; choseSignal++)
 	{
 	  const char* chosenSignal = signal[choseSignal];
@@ -164,10 +141,10 @@ void Plot_JpsiV2_a1_EPCorr(const char* inDirName = "./")
 		      
 		      GetV2(g[mcent][iy][jpt], c);
 		      
-		      v2[prefix][iCat][choseSignal][mcent][iy][jpt]  = c[0];
-		      v2Err[prefix][iCat][choseSignal][mcent][iy][jpt]  = c[1];
-		      chi[prefix][iCat][choseSignal][mcent][iy][jpt] = c[2];
-		      ndf[prefix][iCat][choseSignal][mcent][iy][jpt] = c[3];
+		      v2[prefix][choseSignal][mcent][iy][jpt]     = c[0];
+		      v2Err[prefix][choseSignal][mcent][iy][jpt]  = c[1];
+		      chi[prefix][choseSignal][mcent][iy][jpt]    = c[2];
+		      ndf[prefix][choseSignal][mcent][iy][jpt]    = c[3];
 		      
 		    }//pt bin loop
 		}//rapidity loop
@@ -237,10 +214,10 @@ void Plot_JpsiV2_a1_EPCorr(const char* inDirName = "./")
 			  // drapwing v2 value and chi2
 			  lt1->SetTextSize(0.045);
 			  lt1->DrawLatex(0.24,0.23,Form("v_{2} = %.4f #pm %.4f (#chi^{2} / ndf = %.3f / %.0f)",
-							v2[prefix][iCat][choseSignal][mcent][ky][lpt],
-							v2Err[prefix][iCat][choseSignal][mcent][ky][lpt],
-							chi[prefix][iCat][choseSignal][mcent][ky][lpt],
-							ndf[prefix][iCat][choseSignal][mcent][ky][lpt]));
+							v2[prefix][choseSignal][mcent][ky][lpt],
+							v2Err[prefix][choseSignal][mcent][ky][lpt],
+							chi[prefix][choseSignal][mcent][ky][lpt],
+							ndf[prefix][choseSignal][mcent][ky][lpt]));
 			  lt1->SetTextSize(0.055);
 			  //lt1->DrawLatex(0.78,0.89,Form("%d - %d %%",vcts1, vcts2)); // centrality 
 			  lt1->DrawLatex(0.24,0.3,Form("Cent. %d - %d %%",vcts1, vcts2)); // centrality 
@@ -249,15 +226,14 @@ void Plot_JpsiV2_a1_EPCorr(const char* inDirName = "./")
 			{
 			  lt1->SetTextSize(0.05);
 			  lt1->DrawLatex(0.05,0.23,Form("v_{2} = %.4f #pm %.4f (#chi^{2} / ndf = %.3f / %.0f)",
-							v2[prefix][iCat][choseSignal][mcent][ky][lpt],
-							v2Err[prefix][iCat][choseSignal][mcent][ky][lpt],
-							chi[prefix][iCat][choseSignal][mcent][ky][lpt],
-							ndf[prefix][iCat][choseSignal][mcent][ky][lpt]));
+							v2[prefix][choseSignal][mcent][ky][lpt],
+							v2Err[prefix][choseSignal][mcent][ky][lpt],
+							chi[prefix][choseSignal][mcent][ky][lpt],
+							ndf[prefix][choseSignal][mcent][ky][lpt]));
 			  lt1->SetTextSize(0.06);
 			  if(ind == 1) lt1->DrawLatex(0.05,0.3,Form("Cent. %d - %d %%",vcts1, vcts2));
 			  if(ind > 1) lt1->DrawLatex(0.05,0.3,Form("Cent. %d - %d %%",vcts1, vcts2));
-			  //if(ind == 1) lt1->DrawLatex(0.73,0.89,Form("%d - %d %%",vcts1, vcts2));
-			  //if(ind > 1) lt1->DrawLatex(0.71,0.89,Form("%d - %d %%",vcts1, vcts2));
+			  
 			  if(ind == 3){
 			    lt1->SetTextSize(0.06);
 			    if (!strcmp(nameoutfile,"etHFm")) 
@@ -312,22 +288,10 @@ void Plot_JpsiV2_a1_EPCorr(const char* inDirName = "./")
 	  //_______
 	  if(bSavePlots)
 	    {
-	      if(iCat == 0){
-		gSystem->mkdir(Form("./plots/etHFm_%s",prefixarr[prefix]),kTRUE);
-		pc1->SaveAs(Form("./plots/etHFm_%s/%s_%s_rap%.1f_%.1f_pT%.1f-%.1f_a1_elements.png",prefixarr[prefix],chosenSignal,nameoutfile,raps[y_start],raps[y_end],pts[pt_start],pts[pt_end]));
-		pc1->SaveAs(Form("./plots/etHFm_%s/%s_%s_rap%.1f_%.1f_pT%.1f-%.1f_a1_elements.pdf",prefixarr[prefix],chosenSignal,nameoutfile,raps[y_start],raps[y_end],pts[pt_start],pts[pt_end]));
-	      }
-	      if(iCat == 1){
-		gSystem->mkdir(Form("./plots/etHFp_%s",prefixarr[prefix]),kTRUE);
-		pc1->SaveAs(Form("./plots/etHFp_%s/%s_%s_rap%.1f_%.1f_pT%.1f-%.1f_a1_elements.png",prefixarr[prefix],chosenSignal,nameoutfile,raps[y_start],raps[y_end],pts[pt_start],pts[pt_end]));
-		pc1->SaveAs(Form("./plots/etHFp_%s/%s_%s_rap%.1f_%.1f_pT%.1f-%.1f_a1_elements.pdf",prefixarr[prefix],chosenSignal,nameoutfile,raps[y_start],raps[y_end],pts[pt_start],pts[pt_end]));
-	      }
-	      if(iCat == 2){
-		gSystem->mkdir("./plots/etHF",kTRUE);
-		pc1->SaveAs(Form("./plots/etHF/%s_%s_rap%.1f_%.1f_pT%.1f-%.1f_a1_elements.png",chosenSignal,nameoutfile,raps[y_start],raps[y_end],pts[pt_start],pts[pt_end]));
-		pc1->SaveAs(Form("./plots/etHF/%s_%s_rap%.1f_%.1f_pT%.1f-%.1f_a1_elements.pdf",chosenSignal,nameoutfile,raps[y_start],raps[y_end],pts[pt_start],pts[pt_end]));
-	      }
-	      
+	      gSystem->mkdir(Form("./plots/%s",prefixarr[prefix]),kTRUE);
+	      pc1->SaveAs(Form("./plots/%s/%s_rap%.1f_%.1f_pT%.1f-%.1f_a1_elements.png",prefixarr[prefix],chosenSignal,raps[y_start],raps[y_end],pts[pt_start],pts[pt_end]));
+	      pc1->SaveAs(Form("./plots/%s/%s_rap%.1f_%.1f_pT%.1f-%.1f_a1_elements.pdf",prefixarr[prefix],chosenSignal,raps[y_start],raps[y_end],pts[pt_start],pts[pt_end]));
+	     
 	      pc1->Clear();
 	    }
 	  
@@ -388,8 +352,8 @@ void Plot_JpsiV2_a1_EPCorr(const char* inDirName = "./")
 	  
 	  for(int ic = centrality_end-1; ic >= centrality_start; ic--)
 	    {
-	      double v2PtBarr[1]    = {v2[prefix][iCat][choseSignal][ic][0][0]};
-	      double v2PtBarrErr[1] = {v2Err[prefix][iCat][choseSignal][ic][0][0]};
+	      double v2PtBarr[1]    = {v2[prefix][choseSignal][ic][0][0]};
+	      double v2PtBarrErr[1] = {v2Err[prefix][choseSignal][ic][0][0]};
 	      double cBin[1]        = {ncoll[ic]};
 	      double cBinErr[1]     = {0.0};
 	      int stl = 20;
@@ -412,54 +376,30 @@ void Plot_JpsiV2_a1_EPCorr(const char* inDirName = "./")
 	  cout<<prefixarr[prefix]<< endl;
 	  cout<<"%%%%% Category : "<<signal[choseSignal]<<", "<<eventPlane<<" %%%%%"<<endl;
 	  cout<<"|  Cent.   |  v2  |  error  |"<<endl;
-	  cout<<"|  0-10%   |  "<<v2[prefix][iCat][choseSignal][0][0][0]<<"  |  "<<v2Err[prefix][iCat][choseSignal][0][0][0]<<"  |  "<<endl;
-	  cout<<"|  10-20%  |  "<<v2[prefix][iCat][choseSignal][1][0][0]<<"  |  "<<v2Err[prefix][iCat][choseSignal][1][0][0]<<"  |  "<<endl;
-	  cout<<"|  20-30%  |  "<<v2[prefix][iCat][choseSignal][2][0][0]<<"  |  "<<v2Err[prefix][iCat][choseSignal][2][0][0]<<"  |  "<<endl;
-	  cout<<"|  30-60%  |  "<<v2[prefix][iCat][choseSignal][3][0][0]<<"  |  "<<v2Err[prefix][iCat][choseSignal][3][0][0]<<"  |  "<<endl;
+	  cout<<"|  0-10%   |  "<<v2[prefix][choseSignal][0][0][0]<<"  |  "<<v2Err[prefix][choseSignal][0][0][0]<<"  |  "<<endl;
+	  cout<<"|  10-20%  |  "<<v2[prefix][choseSignal][1][0][0]<<"  |  "<<v2Err[prefix][choseSignal][1][0][0]<<"  |  "<<endl;
+	  cout<<"|  20-30%  |  "<<v2[prefix][choseSignal][2][0][0]<<"  |  "<<v2Err[prefix][choseSignal][2][0][0]<<"  |  "<<endl;
+	  cout<<"|  30-60%  |  "<<v2[prefix][choseSignal][3][0][0]<<"  |  "<<v2Err[prefix][choseSignal][3][0][0]<<"  |  "<<endl;
 	  cout<<""<<endl;
-	  
-	  output<<"%%%%% Fit : " << eventPlane << " " << prefixarr[prefix] << " Category : "<<signal[choseSignal]<<" %%%%%"<<endl;
-	  output<<"|  Cent.   |  v2  |  error  |"<<endl;
-	  output<<"|  0-10%   |  "<<v2[prefix][iCat][choseSignal][0][0][0]<<"  |  "<<v2Err[prefix][iCat][choseSignal][0][0][0]<<"  |  "<<endl;
-	  output<<"|  10-20%  |  "<<v2[prefix][iCat][choseSignal][1][0][0]<<"  |  "<<v2Err[prefix][iCat][choseSignal][1][0][0]<<"  |  "<<endl;
-	  output<<"|  20-30%  |  "<<v2[prefix][iCat][choseSignal][2][0][0]<<"  |  "<<v2Err[prefix][iCat][choseSignal][2][0][0]<<"  |  "<<endl;
-	  output<<"|  30-60%  |  "<<v2[prefix][iCat][choseSignal][3][0][0]<<"  |  "<<v2Err[prefix][iCat][choseSignal][3][0][0]<<"  |  "<<endl;
-	  output<<endl;
-	  
+	 	  
 	  //leg1->Draw("same");
 	  lt1->SetTextSize(0.04);
 	  lt1->DrawLatex(0.18,0.89,Form("%s",legend[choseSignal]));  // what signal is
 	  lt1->SetTextSize(0.038);
-	  if (!strcmp(nameoutfile,"etHFm")) {
-	    lt1->DrawLatex(0.18,0.83,Form("%.1f < y < %.1f",vraps1,vraps2));       // rapidity
-	  } else if (!strcmp(nameoutfile,"etHFp")) {
-	    if (vraps1 == 0)
-	      lt1->DrawLatex(0.18,0.83,Form("-%.1f < y < %.1f",vraps2,vraps1));       // rapidity
-	    else
-	      lt1->DrawLatex(0.18,0.83,Form("-%.1f < y < -%.1f",vraps2,vraps1));       // rapidity
-	  } else
-            lt1->DrawLatex(0.18,0.83,Form("|y| < %.1f",vraps2));       // rapidity
+
+	  lt1->DrawLatex(0.18,0.83,Form("|y| < %.1f",vraps2));       // rapidity
 	  lt1->DrawLatex(0.18,0.77,Form("%.1f < p_{T} < %.1f GeV/c", vpts1, vpts2)); 
-	  //        lt1->DrawLatex(0.18,0.71,Form("%s",eventPlane));
-	  if(iCat == 0){
-	    c2->SaveAs(Form("./plots/etHFm_%s/%s_%s_rap%.1f_%.1f_pT%.1f-%.1f_a1_Uncorr.png",prefixarr[prefix],chosenSignal,nameoutfile,vraps1,vraps2,pts[pt_start],pts[pt_end]));
-	    c2->SaveAs(Form("./plots/etHFm_%s/%s_%s_rap%.1f_%.1f_pT%.1f-%.1f_a1_Uncorr.pdf",prefixarr[prefix],chosenSignal,nameoutfile,vraps1,vraps2,pts[pt_start],pts[pt_end]));
-	  }
-	  if(iCat == 1){
-	    c2->SaveAs(Form("./plots/etHFp_%s/%s_%s_rap%.1f_%.1f_pT%.1f-%.1f_a1_Uncorr.png",prefixarr[prefix],chosenSignal,nameoutfile,vraps1,vraps2,pts[pt_start],pts[pt_end]));
-	    c2->SaveAs(Form("./plots/etHFp_%s/%s_%s_rap%.1f_%.1f_pT%.1f-%.1f_a1_Uncorr.pdf",prefixarr[prefix],chosenSignal,nameoutfile,vraps1,vraps2,pts[pt_start],pts[pt_end]));
-	  }
-	  if(iCat == 2){
-	    c2->SaveAs(Form("./plots/etHF/%s_%s_rap%.1f_%.1f_pT%.1f-%.1f_a1_Uncorr.png",chosenSignal,nameoutfile,vraps1,vraps2,pts[pt_start],pts[pt_end]));
-	    c2->SaveAs(Form("./plots/etHF/%s_%s_rap%.1f_%.1f_pT%.1f-%.1f_a1_Uncorr.pdf",chosenSignal,nameoutfile,vraps1,vraps2,pts[pt_start],pts[pt_end]));
-	  }
+	  	 
+	  c2->SaveAs(Form("./plots/%s/%s_rap%.1f_%.1f_pT%.1f-%.1f_a1_Uncorr.png",prefixarr[prefix],chosenSignal,vraps1,vraps2,pts[pt_start],pts[pt_end]));
+	  c2->SaveAs(Form("./plots/%s/%s_rap%.1f_%.1f_pT%.1f-%.1f_a1_Uncorr.pdf",prefixarr[prefix],chosenSignal,vraps1,vraps2,pts[pt_start],pts[pt_end]));
+	 
+	 
 	} // end of loop for signal/bkg/prompt/non-prompt loop
-	} //end of loop for all categories
     }// end of loop for all prefixes
   
   //__________________________________________________________________________________________
   // Get Event Plane correction number and apply it to uncorrected v2
-  double corrEPV2[nPrefix][3][4][ncentbins][nrapbins][nptbins] = {{{{{{0.0}}}}}};
+  double corrEPV2[nPrefix][4][ncentbins][nrapbins][nptbins] = {{{{{0.0}}}}};
   // Get final etHFp + etHFm combined v2 from EP corrected v2
   double finalV2[nPrefix][4][ncentbins][nrapbins][nptbins] = {{{{{0.0}}}}};
   double finalV2Err[nPrefix][4][ncentbins][nrapbins][nptbins] = {{{{{0.0}}}}};
@@ -477,34 +417,24 @@ void Plot_JpsiV2_a1_EPCorr(const char* inDirName = "./")
 	  for (int cent =  centrality_start; cent <  centrality_end; cent++) 
 	    {
 	      // Event plane correction factor
-	      double corrVal_etHFp = 0, corrErr_etHFp = 0;
-	      double corrVal_etHFm = 0, corrErr_etHFm = 0;
+	      double corrVal_etHFpm = 0, corrErr_etHFpm = 0;
+	     	      
+	      getEPCorrection(0,cts[cent],cts[cent+1],&corrVal_etHFpm,&corrErr_etHFpm);
+	      corrEPV2[prefix][choseSignal][cent][0][0] = v2[prefix][choseSignal][cent][0][0]/corrVal_etHFpm;
+
+	      double v2_etHFpm       = v2[prefix][choseSignal][cent][0][0];
+	      double v2Err_etHFpm    = v2Err[prefix][choseSignal][cent][0][0];
+	      double corrEPV2_etHFpm = corrEPV2[prefix][choseSignal][cent][0][0];
 	      
-	      getEPCorrection(0,cts[cent],cts[cent+1],&corrVal_etHFm,&corrErr_etHFm);
-	      getEPCorrection(1,cts[cent],cts[cent+1],&corrVal_etHFp,&corrErr_etHFp);
-	      
-	      corrEPV2[prefix][0][choseSignal][cent][0][0] = v2[prefix][0][choseSignal][cent][0][0]/corrVal_etHFm;
-	      corrEPV2[prefix][1][choseSignal][cent][0][0] = v2[prefix][1][choseSignal][cent][0][0]/corrVal_etHFp;
-	      
-	      double v2_etHFm = v2[prefix][0][choseSignal][cent][0][0];
-	      double v2_etHFp = v2[prefix][1][choseSignal][cent][0][0];
-	      double v2Err_etHFm = v2Err[prefix][0][choseSignal][cent][0][0];
-	      double v2Err_etHFp = v2Err[prefix][1][choseSignal][cent][0][0];
-	      double corrEPV2_etHFm = corrEPV2[prefix][0][choseSignal][cent][0][0];
-	      double corrEPV2_etHFp = corrEPV2[prefix][1][choseSignal][cent][0][0];
-	      
-	      finalV2[prefix][choseSignal][cent][0][0] = ( corrEPV2_etHFm + corrEPV2_etHFp )/2;
-	      finalV2Err[prefix][choseSignal][cent][0][0] = 0.5*( sqrt(
-								       pow(corrEPV2_etHFm,2)*( pow(v2Err_etHFm/v2_etHFm,2) + pow(corrErr_etHFm/corrVal_etHFm,2) ) +
-								       pow(corrEPV2_etHFp,2)*( pow(v2Err_etHFp/v2_etHFp,2) + pow(corrErr_etHFp/corrVal_etHFp,2) ) 
-								       ) );
+	      finalV2[prefix][choseSignal][cent][0][0] = corrEPV2_etHFpm;
+	      finalV2Err[prefix][choseSignal][cent][0][0] = TMath::Abs(corrEPV2_etHFpm) * sqrt(pow(v2Err_etHFpm/v2_etHFpm,2) + pow(corrErr_etHFpm/corrVal_etHFpm,2));
 	      
 	      output<<"%%%%% Corrected v2 : " << prefixarr[prefix] << " Category : "<<signal[choseSignal]<<" %%%%%"<<endl;
-	      output<<"|  cent: " << cts[cent] << "-" << cts[cent+1] << "  |  Correction etHFm: " << corrVal_etHFm <<"  |  Correction etHFp:"<< corrVal_etHFp <<"  |  "<<endl;
-	      output<<"|  cent: " << cts[cent] << "-" << cts[cent+1] << "  |  Uncorrected etHFm: " << v2_etHFm <<"  |  Uncorrected etHFp:"<< v2_etHFp <<"  |  "<<endl;
-	      output<<"|  cent: " << cts[cent] << "-" << cts[cent+1] << "  |  Correction err etHFm: " << corrErr_etHFm <<"  |  Correction err etHFp:"<< corrErr_etHFp <<"  |  "<<endl;
-	      output<<"|  cent: " << cts[cent] << "-" << cts[cent+1] << "  |  Uncorrected err etHFm: " << v2Err_etHFm <<"  |  Uncorrected err etHFp:"<< v2Err_etHFp <<"  |  "<<endl;
-	      output<<"|  cent: " << cts[cent] << "-" << cts[cent+1] << "  |  Corrected etHFm: " << corrEPV2_etHFm <<"  |  Corrected etHFp:"<< corrEPV2_etHFp <<"  |  "<<endl;
+	      output<<"|  cent: " << cts[cent] << "-" << cts[cent+1] << "  |  Correction EP" << corrVal_etHFpm <<"  |  "<<endl;
+	      output<<"|  cent: " << cts[cent] << "-" << cts[cent+1] << "  |  Uncorrected v2: " << v2_etHFpm <<"  |  "<<endl;
+	      output<<"|  cent: " << cts[cent] << "-" << cts[cent+1] << "  |  Correction err EP: " << corrErr_etHFpm  <<"  |  "<<endl;
+	      output<<"|  cent: " << cts[cent] << "-" << cts[cent+1] << "  |  Uncorrected v2 err: " << v2Err_etHFpm  <<"  |  "<<endl;
+	      output<<"|  cent: " << cts[cent] << "-" << cts[cent+1] << "  |  Corrected v2: " << corrEPV2_etHFpm  <<"  |  "<<endl;
 	      output<<"|  cent: " << cts[cent] << "-" << cts[cent+1] << "  |  " << finalV2[prefix][choseSignal][cent][0][0]<<"  |  "<<finalV2Err[prefix][choseSignal][cent][0][0]<<"  |  "<<endl;
 	      output<<endl;
 	      
@@ -529,7 +459,6 @@ void Plot_JpsiV2_a1_EPCorr(const char* inDirName = "./")
 	  
 	  // ####### SUMMARY PLOT!!! (Corrected)
 	  TCanvas *c22 = new TCanvas("c22","c22");
-	  char tmp7[512];
 	  TGraphErrors *gPtBarrCorr[3];
 	  
 	  TH1F *hPad22 = new TH1F("hPad22",";N_{part};Corrected v_{2};",400,0,400);
@@ -604,9 +533,9 @@ void Plot_JpsiV2_a1_EPCorr(const char* inDirName = "./")
 	  lt1->DrawLatex(0.18,0.83,Form("|y| < %.1f",raps[1]));       // rapidity
 	  lt1->DrawLatex(0.18,0.77,Form("%.1f < p_{T} < %.1f GeV/c", pts[0], pts[1])); 
 	  
-	  gSystem->mkdir("./plots/etHFp_etHFm_combined",kTRUE);
-    c22->SaveAs(Form("./plots/etHFp_etHFm_combined/%s_%s_rap%.1f_%.1f_pT%.1f-%.1f_a1_Corr.png",prefixarr[prefix],signal[choseSignal],raps[y_start],raps[y_end],pts[pt_start],pts[pt_end]));
-    c22->SaveAs(Form("./plots/etHFp_etHFm_combined/%s_%s_rap%.1f_%.1f_pT%.1f-%.1f_a1_Corr.pdf",prefixarr[prefix],signal[choseSignal],raps[y_start],raps[y_end],pts[pt_start],pts[pt_end]));
+	  gSystem->mkdir("./plots/etHFpm_final",kTRUE);
+	  c22->SaveAs(Form("./plots/etHFpm_final/%s_%s_rap%.1f_%.1f_pT%.1f-%.1f_a1_Corr.png",prefixarr[prefix],signal[choseSignal],raps[y_start],raps[y_end],pts[pt_start],pts[pt_end]));
+	  c22->SaveAs(Form("./plots/etHFpm_final/%s_%s_rap%.1f_%.1f_pT%.1f-%.1f_a1_Corr.pdf",prefixarr[prefix],signal[choseSignal],raps[y_start],raps[y_end],pts[pt_start],pts[pt_end]));
 	  
 	  delete hPad22;
 	  delete c22;
@@ -716,6 +645,7 @@ void makeMultiPanelCanvas(TCanvas*& canv,
 }
 
 
+//__________________________________________________________________________________________
 void GetV2(TGraphErrors *a, double *b)
 {
   // fit to extract v2 values
@@ -775,6 +705,7 @@ void drawDum(float min, float max, double drawXLabel)
 }
 
 
+//__________________________________________________________________________________________
 void TGetPoints(TGraphErrors *a, double *b, double *c)
 {
   int na = a->GetN();
@@ -783,6 +714,7 @@ void TGetPoints(TGraphErrors *a, double *b, double *c)
   }
 
 }
+
 
 //____________________________________________________________________________
 void formatTH1F(TH1* a, int b, int c, int d)
@@ -933,120 +865,35 @@ void CalEffErr(TGraphErrors *a, double *b)
 
 
 //__________________________________________________________________________
-void getEPCorrection(int epType, int centLow, int centHigh, double *corrVal, double *corrErr) {
-  const int nBins =20;
-  string centBins[nBins] = {
-    "0-5",
-    "5-10",
-    "10-15",
-    "15-20",
-    "20-25",
-    "25-30",
-    "30-35",
-    "35-40",
-    "40-50",
-    "50-60",
-    "60-70",
-    "70-80",
-    "80-90",
-    "90-100",
-    "10-60",
-    "10-30",
-    "30-60",
-    "0-10",
-    "10-20",
-    "20-30"
+void getEPCorrection(int epType, int centLow, int centHigh, double *corrVal, double *corrErr) 
+{
+  // retrieve the right resolution correction factor
+  const int nBins =5;
+  string centBins[nBins] = {"0-10",
+			    "10-20",
+			    "20-30",
+			    "30-60",
+			    "10-60"};
+
+  double etHFpm[nBins*2] = {0.387827,	0.00174209,
+			    0.6668,	0.00292256,
+			    0.708667,	0.00422604,
+			    0.610342,	0.00457648
   };
 
-  double etHF[nBins*2] = {
-0.660599,0.003897,
-0.823229,0.002848,
-0.883223,0.002547,
-0.905866,0.002477,
-0.911496,0.002443,
-0.910912,0.00243,
-0.901351,0.002494,
-0.8816,0.002547,
-0.842535,0.001955,
-0.744624,0.002426,
-0.574144,0.003535,
-0.367572,0.006029,
-0.198353,0.010795,
-0.142379,0.032124,
-0.872701,0.000856,
-0.902874,0.001017,
-0.842528,0.001339,
-0.741914,0.002413,
-0.8945445,0.001776,
-0.911204,0.001723
-  };
-
-  double etHFp[nBins*2] = {
-0.533455,0.002401,
-0.723272,0.002093,
-0.798937,0.002021,
-0.832178,0.002045,
-0.842435,0.002047,
-0.837015,0.00202,
-0.821521,0.002034,
-0.798025,0.002033,
-0.737325,0.001448,
-0.609293,0.001542,
-0.432927,0.001939,
-0.251981,0.003116,
-0.100606,0.005831,
-0.05576,0.012724,
-0.784591,0.000676,
-0.827641,0.001017,
-0.741541,0.000879,
-0.628364,0.001593,
-0.8155575,0.001438,
-0.839725,0.001438,
-  };
-
-  double etHFm[nBins*2] = {
-0.53945,0.002428,
-0.722841,0.002092,
-0.801483,0.002027,
-0.831597,0.002044,
-0.839228,0.002039,
-0.835527,0.002016,
-0.821654,0.002035,
-0.796565,0.002029,
-0.736792,0.001446,
-0.609372,0.001542,
-0.432557,0.001937,
-0.24412,0.003019,
-0.101207,0.005866,
-0.046039,0.010545,
-0.784027,0.000676,
-0.826959,0.001016,
-0.741096,0.000878,
-0.631146,0.001602,
-0.81654,0.001439,
-0.8373775,0.001434
-  };
-
-  map<string, pair<double,double> > Corr_etHF;
-  map<string, pair<double,double> > Corr_etHFp;
-  map<string, pair<double,double> > Corr_etHFm;
+  map<string, pair<double,double> > Corr_etHFpm;
   map<string, pair<double,double> >::iterator it;
 
-  for (int i=0; i<nBins*2; i=i+2) {
-    Corr_etHF[centBins[i/2]] = make_pair(etHF[i],etHF[i+1]);
-    Corr_etHFp[centBins[i/2]] = make_pair(etHFp[i],etHFp[i+1]);
-    Corr_etHFm[centBins[i/2]] = make_pair(etHFm[i],etHFm[i+1]);
-  }
+  for (int i=0; i<nBins*2; i=i+2) 
+    {
+      Corr_etHFpm[centBins[i/2]] = make_pair(etHFpm[i],etHFpm[i+1]);
+    }
 
   char binName[20] = {0};
   sprintf(binName,"%d-%d",centLow,centHigh);
-  if (epType == 0) {  //etHFm
-    it = Corr_etHFm.find(binName);
-  } else if (epType == 1) { //etHFp
-    it = Corr_etHFp.find(binName);
-  } else if (epType == 2) { //etHF
-    it = Corr_etHF.find(binName);
-  }
+  if (epType == 0 ||epType == 1 ) {  //etHFm or etHFp
+    it = Corr_etHFpm.find(binName);
+  } 
 
 /*  cout << "Correction factor bin: " << it->first << endl;
   cout << "Correction factor value: " << it->second.first << endl;
