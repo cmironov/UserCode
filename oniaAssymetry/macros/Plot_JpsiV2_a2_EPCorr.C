@@ -50,23 +50,40 @@ void TGetPoints(TGraphErrors *a, double *b, double *c);
 void getEPCorrection(int epType, int centLow, int centHigh, double *corrVal, double *corrErr) ;
 
 //__________________________________________________________________________
-void Plot_JpsiV2_a2_EPCorr(const char* inDirName = "./")
+void Plot_JpsiV2_a2_EPCorr(const char* inDirName = "./pnp")
 {
   gROOT->Macro("./rootlogon.C");
   //gROOT->Macro("/Users/eusmartass/Software/utilities/setStyle.C");
   gStyle->SetOptFit(0);
-  gStyle->SetEndErrorSize(4);
+  gStyle->SetEndErrorSize(5);
   bool bSavePlots      = true; 
-  bool bIncludeSystem  = false;
+  bool bIncludeSystem  = true;
   bool doDebug         = false;
-  bool bExtraStudy     = true;
-  
- //  const int nPrefix = 10;
-// // //   // first in this case is always the nominal case 
-//   const char *prefixarr[nPrefix] = {"default_bit1","autoCorr_bit1","noFlat_bit1","zVtxLT10_bit1","default_sailor","default_cowboy","default_bit1_weight","default_constrained","default_polFunct","default_signalCB3WN"};
+  bool bExtraStudy     = false;
 
- const int nPrefix = 15;
- const char *prefixarr[nPrefix] = {"default_bit1","default_sailor","default_cowboy","default_bit1_weight","default_cowboy_weight","default_sailor_weight","nMuValHits12_bit1","nMuValHits12_cowboy","nMuValHits12_sailor","singleMuLTeta1.2_bit1","singleMuLTeta1.2_cowboy","singleMuLTeta1.2_sailor","zVtxLT10_bit1","zVtxLT10_cowboy","zVtxLT10_sailor"};
+  bool bDoPNp = false;  
+  bool bDo6Bin = false;
+  
+
+  int nFits  = 3; // number of fits systm; need a counting for calcualting the rms
+  int nDecay = 2; // cowboys-sailor; need a counter that it's not hard-coded
+  //!!!!!!!!!!!! ############## DO NOT CHANGE THE ORDER IN THE  prefixarr[] aARRAY!!!!!!!! DO NOT CHANGE THE ORDER!!!!!!
+ //**************************** modified errors
+  // %%%%%%%% inclusive
+  //  const int nPrefix = 9;
+// //   // //  //  // first in this case is always the 
+  // const char *prefixarr[nPrefix] = {"default_bit1","noFlat_bit1","zVtxLT10_bit1","default_sailor","default_cowboy","default_bit1_weight","default_constrained","default_polFunct","default_signalCB3WN"};
+  
+  // %%%%%%%% prompt - NPr
+  const int nPrefix = 11;
+// // //   // first in this case is always the nominal case 
+// // //   // "default_bit1_weight" -- this is 3D correction: pt, y, centrality (averaged over dPhi)
+  const char *prefixarr[nPrefix] = {"default_bit1","noFlat_bit1","zVtxLT10_bit1","default_sailor","default_cowboy","default_bit1_weight","default_constrained","default_polFunct","default_signalCB3WN","default_bit1_1GaussResol","default_bit1_ResolFixToPRMC"};
+
+ //**************************** extra Studies
+//   const int nPrefix = 19;
+//   const char *prefixarr[nPrefix] = {"default_bit1","default_sailor","default_cowboy","default_bit1_weight","default_bit1_4Dweight","default_cowboy_weight","default_cowboy_4Dweight","default_sailor_4Dweight","default_sailor_weight","nMuValHits12_bit1","nMuValHits12_cowboy","nMuValHits12_sailor","singleMuLTeta1.2_bit1","singleMuLTeta1.2_cowboy","singleMuLTeta1.2_sailor","zVtxLT10_bit1","zVtxLT10_cowboy","zVtxLT10_sailor","autoCorr_bit1"};
+
 
 
   const char* signal[4]          = {"NSig","NBkg","NPr","NNp"};
@@ -78,15 +95,10 @@ void Plot_JpsiV2_a2_EPCorr(const char* inDirName = "./")
 
   double pts_bound[nptbins] = {7.3, 9.0, 13.4}; // <pt> values in the AN
 
-  ofstream output;
-  if(!bExtraStudy) output.open("./a2_v2_Result.txt");
-  else output.open("./extrastud/a2_v2_Result.txt");
-  if(!output.is_open()) { cout << "cannot open a1_v2_Result.txt. Exit\n"; return ;}
-   
   int prefix_start     = 0; // which setting for v2
   int prefix_end       = nPrefix;
-  int signal_start     = 0;// sgn, bkg, pr, npr
-  int signal_end       = 2;
+  int signal_start     = 2;// sgn, bkg, pr, npr
+  int signal_end       = 4;
   int centrality_start  = 0;
   int centrality_end    = 1; 
   
@@ -97,6 +109,32 @@ void Plot_JpsiV2_a2_EPCorr(const char* inDirName = "./")
   int pt_end   = 3;
   
   int nPads    = pt_end - pt_start;  
+
+  ofstream output;
+ if(bDoPNp)
+    {
+      if(bExtraStudy)
+	{
+	  gSystem->mkdir("./extrastud",kTRUE);
+	  output.open("./extrastud/a2_v2_Result_pnp.txt");
+	}
+      else
+	output.open("./a2_v2_Result_pnp.txt");
+    }
+  else
+    {
+      if(bExtraStudy)
+	{
+	  gSystem->mkdir("./extrastud",kTRUE);
+	  output.open("./extrastud/a2_v2_Result.txt");
+	}
+      else
+	output.open("./a2_v2_Result.txt");
+    }
+  
+  if(!output.is_open()) { cout << "cannot open a3_v2_Result.txt. Exit\n"; return ;}
+   
+ 
     
 
   // 1st column: Different fit method or datasets (prefixarr contains all set)
@@ -113,11 +151,18 @@ void Plot_JpsiV2_a2_EPCorr(const char* inDirName = "./")
   double chi_final[4][ncentbins][nrapbins][nptbins]   = {{{{0.0}}}};
   double ndf_final[4][ncentbins][nrapbins][nptbins]   = {{{{0.0}}}};
 
+  // stat+syst+res
   double v2_final_sansRes[4][ncentbins][nrapbins][nptbins] = {{{{0.0}}}};
   double v2Err_final_sansRes[4][ncentbins][nrapbins][nptbins] = {{{{0.0}}}};
  
+  // stat only
+  double v2Err_statOnly[4][ncentbins][nrapbins][nptbins] = {{{{0.0}}}};
+  // syst only
+  double v2Err_systOnly[4][ncentbins][nrapbins][nptbins] = {{{{0.0}}}};
+
+ 
   // each yieldType, centrality, rapidity, pt bin
-  TGraphErrors *g[nPrefix][ncentbins][nrapbins][nptbins];
+  TGraphErrors *g[nPrefix][4][ncentbins][nrapbins][nptbins];
   TGraphErrors *pgFinal[4][ncentbins][nrapbins][nptbins];
   
   // some drawing stuff
@@ -170,13 +215,13 @@ void Plot_JpsiV2_a2_EPCorr(const char* inDirName = "./")
 		      sprintf(gTmp,"rap%.1f-%.1f_cent%d-%d_pT%.1f-%.1f_%s",vraps1,vraps2,vcts1,vcts2,pts[jpt],pts[jpt+1],chosenSignal);
 		      cout<<"TGraph name : "<<gTmp<<endl;
 		      TGraphErrors *pgTemp =  (TGraphErrors*)f1->Get(gTmp);
-		      g[prefix][mcent][iy][jpt]  = pgTemp;
-		      if(!g[prefix][mcent][iy][jpt]) {cout<<"@@@@@@@@@@@@@@@@ Warning: No graph found !!!!"<<endl;continue;}
-		      cout<<g[prefix][mcent][iy][jpt]<<endl;
+		      g[prefix][choseSignal][mcent][iy][jpt]  = pgTemp;
+		      if(!g[prefix][choseSignal][mcent][iy][jpt]) {cout<<"@@@@@@@@@@@@@@@@ Warning: No graph found !!!!"<<endl;continue;}
+		      cout<<g[prefix][choseSignal][mcent][iy][jpt]<<endl;
 		      
 		      double c[4] = {0.0, 0.0, 0.0, 0.0};
 		      
-		      GetV2(g[prefix][mcent][iy][jpt], c);
+		      GetV2(g[prefix][choseSignal][mcent][iy][jpt], c);
 		      
 		      v2[prefix][choseSignal][mcent][iy][jpt]     = c[0];
 		      v2Err[prefix][choseSignal][mcent][iy][jpt]  = c[1];
@@ -223,13 +268,13 @@ void Plot_JpsiV2_a2_EPCorr(const char* inDirName = "./")
 			      lt1->DrawLatex(0.07,0.74,Form("|y| < %.1f",vraps2));       // rapidity
 			    }
 		      
-		      if(!g[prefix][lc][ky][mpt]) 
+		      if(!g[prefix][choseSignal][lc][ky][mpt]) 
 			{
 			  cout<<"No graph! continued !!!!"<<endl;
 			  continue;
 			}
 		      cout<<"#### Drawing: cent:"<<vcts1<<"-"<<vcts2<<"\t rapidity"<<vraps1<<"-"<<vraps2<<"\t pt"<<vpts1<<"-"<<vpts2<<endl;
-			  g[prefix][lc][ky][mpt]->Draw("pz");
+			  g[prefix][choseSignal][lc][ky][mpt]->Draw("pz");
 			  if(ind==0 )
 			    {
 			      // drapwing v2 value and chi2
@@ -418,8 +463,17 @@ void Plot_JpsiV2_a2_EPCorr(const char* inDirName = "./")
   hPad22->GetYaxis()->CenterTitle();
   
   TFile *rootoutput;
-  if(!bExtraStudy) rootoutput = new TFile("a2_corrV2.root","recreate"); 
-  else rootoutput = new TFile("./extrastud/a2_corrV2.root","recreate");
+  if(bDoPNp)
+    {
+      if(!bExtraStudy) rootoutput = new TFile("a2_corrV2_pnp.root","recreate"); 
+      else rootoutput = new TFile("./extrastud/a2_corrV2_pnp.root","recreate");
+    }
+  else
+    {
+      if(!bExtraStudy) rootoutput = new TFile("a2_corrV2.root","recreate"); 
+      else rootoutput = new TFile("./extrastud/a2_corrV2.root","recreate");
+    }
+  if(bDo6Bin) rootoutput = new TFile("a2_corrV2_6bin.root","recreate"); 
 
   for(int prefix=prefix_start; prefix<prefix_end; prefix++) 
     {
@@ -549,7 +603,7 @@ void Plot_JpsiV2_a2_EPCorr(const char* inDirName = "./")
 	{
 	  for (int ipt = 0; ipt < nptbins; ipt++) 
 	    {
-	      TGraphErrors *pgTemp_nominal =  (TGraphErrors*)g[0][0][0][ipt]; // the nominal value
+	      TGraphErrors *pgTemp_nominal =  (TGraphErrors*)g[0][choseSignal][0][0][ipt]; // the nominal value
 	      double yield[4]              = {0};
 	      double yield_newErr[4]       = {0};
 	      double xcenter[4]            = {0};
@@ -559,22 +613,35 @@ void Plot_JpsiV2_a2_EPCorr(const char* inDirName = "./")
 		  double y_nom,xbin;
 		  int bin1        = pgTemp_nominal->GetPoint(iphi,xbin,y_nom);
 		  double yerr_nom = pgTemp_nominal->GetErrorY(iphi);
-		  double rms      = 0;
+		  double rms_fits = 0;
+		  double rms_cs = 0;
+		  double rms_rest = 0;
+		  //		  int nFits  = 3; // number of fits systm; need a counting for calcualting the rms
+		  // int nDecay = 2; // cowboys-sailor; need a counter that it's not hard-coded
+		  if(choseSignal >0) nFits = 5;
 		  for(int prefix=1; prefix<prefix_end; prefix++) 
 		    {
-		      TGraphErrors *pgTemp_systm =  (TGraphErrors*)g[prefix][0][0][ipt];
+		      TGraphErrors *pgTemp_systm =  (TGraphErrors*)g[prefix][choseSignal][0][0][ipt];
 		      double y,x2;
 		      int bin2 = pgTemp_systm->GetPoint(iphi,x2,y);
-		      rms+=pow(y_nom-y,2);
-		      if(doDebug) cout <<"prefix = "<<prefix<<"\t yield nominal= "<< y_nom<< "\t yield prefix = "<<y <<"\t rms="<<rms<<endl;
+		      if(prefix<nDecay+1)
+			rms_cs+=pow(y_nom-y,2);
+		      
+		      if(prefix>=nDecay+1 && prefix<nFits+1)
+			rms_fits+=pow(y_nom-y,2);
+		      
+		      if(prefix >= nDecay+nFits+1) rms_rest+=pow(y_nom-y,2);
+		      
+		      //    if(doDebug) cout <<"prefix = "<<prefixarr[prefix]<<"\t yield_nom= "<< y_nom<< "\t yield_pre = "<<y <<"\t rms_cs="<<rms_cs<<"\t "<<"\t rms_fits="<<rms_fits<<"\t rms_rest="<<rms_rest<<endl;
+		      if(doDebug) cout <<"prefix = "<<prefixarr[prefix]<<"\t rms_cs="<<rms_cs<<"\t "<<"\t rms_fits="<<rms_fits<<"\t rms_rest="<<rms_rest<<endl;
 		    }
-		  rms = rms/(nPrefix-1);
+
+		  rms_cs   = rms_cs/(nDecay);
+		  rms_fits = rms_fits/nFits;
+		  
 		  xcenter[iphi]      = xbin;
 		  yield[iphi]        = y_nom;
-		  yield_newErr[iphi] = sqrt(yerr_nom*yerr_nom + rms);
-		  
-		  if(doDebug)
-		    cout<<" phiBin = "<<iphi<<"\t yeild= "<<yield[iphi]<<"\t oldError= "<< yerr_nom <<"\t newError= "<<yield_newErr[iphi]<<endl;
+		  yield_newErr[iphi] = sqrt(yerr_nom*yerr_nom + rms_cs+rms_fits+rms_rest);
 		}// phi bins
 	      // define new TGraph
 	      TGraphErrors *pgNew = new TGraphErrors(4,xcenter,yield,xerr,yield_newErr);
@@ -587,6 +654,12 @@ void Plot_JpsiV2_a2_EPCorr(const char* inDirName = "./")
 	      v2Err_final_sansRes[choseSignal][0][0][ipt]  = c2[1];
 	      chi_final[choseSignal][0][0][ipt]            = c2[2];
 	      ndf_final[choseSignal][0][0][ipt]            = c2[3];
+
+	      // get the systematics away from stat
+	      double errStat2  = v2Err[0][choseSignal][0][0][ipt]*v2Err[0][choseSignal][0][0][ipt]; // prefix=0 -- the nominal, first value in array
+	      double errFinal2 = v2Err_final_sansRes[choseSignal][0][0][ipt] * v2Err_final_sansRes[choseSignal][0][0][ipt];
+	      // calcualte separatelly the systm only: total_woRes-stat
+	      v2Err_systOnly[choseSignal][0][0][ipt] = sqrt(errFinal2 - errStat2);
 
 	      // apply resolution corrections on the new v2:
 	      double resCorrection = 0, resCorrection_error = 0;
@@ -603,7 +676,17 @@ void Plot_JpsiV2_a2_EPCorr(const char* inDirName = "./")
 
 	    }//centrality
 	  cout << endl;
-	  cout << "|  " << signal[choseSignal] << "  |\n";
+	  output << "%%%%%%%%%%%  " << signal[choseSignal] << "  |\n";
+	  
+	  output << "|  pT.   |  v2_statOnly_noRes  |  v2_statOnly_noRes error (first in the prefix list)  |\n";
+	  output << "|   6.5-8.0   |  "<<v2[0][choseSignal][0][0][0]<<"  |  "<<v2Err[0][choseSignal][0][0][0]<<"  |\n";
+	  output << "|  8.0-10.0   |  "<<v2[0][choseSignal][0][0][1]<<"  |  "<<v2Err[0][choseSignal][0][0][1]<<"  |\n";
+	  output << "|  10.0-40.0  |  "<<v2[0][choseSignal][0][0][2]<<"  |  "<<v2Err[0][choseSignal][0][0][2]<<"  |\n";
+
+	  output << "|  pT.   |  v2_systematic only error  |\n";
+	  output << "|  6.5-8.0    |  "<<v2Err_systOnly[choseSignal][0][0][0]<<"  |\n";
+	  output << "|  8.0-10.0   |  "<<v2Err_systOnly[choseSignal][0][0][1]<<"  |\n";
+	  output << "|  10.0-40.0  |  "<<v2Err_systOnly[choseSignal][0][0][2]<<"  |\n";
 	
 	  output << "|  pT   |  v2_systStat_noRes  |  v2_noRes error  |\n";
 	  output << "|   6.5-8.0   |  "<<v2_final_sansRes[choseSignal][0][0][0]<<"  |  "<<v2Err_final_sansRes[choseSignal][0][0][0]<<"  |\n";
@@ -646,12 +729,12 @@ void Plot_JpsiV2_a2_EPCorr(const char* inDirName = "./")
 		  double vpts1 = pts[lpt]; 
 		  double vpts2 = pts[lpt+1];
 		  
-		  pp->SetMaximum(.8);
-		  pp->SetMinimum(0.5);
+		  pp->SetMaximum(1.);
+		  pp->SetMinimum(0.3);
 		  pp->Draw();
 		  
 		  lt1->SetTextSize(0.05);
-		  if(!g[0][0][ky][lpt]) 
+		  if(!g[0][choseSignal][0][ky][lpt]) 
 		    {
 		      cout<<"No graph! continued !!!!"<<endl;
 		      continue;
@@ -661,11 +744,11 @@ void Plot_JpsiV2_a2_EPCorr(const char* inDirName = "./")
 		  pgTemp2->SetMarkerColor(2);
 		  pgTemp2->SetLineColor(2);
 		  pgTemp2->SetMarkerStyle(20);
-		  pgTemp2->Draw("p[]");
+		  pgTemp2->Draw("[PZ]");
 		  
-		  TGraphErrors *pgTemp1 = (TGraphErrors *)g[0][0][ky][lpt];
+		  TGraphErrors *pgTemp1 = (TGraphErrors *)g[0][choseSignal][0][ky][lpt];
 		  pgTemp1->SetMarkerStyle(24);
-		  pgTemp1->Draw("pz");
+		  pgTemp1->Draw("[P]");
 		  if(ind==0 )
 		    {
 			  // drapwing v2 value and chi2
@@ -752,23 +835,46 @@ void Plot_JpsiV2_a2_EPCorr(const char* inDirName = "./")
       	  // write out the tgraph errors
 	  
 	  rootoutput->cd();
-	  double pt_err[nptbins]     = {0.0};
+	  double pt_err[nptbins]     = {0.5,0.5,0.5};
 	  double v2final[nptbins]  = {0.0} , v2finalErr[nptbins] = {0.0};
+
+	  double v2SystOnlyErr[nptbins] = {0.0};
+	  double v2StatOnlyErr[nptbins] = {0.0};
+
 	  for (int ipt = pt_start; ipt < pt_end; ipt++) 
 	    {
 	      v2final[ipt]     = v2_final[choseSignal][0][0][ipt];
 	      v2finalErr[ipt]  = v2Err_final[choseSignal][0][0][ipt];
+
+	      v2StatOnlyErr[ipt]  = v2Err[0][choseSignal][0][0][ipt];          // statistical only, prefix=0, nominal, first entry in the array
+	      v2SystOnlyErr[ipt]  = v2Err_systOnly[choseSignal][0][0][ipt]; // systematic errors only
+
 	      cout << v2final[ipt] << " Last chance to screw up!!!!! " << v2finalErr[ipt] << endl;
 	    }
-	
+	  
 	  TGraphErrors pgWrite(nptbins,pts_bound,v2final,pt_err,v2finalErr);
 	  pgWrite.Write(Form("final_ptDependence_%s_rap%.1f-%.1f_cent%d-%d",signal[choseSignal],raps[0],raps[1],cts[0],cts[1]));
+
+	  TGraphErrors pgWrite_stat(nptbins,pts_bound,v2final,pt_err,v2StatOnlyErr);
+	  pgWrite_stat.Write(Form("final_ptDependence_statErr_%s_rap%.1f-%.1f_cent%d-%d",signal[choseSignal],raps[0],raps[1],cts[0],cts[1]));
+
+	  TGraphErrors pgWrite_syst(nptbins,pts_bound,v2final,pt_err,v2SystOnlyErr);
+	  pgWrite_syst.Write(Form("final_ptDependence_systErr_%s_rap%.1f-%.1f_cent%d-%d",signal[choseSignal],raps[0],raps[1],cts[0],cts[1]));
+
+
 	  if(doDebug)
 	    {
 	      double x,y;
 	      cout<<pgWrite.GetPoint(1,x,y);
 	      cout<<x<<"\t "<<y<<endl;
+
+	      cout<<pgWrite_stat.GetPoint(1,x,y);
+	      cout<<"Stat"<<x<<"\t "<<y<<endl;
+	      
+	      cout<<pgWrite_syst.GetPoint(1,x,y);
+	      cout<<"Syst"<<x<<"\t "<<y<<endl;
 	    }
+
 	  //----------------- done writing
 
 	}//chose signal

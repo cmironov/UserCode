@@ -50,23 +50,43 @@ void TGetPoints(TGraphErrors *a, double *b, double *c);
 void getEPCorrection(int epType, int centLow, int centHigh, double *corrVal, double *corrErr) ;
 
 //__________________________________________________________________________
-void Plot_JpsiV2_a3_EPCorr(const char* inDirName = "./")
+void Plot_JpsiV2_a3_EPCorr(const char* inDirName = "./pnp")//pnp
 {
   //gROOT->Macro("/Users/eusmartass/Software/utilities/setStyle.C+");
   gROOT->Macro("./rootlogon.C");
   gStyle->SetOptFit(0);
-  gStyle->SetEndErrorSize(4);
-  bool bSavePlots      = true; 
-  bool bIncludeSystem  = false;
+  gStyle->SetEndErrorSize(5);
+  bool bSavePlots      = false; 
+  bool bIncludeSystem  = true;
   bool doDebug         = false;
-  bool bExtraStudy     = true;
+  bool bExtraStudy     = false;
+
+  bool bDoPNp = true;
+  bool bDo6Bin = false;
+  
+  int nFits  = 3; // number of fits systm; need a counting for calcualting the rms; changes authomatically in code for npn, to 5
+  int nDecay = 2; // cowboys-sailor; need a counter that it's not hard-coded
+  //!!!!!!!!!!!! ############## DO NOT CHANGE THE ORDER IN THE  prefixarr[] aARRAY!!!!!!!! DO NOT CHANGE THE ORDER!!!!!!
+  //**************************** modified errors
+  // %%%%%%%% inclusive
+  // const int nPrefix = 9;
+// //   // first in this case is always the nominal case 
+//   const char *prefixarr[nPrefix] = {"default_bit1","noFlat_bit1","zVtxLT10_bit1","default_sailor","default_cowboy","default_bit1_weight","default_constrained","default_polFunct","default_signalCB3WN"};
+  
+  // %%%%%%%% prompt - NPr
+  // first in this case is always the nominal case 
+  // "default_bit1_weight" -- this is 3D correction: pt, y, centrality (averaged over dPhi)
+  const int nPrefix = 11;
+  const char *prefixarr[nPrefix] = {"default_bit1","default_sailor","default_cowboy","default_constrained","default_polFunct","default_signalCB3WN","default_bit1_1GaussResol","default_bit1_ResolFixToPRMC","noFlat_bit1","zVtxLT10_bit1","default_bit1_weight"};
+
+ //**************************** extra Studies
+  // %%%%%%%%  inclusive
+  //  const int nPrefix = 19;
+//     const char *prefixarr[nPrefix] = {"default_bit1","default_sailor","default_cowboy","default_bit1_weight","default_bit1_4Dweight","default_cowboy_weight","default_cowboy_4Dweight","default_sailor_4Dweight","default_sailor_weight","nMuValHits12_bit1","nMuValHits12_cowboy","nMuValHits12_sailor","singleMuLTeta1.2_bit1","singleMuLTeta1.2_cowboy","singleMuLTeta1.2_sailor","zVtxLT10_bit1","zVtxLT10_cowboy","zVtxLT10_sailor","autoCorr_bit1"};
 
   // const int nPrefix = 10;
-// //   // first in this case is always the nominal case 
-//   const char *prefixarr[nPrefix] = {"default_bit1","autoCorr_bit1","noFlat_bit1","zVtxLT10_bit1","default_sailor","default_cowboy","default_bit1_weight","default_constrained","default_polFunct","default_signalCB3WN"};
+//   const char *prefixarr[nPrefix] = {"default_bit1","default_sailor","default_cowboy","default_bit1_weight","default_bit1_4Dweight","default_cowboy_weight","default_cowboy_4Dweight","default_sailor_4Dweight","default_sailor_weight","autoCorr_bit1"};
 
-  const int nPrefix = 15;
-  const char *prefixarr[nPrefix] = {"default_bit1","default_sailor","default_cowboy","default_bit1_weight","default_cowboy_weight","default_sailor_weight","nMuValHits12_bit1","nMuValHits12_cowboy","nMuValHits12_sailor","singleMuLTeta1.2_bit1","singleMuLTeta1.2_cowboy","singleMuLTeta1.2_sailor","zVtxLT10_bit1","zVtxLT10_cowboy","zVtxLT10_sailor"};
 
   const char* signal[4]      = {"NSig","NBkg","NPr","NNp"};
   const char* legend[4]      = {"Inclusive J/#psi","Background","Prompt J/#psi","Non-prompt J/#psi"};
@@ -74,8 +94,8 @@ void Plot_JpsiV2_a3_EPCorr(const char* inDirName = "./")
   // options
   int prefix_start     = 0; // which setting for v2
   int prefix_end       = nPrefix;
-  int signal_start     = 0;// sgn, bkg, pr, npr
-  int signal_end       = 2;
+  int signal_start     = 2;// sgn, bkg, pr, npr
+  int signal_end       = 4;
   int centrality_start = 0;
   int centrality_end   = 1;
   
@@ -86,8 +106,27 @@ void Plot_JpsiV2_a3_EPCorr(const char* inDirName = "./")
   int nPads    = pt_end-pt_start; 
   
   ofstream output;
-  if(!bExtraStudy) output.open("./a3_v2_Result.txt");
-  else output.open("./extrastud/a3_v2_Result.txt");
+ if(bDoPNp)
+    {
+      if(bExtraStudy)
+	{
+	  gSystem->mkdir("./extrastud",kTRUE);
+	  output.open("./extrastud/a3_v2_Result_pnp.txt");
+	}
+      else
+	output.open("./a3_v2_Result_pnp.txt");
+    }
+  else
+    {
+      if(bExtraStudy)
+	{
+	  gSystem->mkdir("./extrastud",kTRUE);
+	  output.open("./extrastud/a3_v2_Result.txt");
+	}
+      else
+	output.open("./a3_v2_Result.txt");
+    }
+  
   if(!output.is_open()) { cout << "cannot open a3_v2_Result.txt. Exit\n"; return ;}
   
   const int ncentbins = 1;  int cts[ncentbins+1]  = {10, 60};
@@ -101,8 +140,6 @@ void Plot_JpsiV2_a3_EPCorr(const char* inDirName = "./")
   double ybins_lowPt_center_err[nLowPtbins] = {0.4};
   
   // should replace with <pT> values from an
-  double pts_bound[3] = {7.3, 9.0, 13.4}; // <pt> values in the AN
-
   double ptBinsFwd[2]      = {6.3, 9.0};
   double ptErrsFwd[2]      = {0.0, 0.0};
   double ptBinsBar[1]      = {10.6};
@@ -118,17 +155,23 @@ void Plot_JpsiV2_a3_EPCorr(const char* inDirName = "./")
   double chi[nPrefix][4][ncentbins][nrapbins][nptbins]   = {{{{{0.0}}}}};
   double ndf[nPrefix][4][ncentbins][nrapbins][nptbins]   = {{{{{0.0}}}}};
 
-  // with systm included
+  // stat+syst+res
   double v2_final[4][ncentbins][nrapbins][nptbins]    = {{{{0.0}}}};
   double v2Err_final[4][ncentbins][nrapbins][nptbins] = {{{{0.0}}}};
   double chi_final[4][ncentbins][nrapbins][nptbins]   = {{{{0.0}}}};
   double ndf_final[4][ncentbins][nrapbins][nptbins]   = {{{{0.0}}}};
 
+  // stat+syst
   double v2_final_sansRes[4][ncentbins][nrapbins][nptbins] = {{{{0.0}}}};
   double v2Err_final_sansRes[4][ncentbins][nrapbins][nptbins] = {{{{0.0}}}};
+
+  // stat only
+  double v2Err_statOnly[4][ncentbins][nrapbins][nptbins] = {{{{0.0}}}};
+  // syst only
+  double v2Err_systOnly[4][ncentbins][nrapbins][nptbins] = {{{{0.0}}}};
  
   // each yieldType, centrality, rapidity, pt bin
-  TGraphErrors *g[nPrefix][ncentbins][nrapbins][nptbins];
+  TGraphErrors *g[nPrefix][4][ncentbins][nrapbins][nptbins];
   TGraphErrors *pgFinal[4][ncentbins][nrapbins][nptbins];
 
   // drawing stuff
@@ -178,20 +221,20 @@ void Plot_JpsiV2_a3_EPCorr(const char* inDirName = "./")
 		      sprintf(gTmp,"rap%.1f-%.1f_cent%d-%d_pT%.1f-%.1f_%s",vraps1,vraps2,vcts1,vcts2,pts[jpt],pts[jpt+1],chosenSignal);
 		      cout<<"TGraph name : "<<gTmp<<endl;
 		      TGraphErrors *pgTemp =  (TGraphErrors*)f1->Get(gTmp);
-		      g[prefix][mcent][iy][jpt]  = pgTemp;
-		      if(!g[prefix][mcent][iy][jpt]) {cout<<"Warning: No graph found !!!!"<<endl;continue;}
-		      cout<<g[prefix][mcent][iy][jpt]<<endl;
+		      g[prefix][choseSignal][mcent][iy][jpt]  = pgTemp;
+		      if(!g[prefix][choseSignal][mcent][iy][jpt]) {cout<<"Warning: No graph found !!!!"<<endl;continue;}
+		      cout<<g[prefix][choseSignal][mcent][iy][jpt]<<endl;
 		      
 		      double c[4] = {0.0, 0.0, 0.0, 0.0};
 		      
-		      GetV2(g[prefix][mcent][iy][jpt], c);
+		      GetV2(g[prefix][choseSignal][mcent][iy][jpt], c);
 		      
 		      v2[prefix][choseSignal][mcent][iy][jpt]     = c[0];
 		      v2Err[prefix][choseSignal][mcent][iy][jpt]  = c[1];
 		      chi[prefix][choseSignal][mcent][iy][jpt]    = c[2];
 		      ndf[prefix][choseSignal][mcent][iy][jpt]    = c[3];
 		      
-		      if(doDebug && prefix==0) cout<<"########### Stat only, cent bin "<<mcent<<"\t v2= "<< v2[prefix][choseSignal][mcent][iy][jpt]<<"\t +- "<<v2Err[prefix][choseSignal][mcent][iy][jpt] <<endl;
+		      if(doDebug ) cout<<"################# Stat only, cent bin "<<mcent<<"\t v2= "<< v2[prefix][choseSignal][mcent][iy][jpt]<<"\t +- "<<v2Err[prefix][choseSignal][mcent][iy][jpt] <<endl;
 		      
 		    }//pt bin loop
 		}//rapidity loop
@@ -255,7 +298,7 @@ void Plot_JpsiV2_a3_EPCorr(const char* inDirName = "./")
 			  lt1->DrawLatex(0.65,0.9,Form("%.1f < |y| < %.1f",vraps1,vraps2));       // rapidity	
 			}
 		      
-		      if(!g[prefix][mcent][ky][lpt]) 
+		      if(!g[prefix][choseSignal][mcent][ky][lpt]) 
 			{
 			  cout<<"No graph! continued !!!!"<<endl;
 			  continue;
@@ -264,7 +307,7 @@ void Plot_JpsiV2_a3_EPCorr(const char* inDirName = "./")
 		      cout<<"dmoon chk : "<<mcent<<" "<<ky<<" "<<lpt<<endl;
 		      if(mcent == 0 && ky == 0 && lpt == 0) continue;
 		      if(mcent == 0 && ky == 1 && lpt == 0) continue;
-		      g[prefix][mcent][ky][lpt]->Draw("pz");
+		      g[prefix][choseSignal][mcent][ky][lpt]->Draw("pz");
 		      if(ind < 5)
 			{// drapwing v2 value and pt
 			  lt1->SetTextSize(0.055);
@@ -470,8 +513,17 @@ void Plot_JpsiV2_a3_EPCorr(const char* inDirName = "./")
   double finalV2Err[nPrefix][4][ncentbins][nrapbins][nptbins] = {{{{{0.0}}}}};
 
  TFile *rootoutput;
- if(!bExtraStudy) rootoutput = new TFile("a3_corrV2.root","recreate"); 
- else rootoutput = new TFile("./extrastud/a3_corrV2.root","recreate");
+ if(bDoPNp)
+    {
+      if(!bExtraStudy) rootoutput = new TFile("a3_corrV2_pnp.root","recreate"); 
+      else rootoutput = new TFile("./extrastud/a3_corrV2_pnp.root","recreate");
+    }
+  else
+    {
+      if(!bExtraStudy) rootoutput = new TFile("a3_corrV2.root","recreate"); 
+      else rootoutput = new TFile("./extrastud/a3_corrV2.root","recreate");
+    }
+ if(bDo6Bin) rootoutput = new TFile("a3_corrV2_6bin.root","recreate"); 
 
   for(int prefix=prefix_start; prefix<prefix_end; prefix++) 
     {
@@ -666,7 +718,7 @@ void Plot_JpsiV2_a3_EPCorr(const char* inDirName = "./")
 	      for (int ipt = 0; ipt < nptbins; ipt++) 
 		{
 		  if((irap==0 || irap==1)&&(ipt==0)) continue;
-		  TGraphErrors *pgTemp_nominal =  (TGraphErrors*)g[0][0][irap][ipt]; // the nominal value
+		  TGraphErrors *pgTemp_nominal =  (TGraphErrors*)g[0][choseSignal][0][irap][ipt]; // the nominal value
 		  double yield[4]              = {0};
 		  double yield_newErr[4]       = {0};
 		  double xcenter[4]            = {0};
@@ -676,22 +728,34 @@ void Plot_JpsiV2_a3_EPCorr(const char* inDirName = "./")
 		      double y_nom,xbin;
 		      int bin1        = pgTemp_nominal->GetPoint(iphi,xbin,y_nom);
 		      double yerr_nom = pgTemp_nominal->GetErrorY(iphi);
-		      double rms      = 0;
+		      double rms_fits = 0;
+		      double rms_cs = 0;
+		      double rms_rest = 0;
+		      //		  int nFits  = 5; // number of fits systm; need a counting for calcualting the rms
+		      // int nDecay = 2; // cowboys-sailor; need a counter that it's not hard-coded
+		      if(choseSignal >0) nFits = 5;
 		      for(int prefix=1; prefix<prefix_end; prefix++) 
 			{
-			  TGraphErrors *pgTemp_systm =  (TGraphErrors*)g[prefix][0][irap][ipt];
+			  TGraphErrors *pgTemp_systm =  (TGraphErrors*)g[prefix][choseSignal][0][irap][ipt];
 			  double y,x2;
 			  int bin2 = pgTemp_systm->GetPoint(iphi,x2,y);
-			  rms+=pow(y_nom-y,2);
-			  if(doDebug) cout <<"prefix = "<<prefix<<"\t yield nominal= "<< y_nom<< "\t yield prefix = "<<y <<"\t rms="<<rms<<endl;
+			  if(prefix<nDecay+1)
+			    rms_cs+=pow(y_nom-y,2);
+			  
+			  if(prefix>=nDecay+1 && prefix<nFits+1)
+			    rms_fits+=pow(y_nom-y,2);
+			  
+			  if(prefix >= nDecay+nFits+1) rms_rest+=pow(y_nom-y,2);
+			  
+			  if(doDebug) cout <<"prefix = "<<prefixarr[prefix]<<"\t rms_cs="<<rms_cs<<"\t "<<"\t rms_fits="<<rms_fits<<"\t rms_rest="<<rms_rest<<endl;
 			}
-		      rms = rms/(nPrefix-1);
+		      rms_cs   = rms_cs/(nDecay);
+		      rms_fits = rms_fits/nFits;
+		      
 		      xcenter[iphi]      = xbin;
 		      yield[iphi]        = y_nom;
-		      yield_newErr[iphi] = sqrt(yerr_nom*yerr_nom + rms);
-		      
-		      if(doDebug)
-			cout<<" phiBin = "<<iphi<<"\t yeild= "<<yield[iphi]<<"\t oldError= "<< yerr_nom <<"\t newError= "<<yield_newErr[iphi]<<endl;
+		      yield_newErr[iphi] = sqrt(yerr_nom*yerr_nom + rms_cs+rms_fits+rms_rest);
+
 		    }// phi bins
 	      // define new TGraph
 	      TGraphErrors *pgNew = new TGraphErrors(4,xcenter,yield,xerr,yield_newErr);
@@ -704,6 +768,12 @@ void Plot_JpsiV2_a3_EPCorr(const char* inDirName = "./")
 	      v2Err_final_sansRes[choseSignal][0][irap][ipt]  = c2[1];
 	      chi_final[choseSignal][0][irap][ipt]            = c2[2];
 	      ndf_final[choseSignal][0][irap][ipt]            = c2[3];
+
+	      // get the systematics away from stat
+	      double errStat2  = v2Err[0][choseSignal][0][irap][ipt]*v2Err[0][choseSignal][0][irap][ipt]; // prefix=0 -- the nominal, first value in array
+	      double errFinal2 = v2Err_final_sansRes[choseSignal][0][irap][ipt] * v2Err_final_sansRes[choseSignal][0][irap][ipt];
+	      // calcualte separatelly the systm only: total_woRes-stat
+	      v2Err_systOnly[choseSignal][0][irap][ipt] = sqrt(errFinal2 - errStat2);
 
 	      // apply resolution corrections on the new v2:
 	      double resCorrection = 0, resCorrection_error = 0;
@@ -721,24 +791,44 @@ void Plot_JpsiV2_a3_EPCorr(const char* inDirName = "./")
 	    }//irap
 	
 	  cout << endl;
-	  output<<"%%%%% Fit : " << " " << " Category : "<<signal[choseSignal]<<" %%%%%"<<endl;
-	  output<<"|  Barr (pT)  |  v2_systStat_noRes  |  error  |"<<endl;
+	  output << "%%%%%%%%%%%  " << signal[choseSignal] << "  |\n";
+
+	  output<<"|  Barr (pT) |   v2_statOnly_noRes  |  v2_statOnly_noRes error (first in the prefix list)  |"<<endl;
+	  output<<"|  6.5-40.0  |  "<<v2[0][choseSignal][0][0][1]<<"  |  "<<v2Err[0][choseSignal][0][0][1]<<"  |"<<endl;
+	  output<<"|  Mid (pT)  |  |   |"<<endl;
+	  output<<"|  6.5-40.0  |  "<<v2[0][choseSignal][0][1][1]<<"  |  "<<v2Err[0][choseSignal][0][1][1]<<"  |"<<endl;
+	  output<<"|  Forw (pT) |  |  |"<<endl;
+	  output<<"|  6.5-40.0  |  "<<v2[0][choseSignal][0][2][1]<<"  |  "<<v2Err[0][choseSignal][0][2][1]<<"  |"<<endl;
+	  output<<"|  3.0-6.5   |  "<<v2[0][choseSignal][0][2][0]<<"  |  "<<v2Err[0][choseSignal][0][2][0]<<"  |"<<endl;
+
+
+	  output<<"|  Barr (pT) |  |  v2_systOnly_noRes error (first in the prefix list)  |"<<endl;
+	  output<<"|  6.5-40.0  |  "<<v2Err_systOnly[choseSignal][0][0][1]<<"  |"<<endl;
+	  output<<"|  Mid (pT)  |  |   |"<<endl;
+	  output<<"|  6.5-40.0  |  "<<v2Err_systOnly[choseSignal][0][1][1]<<"  |"<<endl;
+	  output<<"|  Forw (pT) |  |  |"<<endl;
+	  output<<"|  6.5-40.0  |  "<<v2Err_systOnly[choseSignal][0][2][1]<<"  |"<<endl;
+	  output<<"|  3.0-6.5   |  "<<v2Err_systOnly[choseSignal][0][2][0]<<"  |"<<endl;
+
+
+
+	  output<<"|  Barr (pT) |  v2_systStat_noRes  |  error  |"<<endl;
 	  output<<"|  6.5-40.0  |  "<<v2_final_sansRes[choseSignal][0][0][1]<<"  |  "<<v2Err_final_sansRes[choseSignal][0][0][1]<<"  |"<<endl;
-	  output<<"|  Mid (pT)  |  v2  |  error  |"<<endl;
+	  output<<"|  Mid (pT)  |  |  |"<<endl;
 	  output<<"|  6.5-40.0  |  "<<v2_final_sansRes[choseSignal][0][1][1]<<"  |  "<<v2Err_final_sansRes[choseSignal][0][1][1]<<"  |"<<endl;
-	  output<<"|  Forw (pT)  |  v2  |  error  |"<<endl;
-	  output<<"|  6.5-40.0  |"<<"  "<<v2_final_sansRes[choseSignal][0][2][1]<<"  |  "<<v2Err_final_sansRes[choseSignal][0][2][1]<<"  |"<<endl;
-	  output<<"|  3.0-6.5  |"<<"  "<<v2_final_sansRes[choseSignal][0][2][0]<<"  |  "<<v2Err_final_sansRes[choseSignal][0][2][0]<<"  |"<<endl;
+	  output<<"|  Forw (pT) |  |  |"<<endl;
+	  output<<"|  6.5-40.0  |  "<<v2_final_sansRes[choseSignal][0][2][1]<<"  |  "<<v2Err_final_sansRes[choseSignal][0][2][1]<<"  |"<<endl;
+	  output<<"|  3.0-6.5   |  "<<v2_final_sansRes[choseSignal][0][2][0]<<"  |  "<<v2Err_final_sansRes[choseSignal][0][2][0]<<"  |"<<endl;
 	  
 	  output<<endl;
 	  
 	  output<<"|  Barr (pT)  |  v2_final  |  error  |"<<endl;
 	  output<<"|  6.5-40.0  |  "<<v2_final[choseSignal][0][0][1]<<"  |  "<<v2Err_final[choseSignal][0][0][1]<<"  |"<<endl;
-	  output<<"|  Mid (pT)  |  v2  |  error  |"<<endl;
+	  output<<"|  Mid (pT)  |  |  |"<<endl;
 	  output<<"|  6.5-40.0  |  "<<v2_final[choseSignal][0][1][1]<<"  |  "<<v2Err_final[choseSignal][0][1][1]<<"  |"<<endl;
-	  output<<"|  Forw (pT)  |  v2  |  error  |"<<endl;
-	  output<<"|  3.0-6.5  |"<<"  "<<v2_final[choseSignal][0][2][0]<<"  |  "<<v2Err_final[choseSignal][0][2][0]<<"  |"<<endl;
-	  output<<"|  6.5-40.0  |"<<"  "<<v2_final[choseSignal][0][2][1]<<"  |  "<<v2Err_final[choseSignal][0][2][1]<<"  |"<<endl;
+	  output<<"|  Forw (pT) |  |  |"<<endl;
+	  output<<"|  6.5-40.0  |  "<<v2_final[choseSignal][0][2][1]<<"  |  "<<v2Err_final[choseSignal][0][2][1]<<"  |"<<endl;
+	  output<<"|  3.0-6.5   |  "<<v2_final[choseSignal][0][2][0]<<"  |  "<<v2Err_final[choseSignal][0][2][0]<<"  |"<<endl;
 	  output<<endl;
 	
 
@@ -768,12 +858,12 @@ void Plot_JpsiV2_a3_EPCorr(const char* inDirName = "./")
 		  double vpts1 = pts[lpt]; 
 		  double vpts2 = pts[lpt+1];
 		  
-		  pp->SetMaximum(.8);
-		  pp->SetMinimum(0.5);
+		  pp->SetMaximum(1.);
+		  pp->SetMinimum(0.3);
 		  pp->Draw();
 		  
 		  lt1->SetTextSize(0.05);
-		  if(!g[0][0][ky][lpt]) 
+		  if(!g[0][choseSignal][0][ky][lpt]) 
 		    {
 		      cout<<"No graph! continued !!!!"<<endl;
 		      continue;
@@ -783,11 +873,11 @@ void Plot_JpsiV2_a3_EPCorr(const char* inDirName = "./")
 		  pgTemp2->SetMarkerColor(2);
 		  pgTemp2->SetLineColor(2);
 		  pgTemp2->SetMarkerStyle(20);
-		  pgTemp2->Draw("p[]");
+		  pgTemp2->Draw("[PZ]");
 		  
-		  TGraphErrors *pgTemp1 = (TGraphErrors *)g[0][0][ky][lpt];
+		  TGraphErrors *pgTemp1 = (TGraphErrors *)g[0][choseSignal][0][ky][lpt];
 		  pgTemp1->SetMarkerStyle(24);
-		  pgTemp1->Draw("pz");
+		  pgTemp1->Draw("[P]");
 		  if(ind==0 )
 		    {
 			  // drapwing v2 value and chi2
@@ -866,19 +956,19 @@ void Plot_JpsiV2_a3_EPCorr(const char* inDirName = "./")
 		  if(bSavePlots)
 		    {
 		      gSystem->mkdir("./plots/final",kTRUE);
-		      pc7->SaveAs(Form("./plots/final/rap_%s_rap%.1f_%.1f_pT%.1f-%.1f_a3_Corr.png",signal[choseSignal],raps[y_start],raps[y_end],pts[pt_start],pts[pt_end]));
-		      pc7->SaveAs(Form("./plots/final/rap_%s_rap%.1f_%.1f_pT%.1f-%.1f_a3_Corr.pdf",signal[choseSignal],raps[y_start],raps[y_end],pts[pt_start],pts[pt_end]));
+		      pc7->SaveAs(Form("./plots/final/rap_%s_rap%.1f_%.1f_pT%.1f-%.1f_a3_Corr.png",signal[choseSignal],raps[y_start],raps[y_end],vpts1,vpts2));
+		      pc7->SaveAs(Form("./plots/final/rap_%s_rap%.1f_%.1f_pT%.1f-%.1f_a3_Corr.pdf",signal[choseSignal],raps[y_start],raps[y_end],vpts1,vpts2));
 		    }
 		}//pt loop
 	    }//rapidity loop
 
-	  //++++++++++++++
+	  //++++++++++++++++++++++++++++
 	  //make the low pT plot too
 	  TCanvas *pc8 = new TCanvas("pc8",Form("pc_dPhiDistribStatSyst"));
 	  cout<<"Canvas Centrality: "<<vcts1<<"-"<<vcts2<<endl;
 	  
-	  double vraps1 = raps[1];
-	  double vraps2 = raps[2];
+	  double vraps1 = raps[2];
+	  double vraps2 = raps[3];
 	  cout << "Canvas Rapidity = "<< vraps1 << "\t"<<vraps2<<endl;
 	  
 	  pp->SetMaximum(.8);
@@ -889,11 +979,11 @@ void Plot_JpsiV2_a3_EPCorr(const char* inDirName = "./")
 	  pgTemp22->SetMarkerColor(2);
 	  pgTemp22->SetLineColor(2);
 	  pgTemp22->SetMarkerStyle(20);
-	  pgTemp22->Draw("[P]");
+	  pgTemp22->Draw("[PZ]");
 	  
-	  TGraphErrors *pgTemp12 = (TGraphErrors *)g[0][0][2][0];
+	  TGraphErrors *pgTemp12 = (TGraphErrors *)g[0][choseSignal][0][2][0];
 	  pgTemp12->SetMarkerStyle(24);
-	  pgTemp12->Draw("PZ");
+	  pgTemp12->Draw("[P]");
 	  
 	  lt1->SetTextSize(0.04);
 	  lt1->DrawLatex(0.2,0.23,Form("v_{2}^{stat} = %.4f #pm %.4f (#chi^{2} / ndf = %.3f / %.0f)",
@@ -947,28 +1037,64 @@ void Plot_JpsiV2_a3_EPCorr(const char* inDirName = "./")
 	  //++++++++++++++
 
 	  rootoutput->cd();
-	  double v2final_highpt[nrapbins]  = {0.0} , v2finalErr_highpt[nrapbins] = {0.0};
+	  double y_err[nrapbins]     = {0.04,0.04,0.04};
+	  double v2final_highpt[nrapbins]  = {0.0};
+	  double v2finalErr_highpt[nrapbins] = {0.0};
+	  double v2SystOnlyErr_highpt[nrapbins] = {0.0};
+	  double v2StatOnlyErr_highpt[nrapbins] = {0.0};
+
 	  for (int iy = y_start; iy < y_end; iy++) 
 	    {
 	      v2final_highpt[iy]     = v2_final[choseSignal][0][iy][1];
+
 	      v2finalErr_highpt[iy]  = v2Err_final[choseSignal][0][iy][1];
-	      cout << v2final_highpt[iy] << " Last chance to screw up!!!!! " << v2finalErr_highpt[iy] << endl;
+
+	      v2SystOnlyErr_highpt[iy]  = v2Err_systOnly[choseSignal][0][iy][1];
+	      v2StatOnlyErr_highpt[iy]  = v2Err[0][choseSignal][0][iy][1];
+
+
+	      cout << v2final_highpt[iy] << " Last chance to screw up!!!!! " << v2finalErr_highpt[iy] << "\t stat= "<<v2StatOnlyErr_highpt[iy]<<"\t syst= "<<v2SystOnlyErr_highpt[iy]<<endl;
 	    }
-	  TGraphErrors pgWrite(nrapbins,ybins_highPt_center,v2final_highpt,0,v2finalErr_highpt);
+	  TGraphErrors pgWrite(nrapbins,ybins_highPt_center,v2final_highpt,y_err,v2finalErr_highpt);
 	  pgWrite.Write(Form("final_yDependence_highpt_%s_cent%d-%d_pt%.1f-%.1f",signal[choseSignal],cts[0],cts[1],pts[1],pts[2]));
+
+	  TGraphErrors pgWrite_stat(nrapbins,ybins_highPt_center,v2final_highpt,y_err,v2StatOnlyErr_highpt);
+	  pgWrite_stat.Write(Form("final_yDependence_highpt_statErr_%s_cent%d-%d_pt%.1f-%.1f",signal[choseSignal],cts[0],cts[1],pts[1],pts[2]));
+
+	  TGraphErrors pgWrite_syst(nrapbins,ybins_highPt_center,v2final_highpt,y_err,v2SystOnlyErr_highpt);
+	  pgWrite_syst.Write(Form("final_yDependence_highpt_systErr_%s_cent%d-%d_pt%.1f-%.1f",signal[choseSignal],cts[0],cts[1],pts[1],pts[2]));
+
 	  if(doDebug)
 	    {
 	      double x,y;
 	      cout<<pgWrite.GetPoint(1,x,y);
 	      cout<<x<<"\t "<<y<<endl;
+
+	      cout<<pgWrite_stat.GetPoint(1,x,y);
+	      cout<<x<<"\t "<<y<<endl;
+
+	      cout<<pgWrite_syst.GetPoint(1,x,y);
+	      cout<<x<<"\t "<<y<<endl;
 	    }
+
+
 	  //low-pt bin
-	  double v2final_lowpt[1]     = {v2_final[choseSignal][0][2][0]};
-	  double v2finalErr_lowpt[1]  = {v2Err_final[choseSignal][0][2][0]};
-	  cout << v2final_lowpt[0] << " Last chance to screw up!!!!! " << v2finalErr_lowpt[0] << endl;
+	  double y_err_lowpt[1]         = {0.04};
+	  double v2final_lowpt[1]       = {v2_final[choseSignal][0][2][0]};
+	  double v2finalErr_lowpt[1]    = {v2Err_final[choseSignal][0][2][0]};
+
+	  double v2SystOnlyErr_lowpt[1] = {v2Err_systOnly[choseSignal][0][2][0]};
+	  double v2StatOnlyErr_lowpt[1] = {v2Err[0][choseSignal][0][2][0]};
+	  cout << v2final_lowpt[0] << " Last chance to screw up!!!!! " << v2finalErr_lowpt[0] << "\t stat= "<< v2StatOnlyErr_lowpt[0]<<"\t syst= "<< v2SystOnlyErr_lowpt[0]<< endl;
 	  
-	  TGraphErrors pgWrite1(1,ybins_lowPt_center,v2final_lowpt,0,v2finalErr_lowpt);
+	  TGraphErrors pgWrite1(1,ybins_lowPt_center,v2final_lowpt,y_err_lowpt,v2finalErr_lowpt);
 	  pgWrite1.Write(Form("final_yDependence_lowpt_%s_cent%d-%d_pt%.1f-%.1f",signal[choseSignal],cts[0],cts[1],pts[0],pts[1]));
+
+	  TGraphErrors pgWrite1_stat(1,ybins_lowPt_center,v2final_lowpt,y_err_lowpt,v2StatOnlyErr_lowpt);
+	  pgWrite1_stat.Write(Form("final_yDependence_lowpt_statErr_%s_cent%d-%d_pt%.1f-%.1f",signal[choseSignal],cts[0],cts[1],pts[0],pts[1]));
+
+	  TGraphErrors pgWrite1_syst(1,ybins_lowPt_center,v2final_lowpt,y_err_lowpt,v2SystOnlyErr_lowpt);
+	  pgWrite1_syst.Write(Form("final_yDependence_lowpt_systErr_%s_cent%d-%d_pt%.1f-%.1f",signal[choseSignal],cts[0],cts[1],pts[0],pts[1]));
 	  //----------------- done writing
 	  
 	}//chose signal

@@ -31,40 +31,67 @@ void v2SummaryPlots_y_EPCorr()
   // gROOT->Macro("./rootlogon.C");
   gStyle->SetOptFit(0);
 
-  const char* signal[5]      = {"","NSig","NPr","Pr","NBkg"};
-  const char* legend[5]      = {"","Inclusive J/#psi","Non-prompt J/#psi","Prompt J/#psi","Background"};
-  int choseSignal            = 1; // 1:inclusive 2:prompt 3:non-prompt
-  const char* chosenSignal   = signal[choseSignal];
-  const char* outputName[1]  = {"nominal_bit1_y_bkg_highpt_cs"};
+  const char* signal[5]   = {"","NSig","NPr","NNp","NBkg"};
+  const char* legend[5]   = {"","Inclusive J/#psi", "Prompt J/#psi","Non-prompt J/#psi","Background"};
+  int choseSignal         = 3; // 1:inclusive 2:prompt 3:non-prompt
+  const char* chosenSignal= signal[choseSignal];
+  const char* outputName[1]  = {"nominal_bit1_y_6bin"};
 
   // options
   bool bSavePlots      = true;
-  
   bool bDoLowpt        = false;
-  bool bAddBkg         = false;
+
+  bool bDoSummary      = true;
+ 
+  bool bDoCowboySailor = false;
+  bool bDoFitting      = false;
   bool bAddVtx         = false;
   bool bAddNoFlat      = false;
+  bool bDoEffCorrection= false;
+  bool bDo6Bins        = false;
+
+
+  bool bAddBkg         = false;
   bool bAddTrigger     = false; 
   bool bAddAutoCor     = false;
-  bool bDoCowboySailor = false;
 
-  bool bDoEffCorrection= false;
-
-  bool bDoCS               = true;
+  bool bDoCS               = false;
   bool bDoEffCorrection_cs = false;
   bool bDoMuHits_cs        = false;
   bool bDoBarrel_cs        = false;
   bool bDoVtx_cs           = false;
-  bool doBkg_cs            = true;
+  bool doBkg_cs            = false;
 
-  int centIntegrated[2]   = {10, 60}; 
-  double ptIntegrated[3]    = {3.0, 6.5, 40.0}; 
+  int centIntegrated[2]    = {10, 60}; 
+  double ptIntegrated[3]   = {3.0, 6.5, 40.0}; 
  
-   TFile *f0 = new TFile(Form("./a3_corrV2.root"));
-  if(!f0->IsOpen()) { cout << "cannot open a3_corrV2.root" << endl; return;}
-
-  TFile *f1 = new TFile(Form("./extrastud/a3_corrV2.root"));
-  if(!f1->IsOpen()) { cout << "cannot open a3_corrV2.root" << endl; return;}
+   TFile *f0;
+  TFile *f1;
+  if(!bDoSummary)
+    {
+      if(choseSignal==1)
+	{
+	  f0 = new TFile(Form("./a3_corrV2.root"));
+	  if(!f0->IsOpen()) { cout << "cannot open a1_corrV2.root" << endl; return;}
+	  f1 = new TFile(Form("./extrastud/a3_corrV2.root"));
+	  if(!f1->IsOpen()) { cout << "cannot open a1_corrV2.root" << endl; return;}
+	}
+      else
+	{
+	  f0 = new TFile(Form("./a3_corrV2_pnp.root"));
+	  if(!f0->IsOpen()) { cout << "cannot open a3_corrV2_pnp.root" << endl; return;}
+	  // f1 = new TFile(Form("./extrastud/a1_corrV2_pnp.root"));
+	  // if(!f1->IsOpen()) { cout << "cannot open a1_corrV2_pnp.root" << endl; return;}
+	}
+      f1 = new TFile(Form("./extrastud/a3_corrV2.root"));
+    }
+  else
+    {
+      f0 = new TFile(Form("./a3_corrV2.root"));
+      if(!f0->IsOpen()) { cout << "cannot open a1_corrV2.root" << endl; return;}
+      f1 = new TFile(Form("./a3_corrV2_pnp.root"));
+      if(!f1->IsOpen()) { cout << "cannot open a3_corrV2_pnp.root" << endl; return;}
+    }
 
   // pt_rap bins, high_pt
   const int nybins_highpt = 3;
@@ -99,77 +126,124 @@ void v2SummaryPlots_y_EPCorr()
   // correlations in y:
   TGraphErrors *pg_jpsiCorr_highpt_ptyfinebins    = new TGraphErrors(nyfinebins_highpt,yfinebins_highpt_center,jpsiCorr_highpt_ptyfinebins,yfinebins_highpt_center_err,jpsiCorr_highpt_ptyfinebins_err);
 
+
   //// High pT
   //inclusive
   sprintf(histname,"final_yDependence_highpt_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
   TGraphErrors *pg_jpsi_highpt_ptybins = (TGraphErrors*)f0->Get(histname);
-  cout<<"final_yDependence_highpt_NSig_cent"<<centIntegrated[0]<<"-"<<centIntegrated[1]<<"_pT"<<ptIntegrated[1]<<"-"<<ptIntegrated[2]<<endl;
-  if (!pg_jpsi_highpt_ptybins) { cout << "cannot load highpt hist" << endl; return;}
-  // prompt
+ 
+  sprintf(histname,"final_yDependence_highpt_statErr_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
+  TGraphErrors *pg_jpsi_highpt_ptybins_statErr = (TGraphErrors*)f0->Get(histname);
+
+ 
+ // prompt
   sprintf(histname,"final_yDependence_highpt_NPr_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
-  TGraphErrors *pg_pr_jpsi_highpt_ptybins = (TGraphErrors*)f0->Get(histname);
+  TGraphErrors *pg_pr_jpsi_highpt_ptybins;
+  if(bDoSummary) pg_pr_jpsi_highpt_ptybins = (TGraphErrors*)f1->Get(histname);
+  else pg_pr_jpsi_highpt_ptybins = (TGraphErrors*)f0->Get(histname);
+
+
+   sprintf(histname,"final_yDependence_highpt_statErr_NPr_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
+  TGraphErrors *pg_pr_jpsi_highpt_ptybins_statErr;
+  if(bDoSummary) pg_pr_jpsi_highpt_ptybins_statErr = (TGraphErrors*)f1->Get(histname);
+  else pg_pr_jpsi_highpt_ptybins_statErr = (TGraphErrors*)f0->Get(histname);
+ 
   // non-prompt
   sprintf(histname,"final_yDependence_highpt_NNp_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
-  TGraphErrors *pg_npr_jpsi_highpt_ptybins = (TGraphErrors*)f0->Get(histname);
+  TGraphErrors *pg_npr_jpsi_highpt_ptybins;
+  if(bDoSummary)pg_npr_jpsi_highpt_ptybins = (TGraphErrors*)f1->Get(histname);
+  else pg_npr_jpsi_highpt_ptybins = (TGraphErrors*)f0->Get(histname);
+  
+  sprintf(histname,"final_yDependence_highpt_statErr_NNp_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
+  TGraphErrors *pg_npr_jpsi_highpt_ptybins_statErr;
+  if(bDoSummary)pg_npr_jpsi_highpt_ptybins_statErr = (TGraphErrors*)f1->Get(histname);
+  else pg_npr_jpsi_highpt_ptybins_statErr = (TGraphErrors*)f0->Get(histname);
 
   // systematic studies
-  // bkg
-  sprintf(histname,"default_bit1_NBkg_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
-  TGraphErrors *pg_bkg_highpt_ptybins = (TGraphErrors*)f1->Get(histname);
+  // 6bins : compare among themselves the v2 obtianed with stat errors only
+  TFile *f2 = new TFile(Form("./a3_corrV2_6bin.root"));
+  sprintf(histname,"default_bit1_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
+  TGraphErrors *pg_jpsi6bin_ptybins = (TGraphErrors*)f2->Get(histname);
+  TGraphErrors *pg_jpsi4bin_ptybins = (TGraphErrors*)f0->Get(histname);
+  // if (!pg_jpsi4bin_ptybins) { cout << "cannot load 4bincase." << endl; return;}
+  // if (!pg_jpsi6bin_ptybins) { cout << "cannot load 6bincase." << endl; return;}
 
-  sprintf(histname,"zVtxLT10_bit1_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
-  TGraphErrors *pg_jpsiVtx10_highpt_ptybins = (TGraphErrors*)f1->Get(histname);
+  // fits
+  sprintf(histname,"default_constrained_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
+  TGraphErrors *pg_jpsi_constrained_highpt_ptybins = (TGraphErrors*)f0->Get(histname);
+  sprintf(histname,"default_polFunct_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
+  TGraphErrors *pg_jpsi_polFunct_highpt_ptybins = (TGraphErrors*)f0->Get(histname);
+  sprintf(histname,"default_signalCB3WN_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
+  TGraphErrors *pg_jpsi_signalCB3WN_highpt_ptybins = (TGraphErrors*)f0->Get(histname);
+
+  //------ special extra for p-np, 
+  sprintf(histname,"default_bit1_1GaussResol_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
+  TGraphErrors *pg_1GaussResol_highpt_ptybins = (TGraphErrors*)f0->Get(histname);
+  
+  sprintf(histname,"default_bit1_ResolFixToPRMC_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
+  TGraphErrors *pg_ResolFixToPRMC_highpt_ptybins = (TGraphErrors*)f0->Get(histname);
+
+  // zvtx  
+  sprintf(histname,"zVtxLT10_bit1_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
+  TGraphErrors *pg_jpsiVtx10_highpt_ptybins = (TGraphErrors*)f0->Get(histname);
   
   // flat no flat
-  sprintf(histname,"noFlat_bit1_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
+  sprintf(histname,"noFlat_bit1_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
   TGraphErrors *pg_jpsiNoFlat_highpt_ptybins = (TGraphErrors*)f0->Get(histname);
-
-  // enhanced autocorr
-  sprintf(histname,"autoCorr_bit1_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
-  TGraphErrors *pg_jpsiAutoCorr_highpt_ptybins = (TGraphErrors*)f0->Get(histname);
+  
  
   // with efficiency correction
-  sprintf(histname,"default_bit1_weight_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
+  sprintf(histname,"default_bit1_weight_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
   TGraphErrors *pg_jpsiEffCorr_highpt_ptybins = (TGraphErrors*)f0->Get(histname);
 
   // all triggers
-  sprintf(histname,"default_bit1_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
+  sprintf(histname,"default_bit1_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
   TGraphErrors *pg_jpsiL1NHitTrig_highpt_ptybins = (TGraphErrors*)f1->Get(histname);
 
+  /// extra studies
+  // bkg
+  sprintf(histname,"default_bit1_NBkg_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
+  TGraphErrors *pg_bkg_highpt_ptybins = (TGraphErrors*)f0->Get(histname);
+
+  // enhanced autocorr
+  sprintf(histname,"autoCorr_bit1_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
+  TGraphErrors *pg_jpsiAutoCorr_highpt_ptybins = (TGraphErrors*)f1->Get(histname);
   // ######################## sailors and cowboys
-  sprintf(histname,"default_cowboy_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
-  TGraphErrors *pg_jpsiL1NHitTrig_onlyCow_highpt_ptybins = (TGraphErrors*)f1->Get(histname);
-  sprintf(histname,"default_sailor_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
-  TGraphErrors *pg_jpsiL1NHitTrig_noCow_highpt_ptybins = (TGraphErrors*)f1->Get(histname);
+  sprintf(histname,"default_cowboy_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
+  TGraphErrors *pg_jpsiL1NHitTrig_onlyCow_highpt_ptybins = (TGraphErrors*)f0->Get(histname);
+  sprintf(histname,"default_sailor_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
+  TGraphErrors *pg_jpsiL1NHitTrig_noCow_highpt_ptybins = (TGraphErrors*)f0->Get(histname);
+
+
+
 
   // with corrections
-  sprintf(histname,"default_cowboy_weight_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
+  sprintf(histname,"default_cowboy_weight_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
   TGraphErrors *pg_jpsiL1NHitTrig_onlyCow_weight_highpt_ptybins = (TGraphErrors*)f1->Get(histname);
-  sprintf(histname,"default_sailor_weight_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
+  sprintf(histname,"default_sailor_weight_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
   TGraphErrors *pg_jpsiL1NHitTrig_noCow_weight_highpt_ptybins = (TGraphErrors*)f1->Get(histname);
 
 
   // mu valid hits
-  sprintf(histname,"nMuValHits12_cowboy_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
+  sprintf(histname,"nMuValHits12_cowboy_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
   TGraphErrors *pg_jpsiL1NHitTrig_onlyCow_nMuValHits12_highpt_ptybins = (TGraphErrors*)f1->Get(histname);
-  sprintf(histname,"nMuValHits12_sailor_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
+  sprintf(histname,"nMuValHits12_sailor_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
   TGraphErrors *pg_jpsiL1NHitTrig_noCow_nMuValHits12_highpt_ptybins = (TGraphErrors*)f1->Get(histname);
 
-
   // zvtx
-  sprintf(histname,"zVtxLT10_cowboy_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
+  sprintf(histname,"zVtxLT10_cowboy_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
   TGraphErrors *pg_jpsiL1NHitTrig_onlyCow_zVtxLT10_highpt_ptybins = (TGraphErrors*)f1->Get(histname);
-  sprintf(histname,"zVtxLT10_sailor_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
+  sprintf(histname,"zVtxLT10_sailor_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
   TGraphErrors *pg_jpsiL1NHitTrig_noCow_zVtxLT10_highpt_ptybins = (TGraphErrors*)f1->Get(histname);
 
   // midrapidity
- sprintf(histname,"singleMuLTeta1.2_cowboy_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
+  sprintf(histname,"singleMuLTeta1.2_cowboy_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
   TGraphErrors *pg_jpsiL1NHitTrig_onlyCow_singleMuLTeta12_highpt_ptybins = (TGraphErrors*)f1->Get(histname);
-  sprintf(histname,"singleMuLTeta1.2_sailor_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
+  sprintf(histname,"singleMuLTeta1.2_sailor_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
   TGraphErrors *pg_jpsiL1NHitTrig_noCow_singleMuLTeta12_highpt_ptybins = (TGraphErrors*)f1->Get(histname);
 
   // cowboy bkg
-    sprintf(histname,"default_cowboy_NBkg_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
+  sprintf(histname,"default_cowboy_NBkg_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
   TGraphErrors *pg_bkgL1NHitTrig_onlyCow_highpt_ptybins = (TGraphErrors*)f1->Get(histname);
   sprintf(histname,"default_sailor_NBkg_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[1],ptIntegrated[2]);
   TGraphErrors *pg_bkgL1NHitTrig_noCow_highpt_ptybins   = (TGraphErrors*)f1->Get(histname);
@@ -177,68 +251,105 @@ void v2SummaryPlots_y_EPCorr()
   /////////////////////////////////// Low pt
   sprintf(histname,"final_yDependence_lowpt_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
   TGraphErrors *pg_jpsi_lowpt_ptybins = (TGraphErrors*)f0->Get(histname);
-  if (!pg_jpsi_lowpt_ptybins) { cout << "cannot load nominal_NSig lowpt case." << endl; return;}
+
+  sprintf(histname,"final_yDependence_lowpt_statErr_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
+  TGraphErrors *pg_jpsi_lowpt_ptybins_statErr = (TGraphErrors*)f0->Get(histname);
+  
   // prompt
   sprintf(histname,"final_yDependence_lowpt_NPr_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
-  TGraphErrors *pg_pr_jpsi_lowpt_ptybins = (TGraphErrors*)f0->Get(histname);
+  TGraphErrors *pg_pr_jpsi_lowpt_ptybins;
+  if(bDoSummary) pg_pr_jpsi_lowpt_ptybins = (TGraphErrors*)f1->Get(histname);
+  else pg_pr_jpsi_lowpt_ptybins = (TGraphErrors*)f0->Get(histname);
+
+  sprintf(histname,"final_yDependence_lowpt_statErr_NPr_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
+  TGraphErrors *pg_pr_jpsi_lowpt_ptybins_statErr;
+  if(bDoSummary) pg_pr_jpsi_lowpt_ptybins_statErr = (TGraphErrors*)f1->Get(histname);
+  else pg_pr_jpsi_lowpt_ptybins_statErr = (TGraphErrors*)f0->Get(histname);
+  
   // non-prompt
   sprintf(histname,"final_yDependence_lowpt_NNp_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
-  TGraphErrors *pg_npr_jpsi_lowpt_ptybins = (TGraphErrors*)f0->Get(histname);
+  TGraphErrors *pg_npr_jpsi_lowpt_ptybins;
+  if(bDoSummary)pg_npr_jpsi_lowpt_ptybins = (TGraphErrors*)f1->Get(histname);
+  else pg_npr_jpsi_lowpt_ptybins = (TGraphErrors*)f0->Get(histname);
+
+  sprintf(histname,"final_yDependence_lowpt_statErr_NNp_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
+  TGraphErrors *pg_npr_jpsi_lowpt_ptybins_statErr;
+  if(bDoSummary)pg_npr_jpsi_lowpt_ptybins_statErr = (TGraphErrors*)f1->Get(histname);
+  else pg_npr_jpsi_lowpt_ptybins_statErr = (TGraphErrors*)f0->Get(histname);
 
   // systematic studies
+  //fits
+    sprintf(histname,"default_constrained_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
+  TGraphErrors *pg_jpsi_constrained_lowpt_ptybins = (TGraphErrors*)f0->Get(histname);
+  sprintf(histname,"default_polFunct_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
+  TGraphErrors *pg_jpsi_polFunct_lowpt_ptybins = (TGraphErrors*)f0->Get(histname);
+  sprintf(histname,"default_signalCB3WN_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
+  TGraphErrors *pg_jpsi_signalCB3WN_lowpt_ptybins = (TGraphErrors*)f0->Get(histname);
+
+  //------ special extra for p-np, 
+  sprintf(histname,"default_bit1_1GaussResol_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
+  TGraphErrors *pg_1GaussResol_lowpt_ptybins = (TGraphErrors*)f0->Get(histname);
+  
+  sprintf(histname,"default_bit1_ResolFixToPRMC_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
+  TGraphErrors *pg_ResolFixToPRMC_lowpt_ptybins = (TGraphErrors*)f0->Get(histname);
+
+
+
   // bkg
   sprintf(histname,"default_bit1_NBkg_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
-  TGraphErrors *pg_bkg_lowpt_ptybins = (TGraphErrors*)f1->Get(histname);
+  TGraphErrors *pg_bkg_lowpt_ptybins = (TGraphErrors*)f0->Get(histname);
+  // if (!pg_bkg_lowpt_ptybins) { cout << "cannot load highpt hist" << endl; return;}
 
-  sprintf(histname,"zVtxLT10_bit1_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
-  TGraphErrors *pg_jpsiVtx10_lowpt_ptybins = (TGraphErrors*)f1->Get(histname);
+
+  //vtx
+  sprintf(histname,"zVtxLT10_bit1_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
+  TGraphErrors *pg_jpsiVtx10_lowpt_ptybins = (TGraphErrors*)f0->Get(histname);
+
   
   // flat no flat
-  sprintf(histname,"noFlat_bit1_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
+  sprintf(histname,"noFlat_bit1_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
   TGraphErrors *pg_jpsiNoFlat_lowpt_ptybins = (TGraphErrors*)f0->Get(histname);
 
   // enhanced autocorr
-  sprintf(histname,"autoCorr_bit1_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
-  TGraphErrors *pg_jpsiAutoCorr_lowpt_ptybins = (TGraphErrors*)f0->Get(histname);
+  sprintf(histname,"autoCorr_bit1_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
+  TGraphErrors *pg_jpsiAutoCorr_lowpt_ptybins = (TGraphErrors*)f1->Get(histname);
  
   // with efficiency correction
-  sprintf(histname,"default_bit1_weight_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
+  sprintf(histname,"default_bit1_weight_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
   TGraphErrors *pg_jpsiEffCorr_lowpt_ptybins = (TGraphErrors*)f0->Get(histname);
 
   // all triggers
-  sprintf(histname,"default_bit1_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
+  sprintf(histname,"default_bit1_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
   TGraphErrors *pg_jpsiL1NHitTrig_lowpt_ptybins = (TGraphErrors*)f1->Get(histname);
 
   // ######################## sailors and cowboys
-  sprintf(histname,"default_cowboy_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
-  TGraphErrors *pg_jpsiL1NHitTrig_onlyCow_lowpt_ptybins = (TGraphErrors*)f1->Get(histname);
-  sprintf(histname,"default_sailor_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
-  TGraphErrors *pg_jpsiL1NHitTrig_noCow_lowpt_ptybins = (TGraphErrors*)f1->Get(histname);
+  sprintf(histname,"default_cowboy_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
+  TGraphErrors *pg_jpsiL1NHitTrig_onlyCow_lowpt_ptybins = (TGraphErrors*)f0->Get(histname);
+  sprintf(histname,"default_sailor_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
+  TGraphErrors *pg_jpsiL1NHitTrig_noCow_lowpt_ptybins = (TGraphErrors*)f0->Get(histname);
 
   // with corrections
-  sprintf(histname,"default_cowboy_weight_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
+  sprintf(histname,"default_cowboy_weight_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
   TGraphErrors *pg_jpsiL1NHitTrig_onlyCow_weight_lowpt_ptybins = (TGraphErrors*)f1->Get(histname);
-  sprintf(histname,"default_sailor_weight_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
+  sprintf(histname,"default_sailor_weight_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
   TGraphErrors *pg_jpsiL1NHitTrig_noCow_weight_lowpt_ptybins = (TGraphErrors*)f1->Get(histname);
 
-
   // mu valid hits
-  sprintf(histname,"nMuValHits12_cowboy_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
+  sprintf(histname,"nMuValHits12_cowboy_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
   TGraphErrors *pg_jpsiL1NHitTrig_onlyCow_nMuValHits12_lowpt_ptybins = (TGraphErrors*)f1->Get(histname);
-  sprintf(histname,"nMuValHits12_sailor_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
+  sprintf(histname,"nMuValHits12_sailor_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
   TGraphErrors *pg_jpsiL1NHitTrig_noCow_nMuValHits12_lowpt_ptybins = (TGraphErrors*)f1->Get(histname);
 
-
   // zvtx
-  sprintf(histname,"zVtxLT10_cowboy_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
+  sprintf(histname,"zVtxLT10_cowboy_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
   TGraphErrors *pg_jpsiL1NHitTrig_onlyCow_zVtxLT10_lowpt_ptybins = (TGraphErrors*)f1->Get(histname);
-  sprintf(histname,"zVtxLT10_sailor_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
+  sprintf(histname,"zVtxLT10_sailor_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
   TGraphErrors *pg_jpsiL1NHitTrig_noCow_zVtxLT10_lowpt_ptybins = (TGraphErrors*)f1->Get(histname);
 
   // midrapidity
- sprintf(histname,"singleMuLTeta1.2_cowboy_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
+  sprintf(histname,"singleMuLTeta1.2_cowboy_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
   TGraphErrors *pg_jpsiL1NHitTrig_onlyCow_singleMuLTeta12_lowpt_ptybins = (TGraphErrors*)f1->Get(histname);
-  sprintf(histname,"singleMuLTeta1.2_sailor_NSig_cent%d-%d_pt%.1f-%.1f",centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
+  sprintf(histname,"singleMuLTeta1.2_sailor_%s_cent%d-%d_pt%.1f-%.1f",chosenSignal,centIntegrated[0],centIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
   TGraphErrors *pg_jpsiL1NHitTrig_noCow_singleMuLTeta12_lowpt_ptybins = (TGraphErrors*)f1->Get(histname);
 
   // cowboy bkg
@@ -275,6 +386,12 @@ void v2SummaryPlots_y_EPCorr()
   {
     pcPadY->SetMaximum(0.4);
   }
+
+  if(bDoSummary)
+    {
+      pcPadY->SetMaximum(0.3);
+      pcPadY->SetMinimum(-0.2);
+    }
   pcPadY->Draw();
   //_______ stuff to write
   TLatex *tex_c1 = new TLatex(0.53,0.92,"CMS Preliminary");
@@ -311,44 +428,231 @@ void v2SummaryPlots_y_EPCorr()
 
  switch(choseSignal){
   case 1:
-    pg_jpsi_highpt_ptybins->SetMarkerStyle(20);
-    pg_jpsi_highpt_ptybins->SetMarkerSize(2.0);
-    pg_jpsi_highpt_ptybins->SetMarkerColor(kRed+2);
-    pg_jpsi_highpt_ptybins->SetLineColor(kRed+2);
-    if(!bDoCS && !bDoLowpt)pg_jpsi_highpt_ptybins->Draw("[P]");
+    pg_jpsi_highpt_ptybins->SetFillColor(kBlue-10);
 
-    pg_jpsi_lowpt_ptybins->SetMarkerStyle(21);
-    pg_jpsi_lowpt_ptybins->SetMarkerSize(1.8);
-    pg_jpsi_lowpt_ptybins->SetMarkerColor(kBlue+2);
-    if(!bDoCS && bDoLowpt)pg_jpsi_lowpt_ptybins->Draw("[P]");
+    pg_jpsi_highpt_ptybins_statErr->SetMarkerStyle(20);
+    pg_jpsi_highpt_ptybins_statErr->SetMarkerSize(2.0);
+    pg_jpsi_highpt_ptybins_statErr->SetMarkerColor(kBlue+2);
+    pg_jpsi_highpt_ptybins_statErr->SetLineColor(kBlue+2);
+    if(!bDoCS && !bDoLowpt && !bDo6Bins)
+      {
+	pg_jpsi_highpt_ptybins->Draw("2");
+	pg_jpsi_highpt_ptybins_statErr->Draw("[P]");
+      }
+
+    pg_jpsi_lowpt_ptybins->SetFillColor(kBlue-8);
+
+    pg_jpsi_lowpt_ptybins_statErr->SetMarkerStyle(24);
+    pg_jpsi_lowpt_ptybins_statErr->SetMarkerSize(2.0);
+    pg_jpsi_lowpt_ptybins_statErr->SetMarkerColor(kBlue+2);
+    if(!bDoCS && bDoLowpt)
+      {
+	pg_jpsi_lowpt_ptybins->Draw("2");
+	pg_jpsi_lowpt_ptybins_statErr->Draw("[P]");
+      }
+    if(bDoSummary && !bDoCS && !bDo6Bins) 
+      {
+	pg_jpsi_lowpt_ptybins->Draw("2");
+	pg_jpsi_lowpt_ptybins_statErr->Draw("[P]");
+      }
     break;
   case 2:
-    pg_pr_jpsi_highpt_ptybins->SetMarkerStyle(20);
-    pg_pr_jpsi_highpt_ptybins->SetMarkerSize(2.0);
-    pg_pr_jpsi_highpt_ptybins->SetMarkerColor(kRed+2);
-    pg_pr_jpsi_highpt_ptybins->SetLineColor(kRed+2);
-    if(!bDoLowpt)pg_pr_jpsi_highpt_ptybins->Draw("[P]");
+    pg_pr_jpsi_highpt_ptybins->SetFillColor(kRed-10);
+    pg_pr_jpsi_lowpt_ptybins->SetFillColor(kRed-8);
+    pg_pr_jpsi_highpt_ptybins_statErr->SetMarkerStyle(21);
+    pg_pr_jpsi_highpt_ptybins_statErr->SetMarkerSize(1.8);
+    pg_pr_jpsi_highpt_ptybins_statErr->SetMarkerColor(kRed+2);
+    pg_pr_jpsi_highpt_ptybins_statErr->SetLineColor(kRed+2);
+    if(!bDoCS && !bDoLowpt && !bDo6Bins)
+      {
+	pg_pr_jpsi_highpt_ptybins->Draw("2");
+	pg_pr_jpsi_highpt_ptybins_statErr->Draw("[P]");
 
-    pg_pr_jpsi_lowpt_ptybins->SetMarkerStyle(21);
-    pg_pr_jpsi_lowpt_ptybins->SetMarkerSize(1.8);
-    pg_pr_jpsi_lowpt_ptybins->SetMarkerColor(kBlue+2);
-    if(bDoLowpt)pg_pr_jpsi_lowpt_ptybins->Draw("[P]");
+      }
+    pg_pr_jpsi_lowpt_ptybins_statErr->SetMarkerStyle(25);
+    pg_pr_jpsi_lowpt_ptybins_statErr->SetMarkerSize(1.8);
+    pg_pr_jpsi_lowpt_ptybins_statErr->SetMarkerColor(kRed+2);
+    if(!bDoCS && bDoLowpt)
+      {
+	pg_pr_jpsi_lowpt_ptybins->Draw("2");
+	pg_pr_jpsi_lowpt_ptybins_statErr->Draw("[P]");
+
+      }
+    if(bDoSummary && !bDoCS ) 
+      {
+	pg_pr_jpsi_lowpt_ptybins->Draw("2");
+	pg_pr_jpsi_lowpt_ptybins_statErr->Draw("[P]");
+      }
+
     break;
   case 3:
-    pg_npr_jpsi_highpt_ptybins->SetMarkerStyle(20);
-    pg_npr_jpsi_highpt_ptybins->SetMarkerSize(2.0);
-    pg_npr_jpsi_highpt_ptybins->SetMarkerColor(kRed+2);
-    pg_npr_jpsi_highpt_ptybins->SetLineColor(kRed+2);
-    if(!bDoLowpt)pg_npr_jpsi_highpt_ptybins->Draw("[P]");
+    pg_npr_jpsi_highpt_ptybins->SetFillColor(kOrange-9);
+    pg_npr_jpsi_lowpt_ptybins->SetFillColor(kOrange-8);
+    pg_npr_jpsi_highpt_ptybins_statErr->SetMarkerStyle(33);
+    pg_npr_jpsi_highpt_ptybins_statErr->SetMarkerSize(1.8);
+    pg_npr_jpsi_highpt_ptybins_statErr->SetMarkerColor(kOrange+2);
+    pg_npr_jpsi_highpt_ptybins_statErr->SetLineColor(kOrange+2);
+    if(!bDoCS && !bDoLowpt && !bDo6Bins)
+      {
+	pg_npr_jpsi_highpt_ptybins->Draw("2");
+	pg_npr_jpsi_highpt_ptybins_statErr->Draw("[P]");
+      }
+    pg_npr_jpsi_lowpt_ptybins_statErr->SetMarkerStyle(27);
+    pg_npr_jpsi_lowpt_ptybins_statErr->SetMarkerSize(1.8);
+    pg_npr_jpsi_lowpt_ptybins_statErr->SetMarkerColor(kOrange+2);
+    if(!bDoCS &&bDoLowpt) 
+      {
+	pg_npr_jpsi_lowpt_ptybins->Draw("2");
+	pg_npr_jpsi_lowpt_ptybins_statErr->Draw("[P]");
 
-    pg_npr_jpsi_lowpt_ptybins->SetMarkerStyle(21);
-    pg_npr_jpsi_lowpt_ptybins->SetMarkerSize(1.8);
-    pg_npr_jpsi_lowpt_ptybins->SetMarkerColor(kBlue+2);
-    if(bDoLowpt) pg_npr_jpsi_lowpt_ptybins->Draw("[P]");
+      }
+    if(bDoSummary && !bDoCS) 
+      {
+	pg_npr_jpsi_lowpt_ptybins->Draw("2");
+	pg_npr_jpsi_lowpt_ptybins_statErr->Draw("[P]");
+      }
     break;
   default:
     cout<<"Pick a valid signal!!"<<endl;
   }
+
+ if(bDo6Bins)
+    {
+      pg_jpsi6bin_ptybins->SetMarkerStyle(24);
+      pg_jpsi6bin_ptybins->SetMarkerSize(1.8);
+      pg_jpsi6bin_ptybins->SetMarkerColor(kBlue+2);
+      pg_jpsi6bin_ptybins->SetLineColor(kBlue+2);
+      
+      pg_jpsi4bin_ptybins->SetMarkerStyle(20);
+      pg_jpsi4bin_ptybins->SetMarkerSize(1.8);
+      pg_jpsi4bin_ptybins->SetMarkerColor(kBlue+2);
+      pg_jpsi4bin_ptybins->SetLineColor(kBlue+2);
+      
+      pg_jpsi4bin_ptybins->Draw("[P]");
+      pg_jpsi6bin_ptybins->Draw("[P]");
+      
+      TLegend *leg6Bin = new TLegend(0.2,0.6,0.5,0.7);
+      leg6Bin->SetFillColor(0);
+      leg6Bin->SetBorderSize(0);
+      leg6Bin->SetTextSize(0.03);
+      leg6Bin->AddEntry(pg_jpsi4bin_ptybins,"Default:4 d#phi bins","P");
+      leg6Bin->AddEntry(pg_jpsi6bin_ptybins,"6 d#phi bins","P");
+      leg6Bin->Draw("same");
+    }
+
+
+ if(bDoFitting)
+   {
+     if(!bDoLowpt)
+       {
+	 pg_jpsi_constrained_highpt_ptybins->SetMarkerStyle(24);
+	 pg_jpsi_polFunct_highpt_ptybins->SetMarkerStyle(25);
+	 pg_jpsi_signalCB3WN_highpt_ptybins->SetMarkerStyle(27);
+	 
+	 pg_jpsi_constrained_highpt_ptybins->SetMarkerColor(kBlue);
+	 pg_jpsi_polFunct_highpt_ptybins->SetMarkerColor(kBlue);
+	 pg_jpsi_signalCB3WN_highpt_ptybins->SetMarkerColor(kBlue);
+	 
+	 pg_jpsi_constrained_highpt_ptybins->SetLineColor(kBlue);
+	 pg_jpsi_polFunct_highpt_ptybins->SetLineColor(kBlue);
+	 pg_jpsi_signalCB3WN_highpt_ptybins->SetLineColor(kBlue);
+	 
+	 pg_jpsi_constrained_highpt_ptybins->SetMarkerSize(1.8);
+	 pg_jpsi_polFunct_highpt_ptybins->SetMarkerSize(1.8);
+	 pg_jpsi_signalCB3WN_highpt_ptybins->SetMarkerSize(1.8);
+	 
+	 pg_jpsi_constrained_highpt_ptybins->Draw("[P]");
+	 pg_jpsi_polFunct_highpt_ptybins->Draw("[P]");
+	 pg_jpsi_signalCB3WN_highpt_ptybins->Draw("[P]");
+	 
+	 TLegend *legFit = new TLegend(0.15,0.6,0.5,0.75);
+	 legFit->SetFillColor(0);
+	 legFit->SetBorderSize(0);
+	 legFit->SetTextSize(0.03);
+	 legFit->AddEntry(pg_jpsi_highpt_ptybins,"Nominal","P");
+	 legFit->AddEntry(pg_jpsi_constrained_highpt_ptybins,"Constrained","P");
+	 legFit->AddEntry(pg_jpsi_signalCB3WN_highpt_ptybins,"Signal: C-B only","P");
+	 legFit->AddEntry(pg_jpsi_polFunct_highpt_ptybins,"Bkg:straight line ","P");
+
+
+	 if(choseSignal!=1)
+	{
+	  // for p=np only
+	  pg_1GaussResol_highpt_ptybins->SetMarkerStyle(28);
+	  pg_ResolFixToPRMC_highpt_ptybins->SetMarkerStyle(30);
+	  
+	  pg_1GaussResol_highpt_ptybins->SetMarkerColor(kBlue);
+	  pg_ResolFixToPRMC_highpt_ptybins->SetMarkerColor(kBlue);
+	  pg_1GaussResol_highpt_ptybins->SetLineColor(kBlue);
+	  pg_ResolFixToPRMC_highpt_ptybins->SetLineColor(kBlue);
+	  
+	  pg_1GaussResol_highpt_ptybins->SetMarkerSize(1.8);
+	  pg_ResolFixToPRMC_highpt_ptybins->SetMarkerSize(1.8);
+	  
+	  pg_1GaussResol_highpt_ptybins->Draw("[P]");
+	  pg_ResolFixToPRMC_highpt_ptybins->Draw("[P]");
+	  legFit->AddEntry(pg_1GaussResol_highpt_ptybins,"Sgn Res: 1 Gauss","P");
+	  legFit->AddEntry(pg_ResolFixToPRMC_highpt_ptybins,"Sgn Res: fixed to MC ","P");
+	}
+	 
+	 legFit->Draw("same");
+       }// not lopt
+     else
+       {
+	 pg_jpsi_constrained_lowpt_ptybins->SetMarkerStyle(24);
+	 pg_jpsi_polFunct_lowpt_ptybins->SetMarkerStyle(25);
+	 pg_jpsi_signalCB3WN_lowpt_ptybins->SetMarkerStyle(27);
+	 
+	 pg_jpsi_constrained_lowpt_ptybins->SetMarkerColor(kBlue);
+	 pg_jpsi_polFunct_lowpt_ptybins->SetMarkerColor(kBlue);
+	 pg_jpsi_signalCB3WN_lowpt_ptybins->SetMarkerColor(kBlue);
+	 
+	 pg_jpsi_constrained_lowpt_ptybins->SetLineColor(kBlue);
+	 pg_jpsi_polFunct_lowpt_ptybins->SetLineColor(kBlue);
+	 pg_jpsi_signalCB3WN_lowpt_ptybins->SetLineColor(kBlue);
+	 
+	 pg_jpsi_constrained_lowpt_ptybins->SetMarkerSize(1.8);
+	 pg_jpsi_polFunct_lowpt_ptybins->SetMarkerSize(1.8);
+	 pg_jpsi_signalCB3WN_lowpt_ptybins->SetMarkerSize(1.8);
+	 
+	 pg_jpsi_constrained_lowpt_ptybins->Draw("[P]");
+	 pg_jpsi_polFunct_lowpt_ptybins->Draw("[P]");
+	 pg_jpsi_signalCB3WN_lowpt_ptybins->Draw("[P]");
+	 
+	 TLegend *legFit = new TLegend(0.15,0.6,0.5,0.75);
+	 legFit->SetFillColor(0);
+	 legFit->SetBorderSize(0);
+	 legFit->SetTextSize(0.03);
+	 legFit->AddEntry(pg_jpsi_lowpt_ptybins,"Nominal","P");
+	 legFit->AddEntry(pg_jpsi_constrained_lowpt_ptybins,"Constrained","P");
+	 legFit->AddEntry(pg_jpsi_signalCB3WN_lowpt_ptybins,"Signal: C-B only","P");
+	 legFit->AddEntry(pg_jpsi_polFunct_lowpt_ptybins,"Bkg:straight line ","P");
+
+
+	 if(choseSignal!=1)
+	{
+	  // for p=np only
+	  pg_1GaussResol_lowpt_ptybins->SetMarkerStyle(28);
+	  pg_ResolFixToPRMC_lowpt_ptybins->SetMarkerStyle(30);
+	  
+	  pg_1GaussResol_lowpt_ptybins->SetMarkerColor(kBlue);
+	  pg_ResolFixToPRMC_lowpt_ptybins->SetMarkerColor(kBlue);
+	  pg_1GaussResol_lowpt_ptybins->SetLineColor(kBlue);
+	  pg_ResolFixToPRMC_lowpt_ptybins->SetLineColor(kBlue);
+	  
+	  pg_1GaussResol_lowpt_ptybins->SetMarkerSize(1.8);
+	  pg_ResolFixToPRMC_lowpt_ptybins->SetMarkerSize(1.8);
+	  
+	  pg_1GaussResol_lowpt_ptybins->Draw("[P]");
+	  pg_ResolFixToPRMC_lowpt_ptybins->Draw("[P]");
+	  legFit->AddEntry(pg_1GaussResol_lowpt_ptybins,"Sgn Res: 1 Gauss","P");
+	  legFit->AddEntry(pg_ResolFixToPRMC_lowpt_ptybins,"Sgn Res: fixed to MC ","P");
+	}
+	 
+	 legFit->Draw("same");
+       }
+   
+   }
 
   if(bAddBkg)
   {
@@ -387,15 +691,17 @@ void v2SummaryPlots_y_EPCorr()
       pg_jpsiVtx10_highpt_ptybins->SetMarkerColor(kRed+2);
       if(!bDoLowpt)pg_jpsiVtx10_highpt_ptybins->Draw("[P]");
       
+
       pg_jpsiVtx10_lowpt_ptybins->SetMarkerStyle(25);
       pg_jpsiVtx10_lowpt_ptybins->SetMarkerSize(1.8);
       pg_jpsiVtx10_lowpt_ptybins->SetMarkerColor(kBlue+2);
       pg_jpsiVtx10_lowpt_ptybins->SetLineColor(kBlue+2);
+      cout<<"crushed here 222"<<endl;
       if(bDoLowpt)pg_jpsiVtx10_lowpt_ptybins->Draw("[P]");
 
       
-      
-      TLegend *legVtx = new TLegend(0.6,0.17,0.9,0.3);
+      cout<<"crushed here"<<endl;
+      TLegend *legVtx = new TLegend(0.2,0.25,0.5,0.35);
       legVtx->SetFillColor(0);
       legVtx->SetBorderSize(0);
       legVtx->SetTextSize(0.03);
@@ -831,8 +1137,27 @@ void v2SummaryPlots_y_EPCorr()
 	}
       legAuto->Draw("same");
 
+      // some sanity check on what's in these plost
+       double y,x2;
+       int bin1 = pg_jpsiEffCorr_highpt_ptybins->GetPoint(0,x2,y);
+       cout<<"bin1 "<< x2<<"\t"<<y<<endl;
+
+       int bin2 = pg_jpsiEffCorr_highpt_ptybins->GetPoint(1,x2,y);
+       cout<<"bin2 "<< x2<<"\t"<<y<<endl;
 
 
+         int bin3 = pg_jpsiEffCorr_highpt_ptybins->GetPoint(2,x2,y);
+       cout<<"bin3 "<< x2<<"\t"<<y<<endl;
+
+    //    int bin1 = pg_jpsi_highpt_ptybins->GetPoint(0,x2,y);
+//        cout<<"bin1 "<< x2<<"\t"<<y<<endl;
+
+//        int bin2 = pg_jpsi_highpt_ptybins->GetPoint(1,x2,y);
+//        cout<<"bin2 "<< x2<<"\t"<<y<<endl;
+
+
+//        int bin3 = pg_jpsi_highpt_ptybins->GetPoint(2,x2,y);
+//        cout<<"bin3 "<< x2<<"\t"<<y<<endl;
     }
 
   TLatex *lt1 = new TLatex();
@@ -846,14 +1171,50 @@ void v2SummaryPlots_y_EPCorr()
   leg1->SetFillColor(0);
   leg1->SetBorderSize(0);
   leg1->SetTextSize(0.03);
-  if(!bDoLowpt) leg1->AddEntry(pg_jpsi_highpt_ptybins,Form("%.1f < p_{T} < %.0f GeV/c", ptIntegrated[1], ptIntegrated[2]),"P");
-  else leg1->AddEntry(pg_jpsi_lowpt_ptybins,Form("%.0f < p_{T} < %.1f GeV/c", ptIntegrated[0], ptIntegrated[1]),"P");
-  leg1->Draw("same");
+
+  
+  switch(choseSignal){
+  case 1:
+    if(!bDoLowpt) leg1->AddEntry(pg_jpsi_highpt_ptybins_statErr,Form("%.1f < p_{T} < %.0f GeV/c", ptIntegrated[1], ptIntegrated[2]),"P");
+    else leg1->AddEntry(pg_jpsi_lowpt_ptybins_statErr,Form("%.0f < p_{T} < %.1f GeV/c", ptIntegrated[0], ptIntegrated[1]),"P");
+    
+    if(bDoSummary)leg1->AddEntry(pg_jpsi_lowpt_ptybins_statErr,Form("%.0f < p_{T} < %.1f GeV/c", ptIntegrated[0], ptIntegrated[1]),"P");
+    leg1->Draw("same");
+    break;
+  case 2:
+    if(!bDoLowpt) leg1->AddEntry(pg_pr_jpsi_highpt_ptybins_statErr,Form("%.1f < p_{T} < %.0f GeV/c", ptIntegrated[1], ptIntegrated[2]),"P");
+    else leg1->AddEntry(pg_pr_jpsi_lowpt_ptybins_statErr,Form("%.0f < p_{T} < %.1f GeV/c", ptIntegrated[0], ptIntegrated[1]),"P");
+    
+    if(bDoSummary)leg1->AddEntry(pg_pr_jpsi_lowpt_ptybins_statErr,Form("%.0f < p_{T} < %.1f GeV/c", ptIntegrated[0], ptIntegrated[1]),"P");
+    leg1->Draw("same");
+    break;
+  case 3:
+    if(!bDoLowpt) leg1->AddEntry(pg_npr_jpsi_highpt_ptybins_statErr,Form("%.1f < p_{T} < %.0f GeV/c", ptIntegrated[1], ptIntegrated[2]),"P");
+    else leg1->AddEntry(pg_npr_jpsi_lowpt_ptybins_statErr,Form("%.0f < p_{T} < %.1f GeV/c", ptIntegrated[0], ptIntegrated[1]),"P");
+    
+    if(bDoSummary)leg1->AddEntry(pg_npr_jpsi_lowpt_ptybins_statErr,Form("%.0f < p_{T} < %.1f GeV/c", ptIntegrated[0], ptIntegrated[1]),"P");
+    leg1->Draw("same");
+    break;
+  default:
+    cout<<"Pick a valid signal!!"<<endl;
+  }
+
+
+ 
+
+
   if(bSavePlots)
   {
-    
-    pcY->SaveAs(Form("figs/png/%s_%s_v2_ptyBins.png",chosenSignal,outputName[0]));
-    pcY->SaveAs(Form("figs/pdf/%s_%s_v2_ptyBins.pdf",chosenSignal,outputName[0]));
+    if(bDoCS)
+	{
+	  pcY->SaveAs(Form("figs/png/%s_%s_v2cs_ptyBins.png",chosenSignal,outputName[0]));
+	  pcY->SaveAs(Form("figs/pdf/%s_%s_v2cs_ptyBins.pdf",chosenSignal,outputName[0]));
+	}
+      else
+	{
+	  pcY->SaveAs(Form("figs/png/%s_%s_v2_ptyBins.png",chosenSignal,outputName[0]));
+	  pcY->SaveAs(Form("figs/pdf/%s_%s_v2_ptyBins.pdf",chosenSignal,outputName[0]));
+	}
   }
   //________________________________________________________________________________________
 
