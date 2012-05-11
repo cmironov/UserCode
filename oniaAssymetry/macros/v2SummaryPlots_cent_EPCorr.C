@@ -26,15 +26,16 @@
 
 void v2SummaryPlots_cent_EPCorr()
 {
-  gROOT->Macro("/Users/eusmartass/Software/utilities/setStyle.C+");
-  //gROOT->Macro("./rootlogon.C");
+//  gROOT->Macro("/Users/eusmartass/Software/utilities/setStyle.C+");
+  gROOT->Macro("./rootlogon.C");
   gStyle->SetOptFit(0);
 
   const char* signal[5]   = {"","NSig","NPr","NNp","NBkg"};
   const char* legend[5]   = {"","Inclusive J/#psi", "Prompt J/#psi","Non-prompt J/#psi","Background"};
-  int choseSignal         = 3; // 1:inclusive 2:prompt 3:non-prompt
+  int choseSignal         = 1; // 1:inclusive 2:prompt 3:non-prompt
   const char* chosenSignal= signal[choseSignal];
-  const char* outputName[1]  = {"nominal_bit1_cent_"};
+  const char* outputName[1]  = {"segMatchGT1_bit1_cent"};
+//  const char* outputName[1]  = {"nominal_bit1_cent_"};
 
 
   // options
@@ -50,7 +51,7 @@ void v2SummaryPlots_cent_EPCorr()
   bool bAddAutoCor     = false;
   bool bAddTrigger     = false;
 
-  bool bDoSummary      = false;
+  bool bDoSummary      = true;
 
   bool bDoCS               = false; // this always on for the bellow options
   bool bDoSegMatchGT1      = true;
@@ -74,21 +75,20 @@ void v2SummaryPlots_cent_EPCorr()
  
   TFile *f0;
   TFile *f1;
-  if(choseSignal==1)
-    {
-      f0 = new TFile(Form("./a1_corrV2.root"));
-      if(!f0->IsOpen()) { cout << "cannot open a1_corrV2.root" << endl; return;}
-      f1 = new TFile(Form("./extrastud/a1_corrV2.root"));
-      if(!f1->IsOpen()) { cout << "cannot open a1_corrV2.root" << endl; return;}
-    }
-  else
-    {
-      f0 = new TFile(Form("./a1_corrV2_pnp.root"));
-      if(!f0->IsOpen()) { cout << "cannot open a1_corrV2_pnp.root" << endl; return;}
-      // f1 = new TFile(Form("./extrastud/a1_corrV2_pnp.root"));
-      // if(!f1->IsOpen()) { cout << "cannot open a1_corrV2_pnp.root" << endl; return;}
-    }
-  f1 = new TFile(Form("./extrastud/a1_corrV2.root"));
+/*  if(choseSignal==1)
+  {
+    f0 = new TFile(Form("./a1_corrV2.root"));
+    if(!f0->IsOpen()) { cout << "cannot open a1_corrV2.root" << endl; return;}
+    f1 = new TFile(Form("./extrastud/a1_corrV2.root"));
+    if(!f1->IsOpen()) { cout << "cannot open a1_corrV2.root" << endl; return;}
+  }
+  else*/
+  {
+    f0 = new TFile(Form("./a1_corrV2_pnp.root"));
+    if(!f0->IsOpen()) { cout << "cannot open a1_corrV2_pnp.root" << endl; return;}
+    f1 = new TFile(Form("./extrastud/a1_corrV2_pnp.root"));
+    if(!f1->IsOpen()) { cout << "cannot open a1_corrV2_pnp.root" << endl; return;}
+  }
 
   char histname[200];
   //inclusive
@@ -98,7 +98,7 @@ void v2SummaryPlots_cent_EPCorr()
  sprintf(histname,"final_centDependence_statErr_NSig_rap%.1f-%.1f_pT%.1f-%.1f",rapIntegrated[0],rapIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
  TGraphErrors *pg_jpsi_centbins_statErr = (TGraphErrors*)f0->Get(histname);
 
-  // if (!pg_jpsi_centbins) { cout << "cannot load nominal_NSig case." << endl; return;}
+  if (!pg_jpsi_centbins) { cout << "cannot load nominal_NSig case." << endl; return;}
   // prompt
   sprintf(histname,"final_centDependence_NPr_rap%.1f-%.1f_pT%.1f-%.1f",rapIntegrated[0],rapIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
   TGraphErrors *pg_pr_jpsi_centbins = (TGraphErrors*)f0->Get(histname);
@@ -151,9 +151,13 @@ void v2SummaryPlots_cent_EPCorr()
 
   // //// extra studies
   // 6bins : compare among themselves the v2 obtianed with stat errors only
-   TFile *f2 = new TFile(Form("./a1_corrV2_6bin.root"));
-   sprintf(histname,"default_bit1_%s_rap%.1f-%.1f_pT%.1f-%.1f",chosenSignal,rapIntegrated[0],rapIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
-   TGraphErrors *pg_jpsi6bin_centbins = (TGraphErrors*)f2->Get(histname);
+  TFile *f2;
+  TGraphErrors *pg_jpsi6bin_centbins;
+  if (bDo6Bins) {
+    f2 = new TFile(Form("./a1_corrV2_6bin.root"));
+    sprintf(histname,"default_bit1_%s_rap%.1f-%.1f_pT%.1f-%.1f",chosenSignal,rapIntegrated[0],rapIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
+    pg_jpsi6bin_centbins = (TGraphErrors*)f2->Get(histname);
+  }
   TGraphErrors *pg_jpsi4bin_centbins = (TGraphErrors*)f0->Get(histname);
  //  if (!pg_jpsi4bin_centbins) { cout << "cannot load 4bincase." << endl; return;}
 //   if (!pg_jpsi6bin_centbins) { cout << "cannot load 6bincase." << endl; return;}
@@ -172,10 +176,10 @@ void v2SummaryPlots_cent_EPCorr()
  // ######################## sailors and cowboys
   sprintf(histname,"default_cowboy_%s_rap%.1f-%.1f_pT%.1f-%.1f",chosenSignal,rapIntegrated[0],rapIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
   TGraphErrors *pg_jpsiL1NHitTrig_onlyCow_centbins = (TGraphErrors*)f1->Get(histname);
-  // if (!pg_jpsiL1NHitTrig_onlyCow_centbins) { cout << "cannot load baseline cowboy." << endl; return;}
+  if (!pg_jpsiL1NHitTrig_onlyCow_centbins) { cout << "cannot load baseline cowboy." << endl; return;}
   sprintf(histname,"default_sailor_%s_rap%.1f-%.1f_pT%.1f-%.1f",chosenSignal,rapIntegrated[0],rapIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
   TGraphErrors *pg_jpsiL1NHitTrig_noCow_centbins = (TGraphErrors*)f1->Get(histname);
-  // if (!pg_jpsiL1NHitTrig_noCow_centbins) { cout << "cannot load baseline sailor and signal case." << endl; return;}
+  if (!pg_jpsiL1NHitTrig_noCow_centbins) { cout << "cannot load baseline sailor and signal case." << endl; return;}
   
   // with corrections
   sprintf(histname,"default_cowboy_weight_%s_rap%.1f-%.1f_pT%.1f-%.1f",chosenSignal,rapIntegrated[0],rapIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
@@ -208,8 +212,8 @@ void v2SummaryPlots_cent_EPCorr()
   TGraphErrors *pg_jpsiL1NHitTrig_onlyCow_segMatchGT1_centbins = (TGraphErrors*)f1->Get(histname);
   sprintf(histname,"segMatchGT1_sailor_%s_rap%.1f-%.1f_pT%.1f-%.1f",chosenSignal,rapIntegrated[0],rapIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
   TGraphErrors *pg_jpsiL1NHitTrig_noCow_segMatchGT1_centbins = (TGraphErrors*)f1->Get(histname);
-  // if (!pg_jpsiL1NHitTrig_onlyCow_segMatchGT1_centbins) { cout << "cannot load cowboy." << endl; return;}
-  // if (!pg_jpsiL1NHitTrig_noCow_segMatchGT1_centbins) { cout << "cannot load sailor." << endl; return;}
+  if (!pg_jpsiL1NHitTrig_onlyCow_segMatchGT1_centbins) { cout << "cannot load cowboy." << endl; return;}
+  if (!pg_jpsiL1NHitTrig_noCow_segMatchGT1_centbins) { cout << "cannot load sailor." << endl; return;}
 
   // cowboy bkg
     sprintf(histname,"default_cowboy_NBkg_rap%.1f-%.1f_pT%.1f-%.1f",rapIntegrated[0],rapIntegrated[1],ptIntegrated[0],ptIntegrated[1]);
@@ -264,8 +268,8 @@ void v2SummaryPlots_cent_EPCorr()
     pg_jpsi_centbins_statErr->SetLineColor(kBlue+2);
     if(!bDoCS && !bDo6Bins)
       {
-	pg_jpsi_centbins->Draw("2");
-	pg_jpsi_centbins_statErr->Draw("[P]");
+//	pg_jpsi_centbins->Draw("2");
+//	pg_jpsi_centbins_statErr->Draw("[P]");
       }
     break;
   case 2:
@@ -460,13 +464,16 @@ void v2SummaryPlots_cent_EPCorr()
       pg_jpsiL1NHitTrig_onlyCow_centbins->Draw("[P]");
       pg_jpsiL1NHitTrig_noCow_centbins->Draw("[P]");
       
-      TLegend *legTrig = new TLegend(0.2,0.62,0.5,0.76);
+      TLegend *legTrig = new TLegend(0.2,0.27,0.5,0.37);
+//      TLegend *legTrig = new TLegend(0.2,0.62,0.5,0.76);
       legTrig->SetFillColor(0);
       legTrig->SetBorderSize(0);
       legTrig->SetTextSize(0.03);
-      legTrig->AddEntry(pg_jpsi_centbins,"Default: sum","P");
-      legTrig->AddEntry(pg_jpsiL1NHitTrig_noCow_centbins,"Sailors","P");
-      legTrig->AddEntry(pg_jpsiL1NHitTrig_onlyCow_centbins,"Cowboys","P");
+//      legTrig->AddEntry(pg_jpsi_centbins,"Default: sum","P");
+//      legTrig->AddEntry(pg_jpsiL1NHitTrig_noCow_centbins,"Sailors","P");
+//      legTrig->AddEntry(pg_jpsiL1NHitTrig_onlyCow_centbins,"Cowboys","P");
+      legTrig->AddEntry(pg_jpsiL1NHitTrig_noCow_centbins,"Sailors: nSegMatched > 2 && 1dilepton/event","P");
+      legTrig->AddEntry(pg_jpsiL1NHitTrig_onlyCow_centbins,"Cowboys: nSegMatched > 2 && 1dilepton/event","P");
       legTrig->Draw("same");
     }
 
@@ -700,6 +707,7 @@ void v2SummaryPlots_cent_EPCorr()
   lt1->DrawLatex(0.18,0.83,Form("|y| < %.1f",rapIntegrated[1]));       // rapidity
   lt1->DrawLatex(0.18,0.77,Form("%.1f < p_{T} < %.0f GeV/c", ptIntegrated[0], ptIntegrated[1])); 
   //  lt1->DrawLatex(0.18,0.71,Form("%s",eventPlane[1]));
+
   cout<<"####### GATE 222!"<<endl;
 
   if(!bAddTrigger)

@@ -53,23 +53,22 @@ void getEPCorrection(int epType, int centLow, int centHigh, double *corrVal, dou
 //__________________________________________________________________________
 void Plot_JpsiV2_a1_EPCorr(const char* inDirName = "./") //pnp //6bin
 {
-  // gROOT->Macro("./rootlogon.C");
-  gROOT->Macro("/Users/eusmartass/Software/utilities/setStyle.C");
+  gROOT->Macro("./rootlogon.C");
+  //gROOT->Macro("/Users/eusmartass/Software/utilities/setStyle.C");
   gStyle->SetOptFit(0);
   gStyle->SetEndErrorSize(5);
-
   
   bool bSavePlots      = true; 
   bool bIncludeSystem  = true;
   bool doDebug         = false;
   bool bExtraStudy     = false;
 
-  bool bDoPNp = false;
+  bool bDoPNp = true;
 
   bool bDo6Bin = false;
 
   int signal_start     = 0;// sgn, bkg, pr, npr
-  int signal_end       = 1;
+  int signal_end       = 4;
 
 
   int nFits  = 3; // number of fits systm; need a counting for calcualting the rms
@@ -77,27 +76,40 @@ void Plot_JpsiV2_a1_EPCorr(const char* inDirName = "./") //pnp //6bin
   //!!!!!!!!!!!! ############## DO NOT CHANGE THE ORDER IN THE  prefixarr[] aARRAY!!!!!!!! DO NOT CHANGE THE ORDER!!!!!!
   //**************************** modified errors
   // %%%%%%%% inclusive
-   const int nPrefix = 9;
-  // first in this case is always the nominal case 
-   const char *prefixarr[nPrefix] = {"default_bit1","default_sailor","default_cowboy","default_constrained","default_polFunct","default_signalCB3WN","noFlat_bit1","zVtxLT10_bit1","default_bit1_weight"};
+   const int nPrefix = 7;
+//  // first in this case is always the nominal case 
+   const char *prefixarr[nPrefix] = {"default_bit1","segMatchGT1_bit1","segMatchGT1_sailor","segMatchGT1_cowboy","segMatchGT2_bit1","segMatchGT2_cowboy","segMatchGT2_sailor"};
+//   const char *prefixarr[nPrefix] = {"default_bit1","default_sailor","default_cowboy","default_constrained","default_polFunct","default_signalCB3WN","noFlat_bit1","zVtxLT10_bit1","default_bit1_weight"};
+//   const char *prefixarr[nPrefix] = {"default_bit1","default_sailor","default_cowboy"};
   
  // %%%%%%%% prompt - NPr
- //  const int nPrefix = 11;
+//   const int nPrefix = 11;
+//   const char *prefixarr[nPrefix] = {"default_bit1","segMatchGT1_bit1","segMatchGT1_sailor","segMatchGT1_cowboy","segMatchGT2_bit1","segMatchGT2_cowboy","segMatchGT2_sailor"};
 //   const char *prefixarr[nPrefix] = {"default_bit1","default_sailor","default_cowboy","default_constrained","default_polFunct","default_signalCB3WN","default_bit1_1GaussResol","default_bit1_ResolFixToPRMC","noFlat_bit1","zVtxLT10_bit1","default_bit1_weight"};
  //**************************** extra Studies
   // bExtraStudy
- //  const int nPrefix = 19;
-//   const char *prefixarr[nPrefix] = {"default_bit1","default_sailor","default_cowboy","default_bit1_weight","default_cowboy_weight","default_sailor_weight","nMuValHits12_bit1","nMuValHits12_cowboy","nMuValHits12_sailor","singleMuLTeta1.2_bit1","singleMuLTeta1.2_cowboy","singleMuLTeta1.2_sailor","zVtxLT10_bit1","zVtxLT10_cowboy","zVtxLT10_sailor","autoCorr_bit1","segMatchGT1_sailor","segMatchGT1_cowboy","segMatchGT1_bit1"};
+//   const int nPrefix = 22;
+//   const char *prefixarr[nPrefix] = {"default_bit1","default_sailor","default_cowboy","default_bit1_weight","default_cowboy_weight","default_sailor_weight","nMuValHits12_bit1","nMuValHits12_cowboy","nMuValHits12_sailor","singleMuLTeta1.2_bit1","singleMuLTeta1.2_cowboy","singleMuLTeta1.2_sailor","zVtxLT10_bit1","zVtxLT10_cowboy","zVtxLT10_sailor","autoCorr_bit1","segMatchGT1_sailor","segMatchGT1_cowboy","segMatchGT1_bit1","segMatchGT2_sailor","segMatchGT2_cowboy","segMatchGT2_bit1"};
 
   // bExtraStudy && bDoPNp
   // const int nPrefix = 13;
   //  const char *prefixarr[nPrefix] = {"default_bit1","default_sailor","default_cowboy","default_bit1_weight","default_cowboy_weight","default_sailor_weight","singleMuLTeta1.2_bit1","singleMuLTeta1.2_cowboy","singleMuLTeta1.2_sailor","zVtxLT10_bit1","zVtxLT10_cowboy","zVtxLT10_sailor","autoCorr_bit1","segMatchGT1_sailor","segMatchGT1_cowboy","segMatchGT1_bit1"};
 
    // options
+  const int ncentbins = 4; const int cts[ncentbins+1]    = {0, 10, 20, 30, 60};
+  const int nrapbins  = 1; const double raps[nrapbins+1] = {0.0, 2.4};
+  const int nptbins   = 1; const double pts[nptbins+1]   = {6.5, 40.0};
+
+//  const int ncentbins = 4; const int cts[ncentbins+1]    = {0, 10, 20, 30, 60};
+//  const int nrapbins  = 1; const double raps[nrapbins+1] = {0.0, 2.4};
+//  const int nptbins   = 1; const double pts[nptbins+1]   = {6.5, 40.0};
+
+  double ncoll[4]     = {355.4, 261.4178, 187.1470, 89.9};
+
   int prefix_start     = 0; // which setting for v2
   int prefix_end       = nPrefix;
   int centrality_start = 0;
-  int centrality_end   = 4; 
+  int centrality_end   = ncentbins;
   int y_start  = 0;
   int y_end    = 1;
   int pt_start = 0;
@@ -108,41 +120,34 @@ void Plot_JpsiV2_a1_EPCorr(const char* inDirName = "./") //pnp //6bin
   const char* signal[4]      = {"NSig","NBkg","NPr","NNp"};
   const char* legend[4]      = {"Inclusive J/#psi","Background","Prompt J/#psi","Non-prompt J/#psi"};
 
+  char eventPlane[512];
+  sprintf(eventPlane,"");
+
   ofstream output;
   if(bDoPNp)
+  {
+    if(bExtraStudy)
     {
-      if(bExtraStudy)
-	{
-	  gSystem->mkdir("./extrastud",kTRUE);
-	  output.open("./extrastud/a1_v2_Result_pnp.txt");
-	}
-      else
-	output.open("./a1_v2_Result_pnp.txt");
+      gSystem->mkdir("./extrastud",kTRUE);
+      output.open("./extrastud/a1_v2_Result_pnp.txt");
     }
-  else
+    else
+      output.open("./a1_v2_Result_pnp.txt");
+  } else {
+    if(bExtraStudy)
     {
-      if(bExtraStudy)
-	{
-	  gSystem->mkdir("./extrastud",kTRUE);
-	  output.open("./extrastud/a1_v2_Result.txt");
-	}
-      else
-	output.open("./a1_v2_Result.txt");
+      gSystem->mkdir("./extrastud",kTRUE);
+      output.open("./extrastud/a1_v2_Result.txt");
     }
+    else
+      output.open("./a1_v2_Result.txt");
+  }
+
   if(bDo6Bin) output.open("./a1_v2_Result_6bin.txt");
-   
   if(!output.is_open()) { cout << "cannot open a1_v2_Result.txt. Exit\n"; return ;}
- 
-  const int ncentbins = 4; const int cts[ncentbins+1]    = {0, 10, 20, 30, 60};
-  const int nrapbins  = 1; const double raps[nrapbins+1] = {0.0, 2.4};
-  const int nptbins   = 1; const double pts[nptbins+1]   = {6.5, 40.0};
-
-  double ncoll[4]     = {355.4, 261.4178, 187.1470, 89.9};
-
   
 
   // 1st column: Different fit method or datasets (prefixarr contains all set)
-  // 2nd column: [0] etHFm, [1] etHFp, [2] etHF
   // 3rd column: [0] inclusive yields, [1] bkg, [2] Prompt, [3]Non-prompt
 
  // Get Event Plane correction number and apply it to uncorrected v2 --- stat uncertainties only
@@ -200,7 +205,6 @@ void Plot_JpsiV2_a1_EPCorr(const char* inDirName = "./") //pnp //6bin
 	  
   for(int prefix=prefix_start; prefix<prefix_end; prefix++) 
     {
-      char eventPlane[512];
       TFile *f1 = new TFile(Form("%s/%s/summary/saved_histo.root",inDirName,prefixarr[prefix]));
      
       for(int choseSignal = signal_start; choseSignal<signal_end; choseSignal++)
@@ -499,15 +503,15 @@ void Plot_JpsiV2_a1_EPCorr(const char* inDirName = "./") //pnp //6bin
   
   TFile *rootoutput;
   if(bDoPNp)
-    {
-      if(!bExtraStudy) rootoutput = new TFile("a1_corrV2_pnp.root","recreate"); 
-      else rootoutput = new TFile("./extrastud/a1_corrV2_pnp.root","recreate");
-    }
+  {
+    if(!bExtraStudy) rootoutput = new TFile("a1_corrV2_pnp.root","recreate"); 
+    else rootoutput = new TFile("./extrastud/a1_corrV2_pnp.root","recreate");
+  }
   else
-    {
-      if(!bExtraStudy) rootoutput = new TFile("a1_corrV2.root","recreate"); 
-      else rootoutput = new TFile("./extrastud/a1_corrV2.root","recreate");
-    }
+  {
+    if(!bExtraStudy) rootoutput = new TFile("a1_corrV2.root","recreate"); 
+    else rootoutput = new TFile("./extrastud/a1_corrV2.root","recreate");
+  }
   if(bDo6Bin) rootoutput = new TFile("a1_corrV2_6bin.root","recreate"); 
 
   if (!rootoutput->IsOpen()) { cout << "cannot open result root file. exit.\n"; return;}
@@ -881,7 +885,8 @@ void Plot_JpsiV2_a1_EPCorr(const char* inDirName = "./") //pnp //6bin
 	  // v2_statOnly, v2_statSyst_sansResolution, v2_statSyst_final, v2_syst_final?
 	  rootoutput->cd();
 	  double cent_bound[ncentbins]    = {0.0};
-	  double cent_err[ncentbins]      = {5., 5., 5.,5.};
+	  double cent_err[ncentbins]      = {5., 5.};
+//	  double cent_err[ncentbins]      = {5., 5., 5.,5.};
 	  double v2SystOnlyErr[ncentbins] = {0.0};
 	  double v2StatOnlyErr[ncentbins] = {0.0};
 	  
@@ -931,8 +936,8 @@ void Plot_JpsiV2_a1_EPCorr(const char* inDirName = "./") //pnp //6bin
   rootoutput->Close();
   output.close();
 
-  //  gApplication->Terminate();
-    }
+  gApplication->Terminate();
+}
 
 //__________________________________________________________________________
 void makeMultiPanelCanvas(TCanvas*& canv,

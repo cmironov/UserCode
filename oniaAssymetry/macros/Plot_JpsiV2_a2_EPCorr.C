@@ -50,7 +50,7 @@ void TGetPoints(TGraphErrors *a, double *b, double *c);
 void getEPCorrection(int epType, int centLow, int centHigh, double *corrVal, double *corrErr) ;
 
 //__________________________________________________________________________
-void Plot_JpsiV2_a2_EPCorr(const char* inDirName = "./pnp")
+void Plot_JpsiV2_a2_EPCorr(const char* inDirName = "./")
 {
   gROOT->Macro("./rootlogon.C");
   //gROOT->Macro("/Users/eusmartass/Software/utilities/setStyle.C");
@@ -61,7 +61,7 @@ void Plot_JpsiV2_a2_EPCorr(const char* inDirName = "./pnp")
   bool doDebug         = false;
   bool bExtraStudy     = false;
 
-  bool bDoPNp = false;  
+  bool bDoPNp = true;
   bool bDo6Bin = false;
   
 
@@ -75,10 +75,11 @@ void Plot_JpsiV2_a2_EPCorr(const char* inDirName = "./pnp")
   // const char *prefixarr[nPrefix] = {"default_bit1","noFlat_bit1","zVtxLT10_bit1","default_sailor","default_cowboy","default_bit1_weight","default_constrained","default_polFunct","default_signalCB3WN"};
   
   // %%%%%%%% prompt - NPr
-  const int nPrefix = 11;
-// // //   // first in this case is always the nominal case 
-// // //   // "default_bit1_weight" -- this is 3D correction: pt, y, centrality (averaged over dPhi)
-  const char *prefixarr[nPrefix] = {"default_bit1","noFlat_bit1","zVtxLT10_bit1","default_sailor","default_cowboy","default_bit1_weight","default_constrained","default_polFunct","default_signalCB3WN","default_bit1_1GaussResol","default_bit1_ResolFixToPRMC"};
+  const int nPrefix = 7;
+  const char *prefixarr[nPrefix] = {"default_bit1","segMatchGT1_bit1","segMatchGT1_sailor","segMatchGT1_cowboy","segMatchGT2_bit1","segMatchGT2_cowboy","segMatchGT2_sailor"};
+//   // first in this case is always the nominal case 
+//   // "default_bit1_weight" -- this is 3D correction: pt, y, centrality (averaged over dPhi)
+//  const char *prefixarr[nPrefix] = {"default_bit1","noFlat_bit1","zVtxLT10_bit1","default_sailor","default_cowboy","default_bit1_weight","default_constrained","default_polFunct","default_signalCB3WN","default_bit1_1GaussResol","default_bit1_ResolFixToPRMC"};
 
  //**************************** extra Studies
 //   const int nPrefix = 19;
@@ -93,11 +94,12 @@ void Plot_JpsiV2_a2_EPCorr(const char* inDirName = "./pnp")
   const int nrapbins  = 1; double raps[nrapbins+1] = {0.0, 2.4};
   const int nptbins   = 3; double pts[nptbins+1]   = {6.5, 8.0, 10.0, 40.0};
 
+//  double pts_bound[nptbins] = {7.862, 13.26}; // <pt> values for 30-60
   double pts_bound[nptbins] = {7.3, 9.0, 13.4}; // <pt> values in the AN
 
   int prefix_start     = 0; // which setting for v2
   int prefix_end       = nPrefix;
-  int signal_start     = 2;// sgn, bkg, pr, npr
+  int signal_start     = 0;// sgn, bkg, pr, npr
   int signal_end       = 4;
   int centrality_start  = 0;
   int centrality_end    = 1; 
@@ -111,34 +113,29 @@ void Plot_JpsiV2_a2_EPCorr(const char* inDirName = "./pnp")
   int nPads    = pt_end - pt_start;  
 
   ofstream output;
- if(bDoPNp)
+  if(bDoPNp)
+  {
+    if(bExtraStudy)
     {
-      if(bExtraStudy)
-	{
-	  gSystem->mkdir("./extrastud",kTRUE);
-	  output.open("./extrastud/a2_v2_Result_pnp.txt");
-	}
-      else
-	output.open("./a2_v2_Result_pnp.txt");
+      gSystem->mkdir("./extrastud",kTRUE);
+      output.open("./extrastud/a2_v2_Result_pnp.txt");
     }
-  else
+    else
+      output.open("./a2_v2_Result_pnp.txt");
+  } else {
+    if(bExtraStudy)
     {
-      if(bExtraStudy)
-	{
-	  gSystem->mkdir("./extrastud",kTRUE);
-	  output.open("./extrastud/a2_v2_Result.txt");
-	}
-      else
-	output.open("./a2_v2_Result.txt");
+      gSystem->mkdir("./extrastud",kTRUE);
+      output.open("./extrastud/a2_v2_Result.txt");
     }
+    else
+      output.open("./a2_v2_Result.txt");
+  }
   
   if(!output.is_open()) { cout << "cannot open a3_v2_Result.txt. Exit\n"; return ;}
    
- 
-    
 
   // 1st column: Different fit method or datasets (prefixarr contains all set)
-  // 2nd column: [0] etHFm, [1] etHFp, [2] etHF
   // 3rd column: [0] inclusive yields, [1] bkg, [2] Prompt, [3]Non-prompt
   double v2[nPrefix][4][ncentbins][nrapbins][nptbins]    = {{{{{0.0}}}}};
   double v2Err[nPrefix][4][ncentbins][nrapbins][nptbins] = {{{{{0.0}}}}};
@@ -333,8 +330,8 @@ void Plot_JpsiV2_a2_EPCorr(const char* inDirName = "./pnp")
 	  if(bSavePlots)
 	    {
 	      gSystem->mkdir("./plots/ptdependence",kTRUE);
-	      pc1->SaveAs(Form("./plots/etHFpm_%s/%s_rap%.1f_%.1f_cent%d-%d_a2_elements.png",prefixarr[prefix],chosenSignal,raps[y_start],raps[y_end],cts[centrality_start],cts[centrality_end]));
-	      pc1->SaveAs(Form("./plots/etHFpm_%s/%s_rap%.1f_%.1f_cent%d-%d_a2_elements.pdf",prefixarr[prefix],chosenSignal,raps[y_start],raps[y_end],cts[centrality_start],cts[centrality_end]));
+	      pc1->SaveAs(Form("./plots/ptdependence/%s_%s_rap%.1f_%.1f_cent%d-%d_a2_elements.png",prefixarr[prefix],chosenSignal,raps[y_start],raps[y_end],cts[centrality_start],cts[centrality_end]));
+	      pc1->SaveAs(Form("./plots/ptdependence/%s_%s_rap%.1f_%.1f_cent%d-%d_a2_elements.pdf",prefixarr[prefix],chosenSignal,raps[y_start],raps[y_end],cts[centrality_start],cts[centrality_end]));
 	      pc1->Clear();
 	    }
 	  	      
@@ -464,15 +461,15 @@ void Plot_JpsiV2_a2_EPCorr(const char* inDirName = "./pnp")
   
   TFile *rootoutput;
   if(bDoPNp)
-    {
-      if(!bExtraStudy) rootoutput = new TFile("a2_corrV2_pnp.root","recreate"); 
-      else rootoutput = new TFile("./extrastud/a2_corrV2_pnp.root","recreate");
-    }
+  {
+    if(!bExtraStudy) rootoutput = new TFile("a2_corrV2_pnp.root","recreate"); 
+    else rootoutput = new TFile("./extrastud/a2_corrV2_pnp.root","recreate");
+  }
   else
-    {
-      if(!bExtraStudy) rootoutput = new TFile("a2_corrV2.root","recreate"); 
-      else rootoutput = new TFile("./extrastud/a2_corrV2.root","recreate");
-    }
+  {
+    if(!bExtraStudy) rootoutput = new TFile("a2_corrV2.root","recreate"); 
+    else rootoutput = new TFile("./extrastud/a2_corrV2.root","recreate");
+  }
   if(bDo6Bin) rootoutput = new TFile("a2_corrV2_6bin.root","recreate"); 
 
   for(int prefix=prefix_start; prefix<prefix_end; prefix++) 

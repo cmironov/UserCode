@@ -50,13 +50,13 @@ void TGetPoints(TGraphErrors *a, double *b, double *c);
 void getEPCorrection(int epType, int centLow, int centHigh, double *corrVal, double *corrErr) ;
 
 //__________________________________________________________________________
-void Plot_JpsiV2_a3_EPCorr(const char* inDirName = "./pnp")//pnp
+void Plot_JpsiV2_a3_EPCorr(const char* inDirName = "./")//pnp
 {
   //gROOT->Macro("/Users/eusmartass/Software/utilities/setStyle.C+");
   gROOT->Macro("./rootlogon.C");
   gStyle->SetOptFit(0);
   gStyle->SetEndErrorSize(5);
-  bool bSavePlots      = false; 
+  bool bSavePlots      = true; 
   bool bIncludeSystem  = true;
   bool doDebug         = false;
   bool bExtraStudy     = false;
@@ -69,6 +69,8 @@ void Plot_JpsiV2_a3_EPCorr(const char* inDirName = "./pnp")//pnp
   //!!!!!!!!!!!! ############## DO NOT CHANGE THE ORDER IN THE  prefixarr[] aARRAY!!!!!!!! DO NOT CHANGE THE ORDER!!!!!!
   //**************************** modified errors
   // %%%%%%%% inclusive
+  const int nPrefix = 7;
+  const char *prefixarr[nPrefix] = {"default_bit1","segMatchGT1_bit1","segMatchGT1_sailor","segMatchGT1_cowboy","segMatchGT2_bit1","segMatchGT2_cowboy","segMatchGT2_sailor"};
   // const int nPrefix = 9;
 // //   // first in this case is always the nominal case 
 //   const char *prefixarr[nPrefix] = {"default_bit1","noFlat_bit1","zVtxLT10_bit1","default_sailor","default_cowboy","default_bit1_weight","default_constrained","default_polFunct","default_signalCB3WN"};
@@ -76,8 +78,8 @@ void Plot_JpsiV2_a3_EPCorr(const char* inDirName = "./pnp")//pnp
   // %%%%%%%% prompt - NPr
   // first in this case is always the nominal case 
   // "default_bit1_weight" -- this is 3D correction: pt, y, centrality (averaged over dPhi)
-  const int nPrefix = 11;
-  const char *prefixarr[nPrefix] = {"default_bit1","default_sailor","default_cowboy","default_constrained","default_polFunct","default_signalCB3WN","default_bit1_1GaussResol","default_bit1_ResolFixToPRMC","noFlat_bit1","zVtxLT10_bit1","default_bit1_weight"};
+//  const int nPrefix = 11;
+//  const char *prefixarr[nPrefix] = {"default_bit1","default_sailor","default_cowboy","default_constrained","default_polFunct","default_signalCB3WN","default_bit1_1GaussResol","default_bit1_ResolFixToPRMC","noFlat_bit1","zVtxLT10_bit1","default_bit1_weight"};
 
  //**************************** extra Studies
   // %%%%%%%%  inclusive
@@ -94,7 +96,7 @@ void Plot_JpsiV2_a3_EPCorr(const char* inDirName = "./pnp")//pnp
   // options
   int prefix_start     = 0; // which setting for v2
   int prefix_end       = nPrefix;
-  int signal_start     = 2;// sgn, bkg, pr, npr
+  int signal_start     = 0;// sgn, bkg, pr, npr
   int signal_end       = 4;
   int centrality_start = 0;
   int centrality_end   = 1;
@@ -106,26 +108,24 @@ void Plot_JpsiV2_a3_EPCorr(const char* inDirName = "./pnp")//pnp
   int nPads    = pt_end-pt_start; 
   
   ofstream output;
- if(bDoPNp)
+  if(bDoPNp)
+  {
+    if(bExtraStudy)
     {
-      if(bExtraStudy)
-	{
-	  gSystem->mkdir("./extrastud",kTRUE);
-	  output.open("./extrastud/a3_v2_Result_pnp.txt");
-	}
-      else
-	output.open("./a3_v2_Result_pnp.txt");
+      gSystem->mkdir("./extrastud",kTRUE);
+      output.open("./extrastud/a3_v2_Result_pnp.txt");
     }
-  else
+    else
+      output.open("./a3_v2_Result_pnp.txt");
+  } else {
+    if(bExtraStudy)
     {
-      if(bExtraStudy)
-	{
-	  gSystem->mkdir("./extrastud",kTRUE);
-	  output.open("./extrastud/a3_v2_Result.txt");
-	}
-      else
-	output.open("./a3_v2_Result.txt");
+      gSystem->mkdir("./extrastud",kTRUE);
+      output.open("./extrastud/a3_v2_Result.txt");
     }
+    else
+      output.open("./a3_v2_Result.txt");
+  }
   
   if(!output.is_open()) { cout << "cannot open a3_v2_Result.txt. Exit\n"; return ;}
   
@@ -512,18 +512,18 @@ void Plot_JpsiV2_a3_EPCorr(const char* inDirName = "./pnp")//pnp
   double finalV2[nPrefix][4][ncentbins][nrapbins][nptbins] = {{{{{0.0}}}}};
   double finalV2Err[nPrefix][4][ncentbins][nrapbins][nptbins] = {{{{{0.0}}}}};
 
- TFile *rootoutput;
- if(bDoPNp)
-    {
-      if(!bExtraStudy) rootoutput = new TFile("a3_corrV2_pnp.root","recreate"); 
-      else rootoutput = new TFile("./extrastud/a3_corrV2_pnp.root","recreate");
-    }
+  TFile *rootoutput;
+  if(bDoPNp)
+  {
+    if(!bExtraStudy) rootoutput = new TFile("a3_corrV2_pnp.root","recreate"); 
+    else rootoutput = new TFile("./extrastud/a3_corrV2_pnp.root","recreate");
+  }
   else
-    {
-      if(!bExtraStudy) rootoutput = new TFile("a3_corrV2.root","recreate"); 
-      else rootoutput = new TFile("./extrastud/a3_corrV2.root","recreate");
-    }
- if(bDo6Bin) rootoutput = new TFile("a3_corrV2_6bin.root","recreate"); 
+  {
+    if(!bExtraStudy) rootoutput = new TFile("a3_corrV2.root","recreate"); 
+    else rootoutput = new TFile("./extrastud/a3_corrV2.root","recreate");
+  }
+  if(bDo6Bin) rootoutput = new TFile("a3_corrV2_6bin.root","recreate"); 
 
   for(int prefix=prefix_start; prefix<prefix_end; prefix++) 
     {

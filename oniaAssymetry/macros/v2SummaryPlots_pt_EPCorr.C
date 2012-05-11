@@ -35,12 +35,13 @@ void v2SummaryPlots_pt_EPCorr()
   const char* legend[5]   = {"","Inclusive J/#psi", "Prompt J/#psi","Non-prompt J/#psi","Background"};
   int choseSignal         = 1; // 1:inclusive 2:prompt 3:non-prompt
   const char* chosenSignal= signal[choseSignal];
-  const char* outputName[1]  = {"nominal_bit1_pt"};
+  const char* outputName[1]  = {"segMatchGT2_bit1_pt"};
+//  const char* outputName[1]  = {"nominal_bit1_pt"};
    
   // options
   bool bSavePlots      = true;
-  bool bDoSummary = false;
-  bool bDoCowboySailor = false;
+  bool bDoSummary = true;
+  bool bDoCowboySailor = true;
   bool bDoFitting      = false;
   bool bAddVtx         = false;
   bool bAddNoFlat      = false;
@@ -53,6 +54,7 @@ void v2SummaryPlots_pt_EPCorr()
   bool bAddAutoCor     = false;
  
   bool bDoCS               = false;
+  bool bDoSegMatchGT1      = true;
   bool bDoEffCorrection_cs = false;
   bool bDoMuHits_cs        = false;
   bool bDoBarrel_cs        = false;
@@ -67,10 +69,13 @@ void v2SummaryPlots_pt_EPCorr()
   TFile *f1;
   if(choseSignal==1)
     {
-      f0 = new TFile(Form("./a2_corrV2.root"));
-      if(!f0->IsOpen()) { cout << "cannot open a1_corrV2.root" << endl; return;}
-      f1 = new TFile(Form("./extrastud/a2_corrV2.root"));
-      if(!f1->IsOpen()) { cout << "cannot open a1_corrV2.root" << endl; return;}
+//      f0 = new TFile(Form("./a2_corrV2.root"));
+      f0 = new TFile(Form("./a2_corrV2_pnp.root"));
+      if(!f0->IsOpen()) { cout << "cannot open a2_corrV2_pnp.root" << endl; return;}
+//      f1 = new TFile(Form("./extrastud/a2_corrV2.root"));
+//      if(!f1->IsOpen()) { cout << "cannot open a1_corrV2.root" << endl; return;}
+      f1 = new TFile(Form("./a2_corrV2_pnp.root"));
+      if(!f1->IsOpen()) { cout << "cannot open a2_corrV2_pnp.root" << endl; return;}
     }
   else
     {
@@ -79,7 +84,7 @@ void v2SummaryPlots_pt_EPCorr()
       // f1 = new TFile(Form("./extrastud/a1_corrV2_pnp.root"));
       // if(!f1->IsOpen()) { cout << "cannot open a1_corrV2_pnp.root" << endl; return;}
     }
-  f1 = new TFile(Form("./extrastud/a2_corrV2.root"));
+//  f1 = new TFile(Form("./extrastud/a2_corrV2.root"));
 
   char histname[200];
   //inclusive
@@ -150,10 +155,15 @@ void v2SummaryPlots_pt_EPCorr()
 
   // extra studies
   // 6bins : compare among themselves the v2 obtianed with stat errors only
-  TFile *f2 = new TFile(Form("./a2_corrV2_6bin.root"));
-   sprintf(histname,"default_bit1_%s_rap%.1f-%.1f_cent%d-%d",chosenSignal,rapIntegrated[0],rapIntegrated[1],centIntegrated[0],centIntegrated[1]);
-   TGraphErrors *pg_jpsi6bin_ptbins = (TGraphErrors*)f2->Get(histname);
   TGraphErrors *pg_jpsi4bin_ptbins = (TGraphErrors*)f0->Get(histname);
+  TFile *f2;
+  TGraphErrors *pg_jpsi6bin_ptbins;
+  if(bDo6Bins)
+  {
+    f2 = new TFile(Form("./a2_corrV2_6bin.root"));
+    sprintf(histname,"default_bit1_%s_rap%.1f-%.1f_cent%d-%d",chosenSignal,rapIntegrated[0],rapIntegrated[1],centIntegrated[0],centIntegrated[1]);
+    pg_jpsi6bin_ptbins = (TGraphErrors*)f2->Get(histname);
+  }
   // if (!pg_jpsi4bin_ptbins) { cout << "cannot load 4bincase." << endl; return;}
   // if (!pg_jpsi6bin_ptbins) { cout << "cannot load 6bincase." << endl; return;}
 
@@ -169,9 +179,13 @@ void v2SummaryPlots_pt_EPCorr()
   TGraphErrors *pg_jpsiL1NHitTrig_ptbins = (TGraphErrors*)f1->Get(histname);
 
   // ######################## sailors and cowboys
-  sprintf(histname,"default_cowboy_%s_rap%.1f-%.1f_cent%d-%d",chosenSignal,rapIntegrated[0],rapIntegrated[1],centIntegrated[0],centIntegrated[1]);
+  sprintf(histname,"segMatchGT2_cowboy_%s_rap%.1f-%.1f_cent%d-%d",chosenSignal,rapIntegrated[0],rapIntegrated[1],centIntegrated[0],centIntegrated[1]);
+//  sprintf(histname,"default_cowboy_%s_rap%.1f-%.1f_cent%d-%d",chosenSignal,rapIntegrated[0],rapIntegrated[1],centIntegrated[0],centIntegrated[1]);
   TGraphErrors *pg_jpsiL1NHitTrig_onlyCow_ptbins = (TGraphErrors*)f0->Get(histname);
-  sprintf(histname,"default_sailor_%s_rap%.1f-%.1f_cent%d-%d",chosenSignal,rapIntegrated[0],rapIntegrated[1],centIntegrated[0],centIntegrated[1]);
+  cout << histname << endl;
+  cout << pg_jpsiL1NHitTrig_onlyCow_ptbins << endl;
+  sprintf(histname,"segMatchGT2_sailor_%s_rap%.1f-%.1f_cent%d-%d",chosenSignal,rapIntegrated[0],rapIntegrated[1],centIntegrated[0],centIntegrated[1]);
+//  sprintf(histname,"default_sailor_%s_rap%.1f-%.1f_cent%d-%d",chosenSignal,rapIntegrated[0],rapIntegrated[1],centIntegrated[0],centIntegrated[1]);
   TGraphErrors *pg_jpsiL1NHitTrig_noCow_ptbins = (TGraphErrors*)f0->Get(histname);
 
   // with corrections
@@ -264,6 +278,8 @@ void v2SummaryPlots_pt_EPCorr()
   tex_c3->SetTextSize(25);
   tex_c3->SetLineWidth(2);
   tex_c3->Draw();
+
+
   //________________________________________ 
 
   pg_jpsi_ptbinsGhost->SetMarkerStyle(20);
@@ -282,8 +298,8 @@ void v2SummaryPlots_pt_EPCorr()
     pg_jpsi_ptbins_statErr->SetLineColor(kBlue+2);
     if(!bDoCS&& !bDo6Bins)
       {
-	pg_jpsi_ptbins->Draw("2");
-	pg_jpsi_ptbins_statErr->Draw("[P]");
+//	pg_jpsi_ptbins->Draw("2");
+//	pg_jpsi_ptbins_statErr->Draw("[P]");
       }
     break;
   case 2:
@@ -479,14 +495,19 @@ void v2SummaryPlots_pt_EPCorr()
       pg_jpsiL1NHitTrig_onlyCow_ptbins->Draw("[P]");
       pg_jpsiL1NHitTrig_noCow_ptbins->Draw("[P]");
       
-      TLegend *legTrig = new TLegend(0.6,0.4,0.9,0.6);
+//      TLegend *legTrig = new TLegend(0.6,0.4,0.9,0.6);
+      TLegend *legTrig = new TLegend(0.2,0.27,0.5,0.37);
       legTrig->SetFillColor(0);
       legTrig->SetBorderSize(0);
       legTrig->SetTextSize(0.03);
-      legTrig->AddEntry(pg_jpsi_ptbins,"Default: sum","P");
-      legTrig->AddEntry(pg_jpsiL1NHitTrig_noCow_ptbins,"Sailors","P");
-      legTrig->AddEntry(pg_jpsiL1NHitTrig_onlyCow_ptbins,"Cowboys","P");
+
+//      legTrig->AddEntry(pg_jpsi_ptbins,"#mu (segment matched > 1)","P");
+//      legTrig->AddEntry(pg_jpsiL1NHitTrig_noCow_ptbins,"Sailors","P");
+//      legTrig->AddEntry(pg_jpsiL1NHitTrig_onlyCow_ptbins,"Cowboys","P");
+      legTrig->AddEntry(pg_jpsiL1NHitTrig_noCow_ptbins,"Sailors: nSegMatched > 2 && 1dilepton/event","P");
+      legTrig->AddEntry(pg_jpsiL1NHitTrig_onlyCow_ptbins,"Cowboys: nSegMatched > 2 && 1dilepton/event","P");
       legTrig->Draw("same");
+
     }
 
   //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
