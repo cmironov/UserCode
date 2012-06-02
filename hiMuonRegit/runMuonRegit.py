@@ -40,6 +40,9 @@ process.output.outputCommands.extend(cms.untracked.vstring('drop *_hiSelectedTra
                                                            'keep *_reglobalMuons*_*_*',
                                                            'keep *_retev*_*_*',
                                                            'keep *_recalomuons*_*_*',
+                                                           'drop Trajector*_*Muons_*_*',
+                                                           'drop recoTrackExtras*_*Muons_*_*',
+                                                           'drop TrackingRecHitsOwned_*Muons_*_*',
                                                            'keep *_hiGenParticles_*_*'
                                                            ))
 ##################################################################################
