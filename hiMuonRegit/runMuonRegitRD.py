@@ -19,8 +19,8 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(20))
 # Input source
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring("file:/tmp/camelia/8A5E77D3-5421-E111-A72F-485B3977172C.root"),
-                            noEventSort = cms.untracked.bool(True),
-                            duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
+#                            noEventSort = cms.untracked.bool(True),
+ #                           duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
                          #   skipEvents=cms.untracked.uint32(500),
                             #   eventsToProcess = cms.untracked.VEventRange('183013:42704208-183013:42704208')
                             )
