@@ -4,7 +4,7 @@
 #cvs co -r V00-02-04 RecoHI/HiMuonAlgos
 
 #------------ for first path through real data
-cvs co -r RecoHI/HiMuonAlgos
+cvs co RecoHI/HiMuonAlgos
 
 
 # --- from camelia's user's area, unti lmatt comes back and puts a tag
