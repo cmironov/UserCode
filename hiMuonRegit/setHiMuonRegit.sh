@@ -7,7 +7,6 @@
 cvs co -r $CMSSW_VERSION RecoHI/HiMuonAlgos
 
 # added on June 23 ------
-cvs co -r $CMSSW_VERSION RecoMuon/MuonIdentification
 cvs co -r $CMSSW_VERSION RecoMuon/GlobalTrackingTools
 # end of adding
 
@@ -19,8 +18,6 @@ cp UserCode/CMironov/hiMuonRegit/HiReRecoMuon_cff.py RecoHI/HiMuonAlgos/python
 
 # added on June 23rd
 cp UserCode/CMironov/hiMuonRegit/HIMuonTrackingRegionProducer.h RecoHI/HiMuonAlgos/plugins
-cp UserCode/CMironov/hiMuonRegit/RecoMuon/MuonIdProducer.cc RecoMuon/MuonIdentification/plugins
-cp UserCode/CMironov/hiMuonRegit/RecoMuon/MuonIdProducer.h RecoMuon/MuonIdentification/plugins
 cp UserCode/CMironov/hiMuonRegit/RecoMuon/MuonTrackingRegionBuilder.cc RecoMuon/GlobalTrackingTools/src
 # end of adding
 
