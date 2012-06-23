@@ -9,11 +9,12 @@ cvs co -r $CMSSW_VERSION RecoMuon/MuonIdentification
 cvs co -r $CMSSW_VERSION RecoMuon/GlobalTrackingTools
 
 
-# --- from camelia's user's area, unti lmatt comes back and puts a tag
+# --- from camelia's user's area
 cvs co UserCode/CMironov/hiMuonRegit
 cp UserCode/CMironov/hiMuonRegit/HiRegitMuon*.py RecoHI/HiMuonAlgos/python
 cp UserCode/CMironov/hiMuonRegit/hiMuonIterativeTk_cff.py RecoHI/HiMuonAlgos/python
 cp UserCode/CMironov/hiMuonRegit/HiReRecoMuon_cff.py RecoHI/HiMuonAlgos/python
+cp UserCode/CMironov/hiMuonRegit/HIMuonTrackingRegionProducer.h RecoHI/HiMuonAlgos/plugins
 
 cp UserCode/CMironov/hiMuonRegit/RecoMuon/MuonIdProducer.cc RecoMuon/MuonIdentification/plugins
 cp UserCode/CMironov/hiMuonRegit/RecoMuon/MuonIdProducer.h RecoMuon/MuonIdentification/plugins
