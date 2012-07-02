@@ -25,7 +25,6 @@ hiRegitMuDetachedTripletStepClusters = RecoHI.HiTracking.hiRegitDetachedTripletS
     overrideTrkQuals      = cms.InputTag('hiRegitMuPixelPairStepSelector','hiRegitMuPixelPairStep'),
 )
 
-
 # SEEDING LAYERS
 hiRegitMuDetachedTripletStepSeedLayers =  RecoHI.HiTracking.hiRegitDetachedTripletStep_cff.hiRegitDetachedTripletStepSeedLayers.clone(
     ComponentName = 'hiRegitMuDetachedTripletStepSeedLayers'

@@ -17,8 +17,9 @@ from RecoHI.HiTracking.hiRegitLowPtTripletStep_cff import *
 
 # remove previously used clusters
 hiRegitMuLowPtTripletStepClusters = RecoHI.HiTracking.hiRegitLowPtTripletStep_cff.hiRegitLowPtTripletStepClusters.clone(
-    trajectories     = cms.InputTag("hiRegitMuInitialStepTracks"),
-    overrideTrkQuals = cms.InputTag('hiRegitMuInitialStepSelector','hiRegitMuInitialStep'),
+    oldClusterRemovalInfo = cms.InputTag("hiRegitMuInitialStepClusters"),
+    trajectories          = cms.InputTag("hiRegitMuInitialStepTracks"),
+    overrideTrkQuals      = cms.InputTag('hiRegitMuInitialStepSelector','hiRegitMuInitialStep'),
 )
 
 # SEEDING LAYERS

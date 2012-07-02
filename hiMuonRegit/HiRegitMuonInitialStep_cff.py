@@ -13,6 +13,29 @@ HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.Eta_fixed    
 
 
 ###################################  
+hiRegitMuFirstStepFilter = cms.EDProducer("QualityFilter",
+                                 TrackQuality = cms.string('highPurity'),
+                                 recTracks = cms.InputTag("hiSelectedTracks")
+                                 )
+
+# NEW CLUSTERS (remove previously used clusters)
+hiRegitMuInitialStepClusters = cms.EDProducer("TrackClusterRemover",
+                                clusterLessSolution= cms.bool(True),
+                                trajectories = cms.InputTag("hiRegitMuFirstStepFilter"),
+                                TrackQuality = cms.string('highPurity'),
+                                pixelClusters = cms.InputTag("siPixelClusters"),
+                                stripClusters = cms.InputTag("siStripClusters"),
+                                Common = cms.PSet(
+    maxChi2 = cms.double(9.0)
+    ),
+                                Strip = cms.PSet(
+    #Yen-Jie's mod to preserve merged clusters
+    maxSize = cms.uint32(2),
+    maxChi2 = cms.double(9.0)
+    )
+                                )
+
+#-------------------------
 from RecoHI.HiTracking.hiRegitInitialStep_cff import *
 
 # seeding
@@ -23,19 +46,21 @@ hiRegitMuInitialStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.EscapePt  
 hiRegitMuInitialStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaR          = 1 # default = 0.2
 hiRegitMuInitialStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaZ_Region   = 1 # this give you the length 
 hiRegitMuInitialStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.Rescale_Dz      = 4. # max(DeltaZ_Region,Rescale_Dz*vtx->zError())
-hiRegitMuInitialStepSeeds.skipClusters = cms.InputTag('hiRegitInitialStepClusters')
+hiRegitMuInitialStepSeeds.skipClusters = cms.InputTag('hiRegitMuInitialStepClusters')
+
+
 
 # building: feed the new-named seeds
 hiRegitMuInitialStepTrajectoryFilter =  RecoHI.HiTracking.hiRegitInitialStep_cff.hiRegitInitialStepTrajectoryFilter.clone(
     ComponentName = 'hiRegitMuInitialStepTrajectoryFilter'
     )
-hiRegitMuInitialStepTrajectoryFilter.filterPset.minPt              = 2.5 # after each new hit, apply pT cut for traj w/ at least minHitsMinPt = cms.int32(3),
+hiRegitMuInitialStepTrajectoryFilter.filterPset.minPt = 2.5 # after each new hit, apply pT cut for traj w/ at least minHitsMinPt = cms.int32(3),
 
 
 hiRegitMuInitialStepTrajectoryBuilder =  RecoHI.HiTracking.hiRegitInitialStep_cff.hiRegitInitialStepTrajectoryBuilder.clone(
     ComponentName        = 'hiRegitMuInitialStepTrajectoryBuilder',
     trajectoryFilterName = 'hiRegitMuInitialStepTrajectoryFilter',
-    clustersToSkip       = cms.InputTag('hiRegitInitialStepClusters')
+    clustersToSkip       = cms.InputTag('hiRegitMuInitialStepClusters')
 )
 
 # track candidates
@@ -69,8 +94,8 @@ hiRegitMuInitialStepSelector               =  RecoHI.HiTracking.hiRegitInitialSt
         ) #end of vpset
     )
 
-hiRegitMuonInitialStep = cms.Sequence(hiGeneralTrackFilter*
-                                      hiRegitInitialStepClusters*
+hiRegitMuonInitialStep = cms.Sequence(hiRegitMuFirstStepFilter*
+                                      hiRegitMuInitialStepClusters*
                                       hiRegitMuInitialStepSeeds*
                                       hiRegitMuInitialStepTrackCandidates*
                                       hiRegitMuInitialStepTracks*
