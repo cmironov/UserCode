@@ -71,7 +71,7 @@ process.trackerRecHits = cms.Path(process.siPixelRecHits*process.siStripMatchedR
 
 # global iterative tracking
 process.load("RecoHI.HiTracking.hiIterTracking_cff")
-process.hiTrackReco    = cms.Path(process.heavyIonTracking*process.hiIterTracking)
+process.hiTrackReco    = cms.Path(process.heavyIonTracking)#*process.hiIterTracking)
 process.heavyIonTracking.remove(process.hiPixelVertices);
 
 #muon regit
