@@ -9,6 +9,7 @@ cvs co -d runBothRegitRegular UserCode/CMironov/hiMuonRegit/runBothRegitRegular
 
 cp runBothRegitRegular/HiReRecoMuon_cff.py RecoHI/HiMuonAlgos/python
 cp runBothRegitRegular/RecoHiMuon_EventContent_cff.py RecoHI/HiMuonAlgos/python
+cp runBothRegitRegular/HIMuonTrackingRegionProducer.h RecoHI/HiMuonAlgos/plugins
 
 cp runBothRegitRegular/Reconstruction_HI_cff.py RecoHI/Configuration/python
 cp runBothRegitRegular/ReconstructionHeavyIons_cff.py Configuration/StandardSequences/python
