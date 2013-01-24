@@ -19,8 +19,9 @@ process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
+
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(10)
     )
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -33,7 +34,7 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:/tmp/camelia/B46EE82F-9B14-E111-A4CC-E0CB4E4408D1.root')
 )
 
-process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool( True ))
+process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool( False ))
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
@@ -47,7 +48,7 @@ process.configurationMetadata = cms.untracked.PSet(
 process.AODoutput = cms.OutputModule("PoolOutputModule",
     eventAutoFlushCompressedSize = cms.untracked.int32(15728640),
     outputCommands = process.AODEventContent.outputCommands,
-    fileName = cms.untracked.string('/tmp/camelia/reco_RECO.root'),
+    fileName = cms.untracked.string('/tmp/camelia/reco_RECO_testZDC.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('')
@@ -58,6 +59,7 @@ process.AODoutput = cms.OutputModule("PoolOutputModule",
 )
 
 # Additional output definition
+process.AODoutput.outputCommands.extend(cms.untracked.vstring('keep *_zdcreco_*_ppRECO'))
 process.AODoutput.outputCommands.extend(cms.untracked.vstring('drop *_muons_*_RECO'))
 process.AODoutput.outputCommands.extend(cms.untracked.vstring('drop *_calomuons_*_RECO'))
 process.AODoutput.outputCommands.extend(cms.untracked.vstring('drop *_tevMuons_*_RECO'))
@@ -85,13 +87,14 @@ process.centralityFilter.selectedBins = [20,21,22,23,24,25,26,27,28,29,30,31,32,
 process.GoodEventFilterSequence       = cms.Sequence(process.centralityFilter)
 
 # ___________________________________________________________________________________________
-# Path and EndPath definitions
-process.reconstruction_step = cms.Path(process.reconstruction_fromRECO)
+process.zdcreco_step              = cms.Path(process.zdcreco)
+process.reconstruction_step       = cms.Path(process.reconstruction_fromRECO)
+
 process.endjob_step         = cms.EndPath(process.endOfProcess)
 process.AODoutput_step      = cms.EndPath(process.AODoutput)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.reconstruction_step,process.endjob_step,process.AODoutput_step)
+process.schedule = cms.Schedule(process.reconstruction_step,process.zdcreco_step,process.endjob_step,process.AODoutput_step)
 
 # filter all path with the good event filter sequence
 for path in process.paths:
