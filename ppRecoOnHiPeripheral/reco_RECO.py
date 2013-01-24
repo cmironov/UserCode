@@ -21,17 +21,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1000),
-    inputCommands = cms.untracked.vstring('keep *_*_*_*',
-                                          'drop *_muons_*_RECO',
-                                          'drop *_calomuons_*_RECO',
-                                          'drop *_tevMuons_*_RECO',
-                                          'drop *_globalMuons_*_RECO',
-                                          'drop *_*Jets_*_RECO',
-                                          'drop *_offlineBeamSpot_*_RECO',
-                                          'drop *_*Cluster*_*_RECO',
-                                          'drop *_photon*_*_RECO',
-                                          'drop *_Castor*_*_RECO'
-                                          )
+   
     )
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -44,7 +34,7 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:/tmp/camelia/B46EE82F-9B14-E111-A4CC-E0CB4E4408D1.root')
 )
 
-process.options = cms.untracked.PSet()
+process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool( True ))
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
@@ -54,6 +44,7 @@ process.configurationMetadata = cms.untracked.PSet(
 )
 
 # Output definition
+
 process.AODoutput = cms.OutputModule("PoolOutputModule",
     eventAutoFlushCompressedSize = cms.untracked.int32(15728640),
     outputCommands = process.AODEventContent.outputCommands,
@@ -68,7 +59,20 @@ process.AODoutput = cms.OutputModule("PoolOutputModule",
 )
 
 # Additional output definition
-
+'''
+process.AODoutput.outputCommands.extend(cms.untracked.vstring('drop *_muons_*_RECO'))
+process.AODoutput.outputCommands.extend(cms.untracked.vstring('drop *_calomuons_*_RECO'))
+process.AODoutput.outputCommands.extend(cms.untracked.vstring('drop *_tevMuons_*_RECO'))
+process.AODoutput.outputCommands.extend(cms.untracked.vstring('drop *_globalMuons_*_RECO'))
+process.AODoutput.outputCommands.extend(cms.untracked.vstring('drop *_muIsoDepositTk_*_RECO'))
+process.AODoutput.outputCommands.extend(cms.untracked.vstring('drop *_muIsoDepositCalByAssociatorTowers_*_RECO'))
+process.AODoutput.outputCommands.extend(cms.untracked.vstring('drop *_*Jets_*_RECO'))
+process.AODoutput.outputCommands.extend(cms.untracked.vstring('drop *_offlineBeamSpot_*_RECO'))
+process.AODoutput.outputCommands.extend(cms.untracked.vstring('drop *_*Cluster*_*_RECO'))
+process.AODoutput.outputCommands.extend(cms.untracked.vstring('drop *_photon*_*_RECO'))
+process.AODoutput.outputCommands.extend(cms.untracked.vstring('drop *_Castor*_*_RECO'))
+process.AODoutput.outputCommands.extend(cms.untracked.vstring('drop *_ak7CastorJetID_*_RECO'))
+'''
 # Other statements
 process.GlobalTag.globaltag = 'GR_P_V27A::All'
 
