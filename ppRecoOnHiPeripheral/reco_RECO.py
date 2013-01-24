@@ -20,8 +20,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000),
-   
+    input = cms.untracked.int32(1000)
     )
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -59,7 +58,6 @@ process.AODoutput = cms.OutputModule("PoolOutputModule",
 )
 
 # Additional output definition
-'''
 process.AODoutput.outputCommands.extend(cms.untracked.vstring('drop *_muons_*_RECO'))
 process.AODoutput.outputCommands.extend(cms.untracked.vstring('drop *_calomuons_*_RECO'))
 process.AODoutput.outputCommands.extend(cms.untracked.vstring('drop *_tevMuons_*_RECO'))
@@ -72,7 +70,7 @@ process.AODoutput.outputCommands.extend(cms.untracked.vstring('drop *_*Cluster*_
 process.AODoutput.outputCommands.extend(cms.untracked.vstring('drop *_photon*_*_RECO'))
 process.AODoutput.outputCommands.extend(cms.untracked.vstring('drop *_Castor*_*_RECO'))
 process.AODoutput.outputCommands.extend(cms.untracked.vstring('drop *_ak7CastorJetID_*_RECO'))
-'''
+
 # Other statements
 process.GlobalTag.globaltag = 'GR_P_V27A::All'
 
