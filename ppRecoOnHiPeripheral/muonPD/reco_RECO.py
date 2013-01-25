@@ -23,7 +23,7 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.destinations = ['cout', 'cerr']
 process.MessageLogger.cerr.FwkReport.reportEvery = 200
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
 
 # Input source
@@ -56,10 +56,8 @@ process.RECOoutput = cms.OutputModule("PoolOutputModule",
     )
 )
 # Additional output definition
-process.RECOoutput.outputCommands.extend(cms.untracked.vstring('drop *_muons_*_RECO'))
-process.RECOoutput.outputCommands.extend(cms.untracked.vstring('drop *_calomuons_*_RECO'))
-process.RECOoutput.outputCommands.extend(cms.untracked.vstring('drop *_tevMuons_*_RECO'))
-process.RECOoutput.outputCommands.extend(cms.untracked.vstring('drop *_globalMuons_*_RECO'))
+process.RECOoutput.outputCommands.extend(cms.untracked.vstring('drop *_*muons_*_RECO'))
+process.RECOoutput.outputCommands.extend(cms.untracked.vstring('drop *_*Muons_*_RECO'))
 process.RECOoutput.outputCommands.extend(cms.untracked.vstring('drop *_muIsoDepositTk_*_RECO'))
 process.RECOoutput.outputCommands.extend(cms.untracked.vstring('drop *_muIsoDepositCalByAssociatorTowers_*_RECO'))
 process.RECOoutput.outputCommands.extend(cms.untracked.vstring('drop *_*Jets_*_RECO'))
