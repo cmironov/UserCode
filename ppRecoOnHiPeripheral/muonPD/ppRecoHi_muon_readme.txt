@@ -1,6 +1,8 @@
 
 0. release: CMSSW_4_4_5_patch1 
 
+00. Global tag: 'GR_P_V27A::All'
+
 1. Configuration & JSON files: 
 
 http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/CMironov/ppRecoOnHiPeripheral/muonPD/
@@ -9,4 +11,4 @@ http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/CMironov/ppRecoOnHiPeriphera
 
 !!!!!!!!! use VANDERBILT as location of the RECO files (they are also in France, but it will take forever if your jobs will get there)!!!
 
-3. lumis/job: 
+3. lumis/job: 20/job
