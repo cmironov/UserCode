@@ -11,5 +11,9 @@ cvs co -r branch_pA -d HiAnalysis/HiOnia UserCode/tdahms/HiAnalysis/HiOnia
 cvs co -r HEAD DataFormats/Math/interface/VDTMath.h
 cvs co -r V01-15-01 MuonAnalysis/MuonAssociators
 
+rm HeavyIonsAnalysis/Configuration/python/*Skim*
+
 cvs co UserCode/CMironov/oniaIn442
 cp UserCode/CMironov/oniaIn442/VDTMath.h DataFormats/Math/interface/VDTMath.h
+
+cp UserCode/CMironov/oniaIn442/HiOnia2MuMuPAT.cc HiSkim/HiOnia2MuMu/src/HiOnia2MuMuPAT.cc
