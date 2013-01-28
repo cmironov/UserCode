@@ -17,3 +17,5 @@ cvs co UserCode/CMironov/oniaIn442
 cp UserCode/CMironov/oniaIn442/VDTMath.h DataFormats/Math/interface/VDTMath.h
 
 cp UserCode/CMironov/oniaIn442/HiOnia2MuMuPAT.cc HiSkim/HiOnia2MuMu/src/HiOnia2MuMuPAT.cc
+cp UserCode/CMironov/oniaIn442/onia2MuMuPAT_cff.py HiSkim/HiOnia2MuMu/python/onia2MuMuPAT_cff.py
+cp UserCode/CMironov/oniaIn442/onia2MuMuPATData_pp2760_CRAB_cfg.py HiSkim/HiOnia2MuMu/test/onia2MuMuPATData_pp2760_CRAB_cfg.py
