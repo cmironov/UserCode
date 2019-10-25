@@ -36,6 +36,7 @@ Output: xsec vs pt, ratio vs pt.
 #include "tdrstyle.C"
 
 #include "auxiliaryPt.h"
+#include "auxiliaryRef.h"
 
 #endif
 using namespace std;
@@ -88,11 +89,11 @@ void plotPt(bool bSavePlots       = 1,
               if(ib==0){//bs
 		bs_low[nEntry] = x[2]; //central value
                 //stat uncert
-                bs_low_yStatL[nEntry] = x[3]*x[2];
-                bs_low_yStatH[nEntry] = bs_low_yStatL[nEntry];
+        bs_low_yStatL[nEntry] = x[3]*x[2];
+        bs_low_yStatH[nEntry] = bs_low_yStatL[nEntry];
                 //bin width
-		bs_low_xErrL[nEntry] = (x[1]-x[0])/2;
-                bs_low_xErrH[nEntry] = bs_low_xErrL[nEntry];
+                  bs_low_xErrL[nEntry] = (x[1]-x[0])/2;
+        bs_low_xErrH[nEntry] = bs_low_xErrL[nEntry];
                 //systm. uncert
 		bs_low_ySystL[nEntry] = x[4]*x[2];
 		bs_low_ySystH[nEntry] = x[5]*x[2];
@@ -110,7 +111,7 @@ void plotPt(bool bSavePlots       = 1,
 		bpl_low_yStatL[nEntry] = x[3]*x[2];
 		bpl_low_yStatH[nEntry] = bpl_low_yStatL[nEntry];
 		//bin width
-		bpl_low_xErrL[nEntry] = (x[1]-x[0])/2;
+        bpl_low_xErrL[nEntry] = (x[1]-x[0])/2;
 		bpl_low_xErrH[nEntry] = bpl_low_xErrL[nEntry];
 		//systm. uncert
 		bpl_low_ySystL[nEntry] = x[4]*x[2];
@@ -132,7 +133,7 @@ void plotPt(bool bSavePlots       = 1,
 		bs_high_yStatL[nEntry-1] = x[3]*x[2];
 		bs_high_yStatH[nEntry-1] = bs_high_yStatL[nEntry-1];
 		//bin width
-		bs_high_xErrL[nEntry-1] = (x[1]-x[0])/2;
+        bs_high_xErrL[nEntry-1] = (x[1]-x[0])/2;
 		bs_high_xErrH[nEntry-1] = bs_high_xErrL[nEntry-1];
 		//systm. uncert
 		bs_high_ySystL[nEntry-1] = x[4]*x[2];
@@ -149,7 +150,7 @@ void plotPt(bool bSavePlots       = 1,
 		bpl_high_yStatL[nEntry-1] = x[3]*x[2];
 		bpl_high_yStatH[nEntry-1] = bpl_high_yStatL[nEntry-1];
 		//bin width
-		bpl_high_xErrL[nEntry-1] = (x[1]-x[0])/2;
+              bpl_high_xErrL[nEntry-1] = (x[1]-x[0])/2;
 		bpl_high_xErrH[nEntry-1] = bpl_high_xErrL[nEntry-1];
 		//systm. uncert
 		bpl_high_ySystL[nEntry-1] = x[4]*x[2];
@@ -338,7 +339,7 @@ void plotPt(bool bSavePlots       = 1,
         lat->DrawLatex(xsec_ltxText1_xStart,xsec_ltxText1_yStart-0.7,Form("Global uncert.:#pm %.1f %%",glbSystDown));
 
 	// legend
-	TLegend *legXSec = new TLegend(legXsec_xLowStart,legXsec_y,legXsec_xLowEnd,legXsec_y+0.15,NULL,"brNDC");
+	TLegend *legXSec = new TLegend(legXsec_xLowStart,legXsec_y,legXsec_xLowEnd,legXsec_y+0.15,"B_{s}^{0}                    B^{+}","brNDC");
         legXSec->SetBorderSize(0);
        
         legXSec->SetTextSize(ltxSetTextSize2);
@@ -348,7 +349,6 @@ void plotPt(bool bSavePlots       = 1,
         legXSec->SetFillColor(19);
         legXSec->SetFillStyle(0);
 	legXSec->SetTextFont(42);
-	legXSec->SetHeader("B_{s}^{0}                    B^{+}","L");
 	legXSec->SetNColumns(2);
 	legXSec->SetColumnSeparation(0.0);
 	legXSec->AddEntry(pgBs_low,"1.5 < |y| < 2.4","p");
@@ -397,6 +397,35 @@ void plotPt(bool bSavePlots       = 1,
         entry2->SetFillStyle(1001);
     
         legRatio->Draw();
+	//---------------
+	if(drawRef)
+	  {
+	    TLegend *legRatioRef = new TLegend(legRatioRef_xLowStart,legRatioRef_y,legRatioRef_xLowEnd,legRatio_y+0.1,"f_{s}/f_{u} reference","brNDC");
+	    legRatioRef->SetBorderSize(0);
+	    legRatioRef->SetTextFont(132);
+	    
+	    legRatioRef->SetTextSize(ltxSetTextSize2);
+	    legRatioRef->SetLineColor(1);
+	    legRatioRef->SetLineStyle(1);
+	    legRatioRef->SetLineWidth(1);
+	    legRatioRef->SetFillColor(19);
+	    legRatioRef->SetFillStyle(0);
+	    TLegendEntry *entry1Ref = legRatioRef->AddEntry("FragBand","PDG","P");
+	    entry1Ref->SetTextFont(42);
+	    entry1Ref->SetFillStyle(1001);
+	    entry1Ref->SetMarkerStyle(25);
+	    entry1Ref->SetMarkerSize(1.4);
+	    entry1Ref->SetMarkerColor(kGreen);
+	    entry1Ref->SetLineWidth(5);
+	    // TLegendEntry *entry2Ref = legRatioRef->AddEntry("pgRatio_high","|y| < 2.4","p");
+	    // entry2Ref->SetTextFont(42);
+	    // entry2Ref->SetMarkerStyle(markerRatio[1]);
+	    // entry2Ref->SetMarkerSize(1.7);
+	    // entry2Ref->SetFillStyle(1001);
+    
+	    legRatioRef->Draw();
+
+	  }
 
         
     }

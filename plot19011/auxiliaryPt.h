@@ -6,6 +6,7 @@
 //binning
 const unsigned int nBinsLow   = 1;
 const unsigned int nBinsHigh  = 3;
+double boxWidth = 2.;
 
 // arrays of yields, errors, etc
 // Labeling
@@ -95,23 +96,9 @@ double legRatio_xLowStart= 0.65;
 double legRatio_y= 0.65;
 double legRatio_xLowEnd = 0.85;
 
-
-//======================================================
-// fs/fu
-// PDG
-double BsFrag = 10.3;
-double BsErr  = 0.5;
-double BPFrag = 40.5;
-double BPErr  = 0.6;
-const int BandBin = 1;
-double bin_min = 5;
-double bin_max = 50;
-double BandX[BandBin] = {(bin_max+bin_min)/2};
-double BandY[BandBin] = {BsFrag/BPFrag};
-double BandXErr[BandBin] = {(bin_max-bin_min)/2};
-double BandYErr[BandBin] = { BsFrag/BPFrag*TMath::Sqrt((BsErr/BsFrag)*(BsErr/BsFrag)+(BPErr/BPFrag)*(BPErr/BPFrag)) };
-
-
+double legRatioRef_xLowStart= 0.35;
+double legRatioRef_y        = 0.65;
+double legRatioRef_xLowEnd  = 0.55;
 
 
 #endif
