@@ -38,6 +38,7 @@ Output: xsec vs pt, ratio vs pt.
 #include "auxiliaryPt.h"
 #include "auxiliaryRef.h"
 
+//#include "outsideSource/lhcb.C"
 #endif
 using namespace std;
 
@@ -51,9 +52,12 @@ void plotPt(bool bSavePlots       = 1,
     gSystem->mkdir(Form("./%s/png",outputDir), kTRUE);
     gSystem->mkdir(Form("./%s/pdf",outputDir), kTRUE);
 
+    //   gROOT->ProcessLine(".x lhcb.C");
+    //  lhcb();
   //set the style
     setTDRStyle();
- 
+
+  
   //samples:
     const unsigned int nMes      = 2;
     const char* inputFileType[2] = {"corryield_pt", "ratio_pt"};
@@ -277,7 +281,33 @@ void plotPt(bool bSavePlots       = 1,
  
     pgRatio_syst_low->SetFillColorAlpha(colorRatio[0],0.2);
     pgRatio_syst_high->SetFillColorAlpha(colorRatio[1],0.2);
-    
+
+    //================
+     //=============================================
+    // read TAMU
+    std::ifstream TAMUBsBP("outsideSource/TAMUPT.dat");
+   const int NBinsTAMU = 150;
+   double TAMUBsBPPt[NBinsTAMU];
+   double TAMUBsBPPtErr[NBinsTAMU];
+   double TAMUBsBPRatio[NBinsTAMU];
+   double TAMUBsBPRatioErr[NBinsTAMU];
+   for(int i = 0; i < NBinsTAMU; i++){
+   TAMUBsBP >> TAMUBsBPPt[i] >> TAMUBsBPRatio[i];
+   }
+   for(int i = 0; i < NBinsTAMU; i++){
+       TAMUBsBPPtErr[i] = 0.1;
+       TAMUBsBPRatioErr[i] = 0.01;
+       cout  << "TAMUBsBPPt[i] = "  <<  TAMUBsBPPt[i] << "     TAMUBsBPRatio[i] = " <<  TAMUBsBPRatio[i] << endl;
+   }
+TGraphErrors* TAMUTheory = new TGraphErrors(NBinsTAMU,TAMUBsBPPt,TAMUBsBPRatio,TAMUBsBPPtErr,TAMUBsBPRatioErr);
+   TAMUTheory->SetName("TAMUTheory");
+   TAMUTheory->SetMarkerStyle(20);
+   TAMUTheory->SetMarkerSize(0.0);
+   TAMUTheory->SetFillColor(kOrange+3);
+   TAMUTheory->SetFillStyle(3002);
+   TAMUTheory->SetLineColor(kOrange);
+   TAMUTheory->SetLineWidth(3);
+  
     //-------------------------------------------
     TF1 *f4 = new TF1("f4","1",5,50);
     f4->SetLineWidth(1);
@@ -315,15 +345,18 @@ void plotPt(bool bSavePlots       = 1,
         pgBpl_high->Draw("P");
     }
     else{//ratio plot
+           if(drawRef){
+            FragBand->Draw("5same");
+	    TAMUTheory->Draw("5same");
+        }
+	   
             pgRatio_syst_low->Draw("2");
             pgRatio_low->Draw("P");
             
             pgRatio_syst_high->Draw("2");
             pgRatio_high->Draw("P");
         
-        if(drawRef){
-            FragBand->Draw("5same");
-        }
+   
     }
     
 //supplemental info on plot:
@@ -400,7 +433,7 @@ void plotPt(bool bSavePlots       = 1,
 	//---------------
 	if(drawRef)
 	  {
-	    TLegend *legRatioRef = new TLegend(legRatioRef_xLowStart,legRatioRef_y,legRatioRef_xLowEnd,legRatio_y+0.1,"f_{s}/f_{u} reference","brNDC");
+	    TLegend *legRatioRef = new TLegend(legRatioRef_xLowStart,legRatioRef_y,legRatioRef_xLowEnd,legRatio_y+0.1,NULL,"brNDC");
 	    legRatioRef->SetBorderSize(0);
 	    legRatioRef->SetTextFont(132);
 	    
@@ -410,18 +443,18 @@ void plotPt(bool bSavePlots       = 1,
 	    legRatioRef->SetLineWidth(1);
 	    legRatioRef->SetFillColor(19);
 	    legRatioRef->SetFillStyle(0);
-	    TLegendEntry *entry1Ref = legRatioRef->AddEntry("FragBand","PDG","P");
+	    TLegendEntry *entry1Ref = legRatioRef->AddEntry("FragBand","f_{s}/f_{u} reference: PDG","P");
 	    entry1Ref->SetTextFont(42);
 	    entry1Ref->SetFillStyle(1001);
 	    entry1Ref->SetMarkerStyle(25);
 	    entry1Ref->SetMarkerSize(1.4);
 	    entry1Ref->SetMarkerColor(kGreen);
 	    entry1Ref->SetLineWidth(5);
-	    // TLegendEntry *entry2Ref = legRatioRef->AddEntry("pgRatio_high","|y| < 2.4","p");
-	    // entry2Ref->SetTextFont(42);
-	    // entry2Ref->SetMarkerStyle(markerRatio[1]);
-	    // entry2Ref->SetMarkerSize(1.7);
-	    // entry2Ref->SetFillStyle(1001);
+	    
+	    TLegendEntry *entry2Ref = legRatioRef->AddEntry("TAMUTheory","PbPb: TAMU","l");
+	    entry2Ref->SetTextFont(42);
+	    entry2Ref->SetLineColor(kOrange);
+	    entry2Ref->SetLineWidth(3);
     
 	    legRatioRef->Draw();
 

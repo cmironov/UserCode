@@ -96,9 +96,9 @@ double legRatio_xLowStart= 0.65;
 double legRatio_y= 0.65;
 double legRatio_xLowEnd = 0.85;
 
-double legRatioRef_xLowStart= 0.35;
+double legRatioRef_xLowStart= 0.25;
 double legRatioRef_y        = 0.65;
-double legRatioRef_xLowEnd  = 0.55;
+double legRatioRef_xLowEnd  = 0.35;
 
 
 #endif

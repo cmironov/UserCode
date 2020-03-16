@@ -44,7 +44,7 @@ using namespace std;
 void plotCent(bool bSavePlots     = 1,
             bool bDoDebug         = 1, //  figure out if things are read properly
             bool whichPlot        = 1, //0 is x-sec, 1 is for ratio
-	      bool drawRef          = 1, //draw Ref (for ratio only
+	      bool drawRef        = 1, //draw Ref (for ratio only
             const char* inputDir  = "dataSource", //inptu txt files
             const char* outputDir = "figs")// where the output figures will be
 {
@@ -281,7 +281,8 @@ void plotCent(bool bSavePlots     = 1,
  
     pgRatio_syst_low->SetFillColorAlpha(colorRatio[0],0.2);
     pgRatio_syst_high->SetFillColorAlpha(colorRatio[1],0.2);
-    
+   
+  
     //-------------------------------------------
     TF1 *f4 = new TF1("f4","1",0,420);
     f4->SetLineWidth(1);
@@ -323,6 +324,8 @@ void plotCent(bool bSavePlots     = 1,
     else{//ratio plot
           if(drawRef){
             FragBand->Draw("5same");
+	    
+
         }
             pgRatio_syst_low->Draw("2");
             pgRatio_low->Draw("P");
