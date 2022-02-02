@@ -1,0 +1,227 @@
+%
+% $Id: abrev.tex,v 1.7 2006/05/26 18:24:40 gsfs Exp $
+%
+
+\newcommand{\bs  }{$\backslash\!$     }
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% definitions initiales
+\newcommand{\arw}{ $\rightarrow$ }
+\newcommand{\dg}{$^\circ$}
+\newcommand{\x}{$\times$}
+\newcommand{\tbox}[1]{\mbox{#1}}
+\newcommand{\LUMI}{$\mathcal{L}$}
+\newcommand{\lumi}[1]{$10^{#1} {\rm ~cm}^{-2}{\rm s}^{-1}$}
+\newcommand{\Lumi}[1]{$\mathcal{L}=10^{#1} {\rm ~cm}^{-2}{\rm s}^{-1}$}
+\newcommand{\sd}{\bfseries\itshape\large}
+\newcommand\ie {{\it i.e.}}
+\newcommand\eg {{\it e.g.}}
+\newcommand\etc{{\it etc.}}
+\newcommand\cf {{\it cf.}}
+\newcommand\etal {{\it et al.}}
+\newcommand{\be}{\begin{eqnarray}}
+\newcommand{\ee}{\end{eqnarray}}
+%\def\mupmum{\mu^+\mu^-}
+\def\mz{m_Z}
+\def\gev{\,{\rm GeV}}
+\def\tev{\,{\rm TeV}}
+\def\rts{{\sqrt s}}
+\def\gam{\gamma}
+\def\G{\gamma}
+\def\GG{\gamma\gamma}
+\def\EPEM{e^+e^-}
+\def\MUPM{\mu^+\mu^-}
+\def\A{\alpha}
+\def\ZA{Z\alpha}
+\def\BE{\begin{equation}}
+\def\EE{\end{equation}}
+\def\fbi{~{\rm fb}^{-1}}
+\def\lsim{\mathrel{\raise.3ex\hbox{$<$\kern-.75em\lower1ex\hbox{$\sim$}}}}
+\def\gsim{\mathrel{\raise.3ex\hbox{$>$\kern-.75em\lower1ex\hbox{$\sim$}}}}
+\def\to{\rightarrow}
+\def\la{\mathrel{\mathpalette\fun <}}
+\def\ga{\mathrel{\mathpalette\fun >}}
+\def\fun#1#2{\lower3.6pt\vbox{\baselineskip0pt\lineskip.9pt}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\makeatletter
+\def\lesssim{\mathrel{\mathpalette\vereq<}}
+\def\vereq#1#2{\lower3pt\vbox{\baselineskip1.5pt \lineskip1.5pt
+\ialign{$\m@th#1\hfill##\hfil$\crcr#2\crcr\sim\crcr}}}
+\def\gtrsim{\mathrel{\mathpalette\vereq>}}
+\makeatother
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Celles que j'ai definies ou re-utilisees
+%
+%\newcommand{\sigtot}{$\sigma^{\mathrm {tot}$}     % sigma_tot
+\def\sigtot{$\sigma^{\mathrm {tot}}$}     % sigma_tot
+%\newcommand{\sigabs}{$\sigma_{\mathrm {abs}}$}     % sigma_abs
+\def\sigabs{$\sigma^{\mathrm {abs}}$}
+\newcommand{\sigel}{$\sigma^{\mathrm {el}}$}     % sigma_el
+\newcommand{\siginel}{$\sigma^{\mathrm {inel}}$}     % sigma_in
+%
+\newcommand{\lgl}{$\langle$}
+\newcommand{\rgl}{$\rangle$}
+%
+\newcommand{\gamgam  }{$\gamma\gamma$}
+%\newcommand{\gam     }{$\gamma$ }
+\newcommand{\positon }{$e^+$}
+\newcommand{\electron}{$e^-$}
+\newcommand{\epem    }{$e^+e^-$}
+%
+\newcommand{\muon    }{$\mu$}
+\newcommand{\mumu    }{$\mu\mu$}
+\newcommand{\mup     }{$\mu^+$}
+\newcommand{\mum     }{$\mu^-$}
+\newcommand{\mupm    }{$\mu^{\pm}$}
+\newcommand{\mmpm    }{$\mu^+\mu^-$}
+\def\mupmum{\mu^+\mu^-}
+\newcommand{\mupmup  }{$\mu^+\mu^+$}
+\newcommand{\mummum  }{$\mu^-\mu^-$}
+\newcommand{\muo     }{$\mu^0$\ }
+%
+\newcommand{\w}{$W$\ }
+%
+\newcommand{\kaon  }{$K$}
+\newcommand{\ko    }{$K^0$}
+\newcommand{\kp    }{$K^+$}
+\newcommand{\km    }{$K^-$}
+\newcommand{\kpm   }{$K^{\pm}$}
+\newcommand{\pip   }{$\pi^+$}
+\newcommand{\pim   }{$\pi^-$}
+\newcommand{\pio   }{$\pi^0$}
+\newcommand{\pipm  }{$\pi^{\pm}$}
+%
+\newcommand{\jpsi}{$J/\psi$}
+\newcommand{\psip}{$\psi^{\prime}$}
+%
+\newcommand{\ups}{$\Upsilon$}
+\newcommand{\upsp}{$\Upsilon^{\prime}$}
+\newcommand{\upspp}{$\Upsilon^{\prime\prime}$}
+%
+\newcommand{\wpm  }{$W^{\pm}$}
+\newcommand{\zo   }{$Z^0$}
+%
+\newcommand{\ro    }{$\rho$}
+\newcommand{\omga  }{$\omega$}
+\newcommand{\ffi   }{${\it\Phi}$}
+\newcommand{\qqb   }{$q\overline q$}
+\newcommand{\ccb   }{$c\overline c$}
+\newcommand{\bbb   }{$b\overline b$}
+\newcommand{\ppb   }{$p\overline p$}
+%
+%                                                 systemes
+\newcommand{\pp}{p+p}           % pp
+\newcommand{\eecol}{e$^+$+e$^-$}           % pp
+\newcommand{\eA}{e+A}           % pp
+
+\newcommand{\pn}{p+n}           % pn
+\newcommand{\pd}{p+d}           % pd
+\newcommand{\pA}{p+A}           % pA
+\newcommand{\pca}{p+Ca}           % pA
+\newcommand{\pPb}{p+Pb}           % pPb
+\newcommand{\aacol}{A+A}                 % AA
+\newcommand{\pbpb}{Pb+Pb}           % PbPb
+\newcommand{\PbPb}{Pb+Pb}           % Pb+Pb
+\newcommand{\AuAu}{Au+Au}           % Au+Au
+\newcommand{\SnSn}{Sn+Sn}           % Sn+Sn
+\newcommand{\KrKr}{Kr+Kr}           % Kr+Kr
+\newcommand{\ArAr}{Ar+Ar}           % Ar+Ar
+\newcommand{\NbNb}{Nb+Nb}           % Nb+Nb
+\newcommand{\OO}{O+O}           % O + O
+%
+%                                                 baryons
+\newcommand{\p}{$p$}                              %
+\newcommand{\n}{$n$}                              %
+%
+%
+%
+%  dans les textes                                                 variables
+\newcommand{\ycms}{$y_{\rm c.m.s.}$}
+\newcommand{\ylab}{$y_{\rm lab}$}
+\newcommand{\etta}{$\eta$}
+\newcommand{\abseta}{$\vert\eta\vert$}
+\newcommand{\absetamu}{$\vert\eta_{\mu}\vert$}
+\newcommand{\dsigdt}{d$\sigma$/d$t$}
+\newcommand{\Ncol}{$N_{\rm col}$}                    %  dN/dy
+\newcommand{\dnchdy}{d$N$/d$y$}                    %  dN/dy
+\newcommand{\dnpmdy}{d$N^{\pm}$/d$y$}                    %  dN+-/dy
+\newcommand{\dndeta}{d$N$/d$\eta$}               % dN/deta
+\newcommand{\dEdy}{d$E$/d$y$}                    % dE/dy
+\newcommand{\dEdx}{d$E$/d$x$}                    % dE/dx
+\newcommand{\dedx}{{\rm d}E/{\rm d}x}          % dE/dx mod math
+\newcommand{\dEdeta}{d$E$/d$\eta$}                % dE/deta
+
+\newcommand{\sqrs}{$\sqrt{s}$}
+\newcommand{\Et}{$E_{\rm T}$}                    % E_T
+\newcommand{\pl}{$p_{\rm L}$}                    % p_T
+\newcommand{\pt}{$p_{\rm T}$}                    % p_T
+\newcommand{\pto}{$p_{\rm T}^0$}                    % p_T^0
+\newcommand{\ptmu}{$p_{\rm T}^{\mu}$}                    % p_T
+\newcommand{\po}{$p_\mathrm 0$}                    % p_0
+\newcommand{\plab}{$p_\mathrm {lab}$}                % p_Lab     %
+\newcommand{\ptcut}{$p_{\rm T}^{\rm cut}$}                % p T cut
+\newcommand{\ptmin}{$p_{\rm T}^{\rm min}$}                % p T cut
+\newcommand{\ptlin}{$p_{\rm T}^{\rm lin}$}                % p T cut
+%
+%                                                 decay
+%                                                 decay
+%                                                 unite
+\newcommand{\Gevc}{GeV/$c$}                      % GeV/c
+%
+%                                                 coordonnees
+\newcommand{\xcor}{$x$}
+\newcommand{\ycor}{$y$}
+\newcommand{\zcor}{$z$}
+\newcommand{\rcor}{$r$}
+\newcommand{\abz}{$\vert z\vert$}
+\newcommand{\fiangle}{$\varphi$}
+\newcommand{\tetangle}{$\theta$}
+\newcommand{\deltafi}{$\Delta\varphi$}
+%
+\newcommand{\micron}{$\mu$m}
+\newcommand{\diffd}{{\rm d}} % forme differentielle droite dans les formules math
+
+
+% Insert macros here
+\newcommand{\myZ}{\rm{Z}^0}
+\newcommand{\myW}{\rm{W}^\pm}
+\newcommand{\myJ}{J/\psi}
+\newcommand{\ET}{E_T}
+\newcommand{\pT}{p_T}
+\newcommand{\smallurl}[1]{{\small{\url{#1}}}}
+\newcommand{\dndy}{dN_{\rm ch}/d\eta}
+%\newcommand{\dnchdy}{\rm{dN}_{\rm ch}/\rm{d}\eta}
+\newcommand{\nch}{N_{\rm ch}}
+\newcommand{\deta}{\rm{d}\eta}
+\newcommand{\dNdeta}{dN_{\rm ch}/d\eta|_{\eta=0}}
+\newcommand{\dpT}{dp_T}
+\newcommand{\dphi}{d\phi}
+\newcommand{\evtAdigihits}{300051}
+\newcommand{\evtArechits}{70846}
+\newcommand{\eVperElectron}{3.7}
+\newcommand{\electronsPerADC}{135}
+\newcommand{\keVperTwoADCs}{1}
+\newcommand{\noiseThreshold}{3.7037}
+\newcommand{\pixelThresholdInNoiseUnits}{5}
+\newcommand{\pixelThresholdInADCcounts}{18}
+\newcommand{\seedThresholdInNoiseUnits}{6}
+\newcommand{\seedThresholdInADCcounts}{22}
+\newcommand{\clusterThresholdInNoiseUnits}{10.1}
+\newcommand{\clusterThresholdInADCcounts}{38}
+\newcommand{\tracks}{\texttt{tracks()}}
+\newcommand{\defaultfilter}{\texttt{SimpleCarfSimTrackFilter}}
+\newcommand{\trackerboundsradius}{\texttt{TrackerBounds::\-radius()}}
+\newcommand{\trackerboundshalflength}{\texttt{abs(TrackerBounds::\-halfLength())}}
+\newcommand{\openfiltertksimtrack}{\texttt{OpenFilter<TkSimTrack>}}
+
+
+
+
+
+
+
+
+
+
+

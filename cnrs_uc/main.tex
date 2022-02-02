@@ -1,0 +1,75 @@
+% including these three lines add line numbers to the draft.
+%\RequirePackage{lineno} \setlength{\linenumbersep}{6pt} \linenumbers
+
+\documentclass[11pt]{article}
+
+% To use the \includegraphics package we usually use:
+\usepackage{graphicx} %dblfloatfix}   % Include figure files
+\usepackage{subfigure}
+\usepackage{array}
+\usepackage{amsmath}
+\usepackage{multirow}
+\usepackage{cite}
+\usepackage{url}
+\usepackage{authblk}
+\usepackage[margin=1.5cm]{geometry}
+\usepackage{amssymb}																
+\usepackage{pstricks,pst-grad}							
+\usepackage{subfigure}								
+%\usepackage{lineno}							      
+%\linenumbers		
+
+
+\textheight = 43\baselineskip
+\advance\textheight by \topskip
+
+\input{abrev}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\headheight 15pt
+\usepackage{lastpage}
+\cfoot{\thepage\ }
+\renewcommand{\footrulewidth}{0pt}
+\renewcommand{\headrulewidth}{0pt}
+\setlength{\topmargin}{0in}
+
+\usepackage{paralist}
+\def\titlepage{\clearpage%
+\setcounter{footnote}{0}\pagestyle{empty}}
+
+\def\@makefnmark{\hbox{$^{\@thefnmark)}$}}
+\def\author#1{%% Treat the list of authors
+\setcounter{footnote}{0}\def\@currentlabel{}%
+\begingroup\def\thefootnote{\arabic{footnote}}
+\def\@makefnmark{\hbox{$^{\rm\@thefnmark)}$}}
+\global\@topnum\z@ \begin{center}{\lineskip.5em
+\begin{tabular}[t]{c}#1\end{tabular}\par}
+\end{center}\par\vskip1.5em\@thanks\endgroup}
+\newenvironment{Authlist}{\center}{\endcenter}
+
+\def\date#1{{\large\bf\hfill #1}}
+\def\title#1{\vskip1.5cm\begin{center}\huge\sf#1\end{center}\vskip1.5em}
+\providecommand{\fixme}[1]{{\sffamily{\bfseries{}FIXME:} #1}}
+\providecommand{\FIXME}[1]{{\sffamily{\bfseries{}FIXME:} #1}}
+
+%\singlespace
+%\date{\today}
+
+\pagestyle{fancy}
+\setcounter{page}{1}
+\pagenumbering{arabic}
+\begin{document}
+
+\input{frontPage}
+
+\pagestyle{fancy}
+\setcounter{page}{1}
+\pagenumbering{arabic}
+
+\input{partB}
+\input{partC}
+\newpage
+
+\end{document}
